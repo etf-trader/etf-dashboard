@@ -63,6 +63,8 @@ for i, sym in enumerate(tickers):
 weekly_ret = pd.Series(ret_map).sort_values()
 print(f"\n  {date_from} ~ {date_to}, {len(weekly_ret)}개 수익률 계산 완료")
 
+# NaN 제거 후 Top/Bottom 추출
+weekly_ret = weekly_ret.dropna()
 winners = weekly_ret.nlargest(TOP_N).sort_values()
 losers  = weekly_ret.nsmallest(TOP_N).sort_values(ascending=False)
 
@@ -152,7 +154,7 @@ payload = {
 # ─────────────────────────────────────────────
 # 5. index.html 생성 (데이터 embed)
 # ─────────────────────────────────────────────
-data_json = json.dumps(payload, ensure_ascii=False)
+data_json = json.dumps(payload, ensure_ascii=False, allow_nan=False)
 
 html = f"""<!DOCTYPE html>
 <html lang="ko">
