@@ -187,6 +187,11 @@ html = f"""<!DOCTYPE html>
   header span {{ font-size: 0.85rem; color: #888; margin-left: 12px; }}
 
   .charts-wrap {{ display: flex; gap: 16px; padding: 20px 24px; }}
+  @media (max-width: 768px) {{
+    .charts-wrap {{ flex-direction: column; }}
+    .chart-box h2 {{ font-size: 0.88rem; }}
+    header h1 {{ font-size: 1.05rem; }}
+  }}
   .chart-box {{ flex: 1; background: #16181f; border-radius: 10px; padding: 16px; }}
   .chart-box h2 {{ font-size: 0.95rem; font-weight: 600; margin-bottom: 10px; }}
   .chart-box h2.winner {{ color: #00c48c; }}
