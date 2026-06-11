@@ -35,19 +35,33 @@ theme_map = df.set_index('symbol')['theme'].to_dict()
 print(f"총 {len(tickers)}개 티커 로드")
 
 # ─────────────────────────────────────────────
-# 2. 주간 수익률 계산
+# 2. 주간 수익률 계산 (티커별 개별 다운로드)
 # ─────────────────────────────────────────────
 print("주간 수익률 다운로드 중...")
-raw   = yf.download(tickers, period='5d', interval='1d',
-                    auto_adjust=True, progress=False, threads=True)
-close = raw['Close'].dropna(how='all')
-valid = close.dropna(axis=1, thresh=2)
-weekly_ret = (valid.iloc[-1] / valid.iloc[0] - 1) * 100
-weekly_ret = weekly_ret.dropna().sort_values()
+import time
 
-date_from = close.index[0].strftime('%Y-%m-%d')
-date_to   = close.index[-1].strftime('%Y-%m-%d')
-print(f"  {date_from} ~ {date_to}, {len(weekly_ret)}개 수익률 계산 완료")
+ret_map   = {}
+date_from = None
+date_to   = None
+
+for i, sym in enumerate(tickers):
+    print(f"  [{i+1}/{len(tickers)}] {sym}", end='\r')
+    for attempt in range(3):   # 실패 시 최대 3회 재시도
+        try:
+            hist = yf.Ticker(sym).history(period='5d', interval='1d', auto_adjust=True)
+            if hist is None or len(hist) < 2:
+                break
+            ret = (hist['Close'].iloc[-1] / hist['Close'].iloc[0] - 1) * 100
+            ret_map[sym] = round(float(ret), 2)
+            if date_from is None:
+                date_from = hist.index[0].strftime('%Y-%m-%d')
+                date_to   = hist.index[-1].strftime('%Y-%m-%d')
+            break
+        except Exception:
+            time.sleep(1)
+
+weekly_ret = pd.Series(ret_map).sort_values()
+print(f"\n  {date_from} ~ {date_to}, {len(weekly_ret)}개 수익률 계산 완료")
 
 winners = weekly_ret.nlargest(TOP_N).sort_values()
 losers  = weekly_ret.nsmallest(TOP_N).sort_values(ascending=False)
