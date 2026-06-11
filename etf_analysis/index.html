@@ -104,9 +104,8 @@
         <h3 id="popSymbol"></h3>
         <p id="popName"></p>
         <div class="chips">
-          <div class="chip">테마 <span id="popTheme"></span></div>
+          <div class="chip">Theme <span id="popTheme"></span></div>
           <div class="chip">AUM <span id="popAum"></span></div>
-          <div class="chip">보수율 <span id="popExpense"></span></div>
         </div>
       </div>
       <div style="display:flex;align-items:center;gap:12px">
@@ -116,18 +115,18 @@
     </div>
 
     <div class="tabs">
-      <button class="tab active" onclick="switchTab(0)">가격 차트</button>
-      <button class="tab"        onclick="switchTab(1)">보유 종목 Top 10</button>
+      <button class="tab active" onclick="switchTab(0)">Price Chart</button>
+      <button class="tab"        onclick="switchTab(1)">Top Holdings</button>
     </div>
 
     <div class="tab-content active" id="tab0">
       <div style="display:flex;gap:8px;margin-bottom:10px">
         <button onclick="renderChart('daily')"  id="btnDaily"
           style="padding:4px 14px;border-radius:5px;border:1px solid #3a6fff;
-                 background:#3a6fff;color:#fff;cursor:pointer;font-size:0.82rem">일봉</button>
+                 background:#3a6fff;color:#fff;cursor:pointer;font-size:0.82rem">Daily</button>
         <button onclick="renderChart('weekly')" id="btnWeekly"
           style="padding:4px 14px;border-radius:5px;border:1px solid #444;
-                 background:none;color:#aaa;cursor:pointer;font-size:0.82rem">주봉</button>
+                 background:none;color:#aaa;cursor:pointer;font-size:0.82rem">Weekly</button>
       </div>
       <div id="priceChart" style="height:340px"></div>
     </div>
@@ -195,9 +194,6 @@ function openModal(sym) {
   document.getElementById('popTheme').textContent   = d.theme || '-';
   document.getElementById('popAum').textContent     =
     d.aum ? '$' + (d.aum / 1e9).toFixed(1) + 'B' : '-';
-  document.getElementById('popExpense').textContent =
-    d.expense ? (d.expense * 100).toFixed(2) + '%' : '-';
-
   const retEl = document.getElementById('popRet');
   retEl.textContent = (d.weekly_ret >= 0 ? '+' : '') + d.weekly_ret + '%';
   retEl.className   = 'ret ' + (d.weekly_ret >= 0 ? 'pos' : 'neg');
@@ -235,7 +231,7 @@ function renderChart(mode) {
 
   if (!src || !src.dates || src.dates.length === 0) {
     document.getElementById('priceChart').innerHTML =
-      '<p class="no-data">데이터 없음</p>';
+      '<p class="no-data">No data available</p>';
     return;
   }
 
@@ -256,15 +252,15 @@ function renderHoldings() {
   const holdings = DATA.detail[currentSym]?.holdings || [];
   const wrap     = document.getElementById('holdingsWrap');
   if (holdings.length === 0) {
-    wrap.innerHTML = '<p class="no-data">보유 종목 데이터를 가져오지 못했습니다.</p>';
+    wrap.innerHTML = '<p class="no-data">Holdings data not available.</p>';
     return;
   }
   const maxW = Math.max(...holdings.map(h => h.weight));
   wrap.innerHTML = `
     <table class="holdings-table">
       <thead><tr>
-        <th>#</th><th>심볼</th><th>종목명</th>
-        <th style="text-align:right">비중</th>
+        <th>#</th><th>Symbol</th><th>Name</th>
+        <th style="text-align:right">Weight</th>
       </tr></thead>
       <tbody>
         ${holdings.map((h, i) => `
