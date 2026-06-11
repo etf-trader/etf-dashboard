@@ -1,34 +1,51 @@
 ﻿theme,symbol,name,aum,family,category
-5G,WUGI,Esoterica NextG Economy ETF,,Esoterica Capital,Technology
-AI,AIEQ,AI Powered Equity ETF,,Equbot,Factors
-Aerospace,IMSXF,iShares V Public Limited Company - iShares S&P 500 Industrials Sector UCITS ETF,,BlackRock Asset Management,Value
-Aging,AGNG,Global X Aging Population ETF,,Global X Funds,Developed Markets
-Automation,IIVPF,iShares IV Public Limited Company - iShares Automation & Robotics UCITS ETF,,BlackRock Asset Management,Growth
-Autonomous,ARKQ,ARK Autonomous Technology & Robotics ETF,,ARK ETF Trust,Technology
-Battery,BATT,Amplify Lithium & Battery Technology ETF,,Amplify ETFs,
-Big,AIQ,Global X Artificial Intelligence & Technology ETF,,Global X Funds,Technology
-Blockchain,BITQ,Exchange Traded Concepts Trust - Bitwise Crypto Industry Innovators ETF,,Exchange Traded Concepts,Technology
-Cannabis,CNBS,Amplify Seymour Cannabis ETF,,Amplify ETFs,Developed Markets
-Care,PAWZ,ProShares Pet Care ETF,,ProShares,Developed Markets
-Center,VPN,Global X Data Center REITs & Digital Infrastructure ETF,,Global X Funds,REITs
-Clean,ACES,ALPS Clean Energy ETF,,ALPS ETF Trust,Energy
-Cloud,CLOU,Global X Cloud Computing ETF Global X Cloud Computing ETF,,Global X Funds,Technology
-Cybersecurity,BUG,Global X Cybersecurity ETF,,Global X Funds,Technology
-Defense,HACK,ETFMG Prime Cyber Security ETF,,ETF Management,Technology
-E-Commerce,CLIX,ProShares Long Online/Short Stores ETF,,ProShares,Equities
-Electric,DRIV,Global X Autonomous & Electric Vehicles ETF,,Global X Funds,Developed Markets
-Esports,ESPO,VanEck Vectors Video Gaming and eSports ETF,,VanEck Asset Management,Technology
-Fintech,ARKF,ARK Fintech Innovation ETF,,ARK ETF Trust,Technology
-Gaming,BETZ,Roundhill Sports Betting & iGaming ETF,,Roundhill Investments,Consumer Discretionary
-Genomics,ARKG,ARK Genomic Revolution ETF,,ARK ETF Trust,Health Care
-Healthcare,DTEC,ALPS Disruptive Technologies ETF,,ALPS ETF Trust,Technology
-Infrastructure,GII,SPDR S&P Global Infrastructure ETF,,State Street Global Advisors,Utilities
-Military,PPA,Invesco Aerospace & Defense ETF,,Invesco Investment Management,Mid Cap
-Nuclear,NLR,VanEck Vectors Uranium+Nuclear Energy ETF,,VanEck Asset Management,Developed Markets
-Satellite,UFO,Procure Space ETF,,Procure ETF Trust,
-Semiconductor,FTXL,First Trust Nasdaq Semiconductor ETF,,First Trust Advisors,Technology
-Solar,TAN,Invesco Solar ETF,,Invesco Investment Management,Developed Markets
-Space,ARKX,ARK Space Exploration & Innovation ETF,,ARK ETF Trust,
-Telecom,IYZ,iShares U.S. Telecommunications ETF,,BlackRock Asset Management,Communications
-Water,AQWA,Global X Clean Water ETF,,Global X Funds,Materials
-Wind,FAN,First Trust Global Wind Energy ETF,,First Trust Advisors,Developed Markets
+5G,FIVG,Defiance 5G Next Gen Connectivity ETF,598189312.0,Defiance ETFs,Developed Markets
+AI,AIQ,Global X Artificial Intelligence & Technology ETF,10853201920.0,Global X Funds,Technology
+Aerospace,XLI,Industrial Select Sector SPDR Fund,30217220096.0,State Street Global Advisors,Industrials
+Aging,AGNG,Global X Aging Population ETF,81823488.0,Global X Funds,Developed Markets
+Automation,KOMP,SPDR S&P Kensho New Economies Composite ETF,2966244608.0,State Street Global Advisors,Growth
+Autonomous,ARKQ,ARK Autonomous Technology & Robotics ETF,2405846528.0,ARK ETF Trust,Technology
+Battery,BATT,Amplify Lithium & Battery Technology ETF,140459696.0,Amplify ETFs,
+Big,AIQ,Global X Artificial Intelligence & Technology ETF,10853201920.0,Global X Funds,Technology
+Biotech,XLV,Health Care Select Sector SPDR Fund,38248288256.0,State Street Global Advisors,Health Care
+Blockchain,BITQ,Exchange Traded Concepts Trust - Bitwise Crypto Industry Innovators ETF,501560608.0,Exchange Traded Concepts,
+Cannabis,MSOS,AdvisorShares Pure US Cannabis ETF,1020059200.0,AdvisorShares,Developed Markets
+Care,PAWZ,ProShares Pet Care ETF,32452444.0,ProShares,Developed Markets
+Center,VPN,Global X Data Center REITs & Digital Infrastructure ETF,62260696.0,Global X Funds,REITs
+Clean,EMLP,First Trust North American Energy Infrastructure Fund,3934600192.0,First Trust Advisors,Energy
+Cloud,SKYY,First Trust Cloud Computing ETF,3063715328.0,First Trust Advisors,Technology
+Computing,SKYY,First Trust Cloud Computing ETF,3063715328.0,First Trust Advisors,Technology
+Cryptocurrency,BITQ,Exchange Traded Concepts Trust - Bitwise Crypto Industry Innovators ETF,501560608.0,Exchange Traded Concepts,
+Cybersecurity,CIBR,First Trust NASDAQ Cybersecurity ETF,13681273856.0,First Trust Advisors,Technology
+Data,AIQ,Global X Artificial Intelligence & Technology ETF,10853201920.0,Global X Funds,Technology
+Defense,XLI,Industrial Select Sector SPDR Fund,30217220096.0,State Street Global Advisors,Industrials
+Digital,EDOC,Global X Telemedicine & Digital Health ETF,34046308.0,Global X Funds,Health Care
+E-Commerce,IBUY,Amplify Online Retail ETF,117876448.0,Amplify ETFs,Consumer Discretionary
+Electric,DRIV,Global X Autonomous & Electric Vehicles ETF,477052832.0,Global X Funds,Developed Markets
+Energy,URA,Global X Uranium ETF,7063491584.0,Global X Funds,Developed Markets
+Esports,ESPO,VanEck Vectors Video Gaming and eSports ETF,241256064.0,VanEck Asset Management,Technology
+Fintech,TECB,iShares U.S. Tech Breakthrough Multisector ETF,495259648.0,BlackRock Asset Management,Developed Markets
+Gaming,ESPO,VanEck Vectors Video Gaming and eSports ETF,241256064.0,VanEck Asset Management,Technology
+Genomics,ARKG,ARK Genomic Revolution ETF,1306909696.0,ARK ETF Trust,Health Care
+Health,EDOC,Global X Telemedicine & Digital Health ETF,34046308.0,Global X Funds,Health Care
+Healthcare,DTEC,ALPS Disruptive Technologies ETF,74424080.0,ALPS ETF Trust,Technology
+Infrastructure,PAVE,Global X U.S. Infrastructure Development ETF,13540407296.0,Global X Funds,
+Innovation,ARKK,ARK Innovation ETF,7262198784.0,ARK ETF Trust,Factors
+IoT,XLV,Health Care Select Sector SPDR Fund,38248288256.0,State Street Global Advisors,Health Care
+Learning,QTUM,Defiance Quantum ETF,5701532672.0,Defiance ETFs,Technology
+Lithium,LIT,Global X Lithium & Battery Tech ETF,2238539008.0,Global X Funds,Materials
+Machine,QTUM,Defiance Quantum ETF,5701532672.0,Defiance ETFs,Technology
+Military,PPA,Invesco Aerospace & Defense ETF,8374877184.0,Invesco Investment Management,Mid Cap
+Nuclear,URA,Global X Uranium ETF,7063491584.0,Global X Funds,Developed Markets
+Pet,PAWZ,ProShares Pet Care ETF,32452444.0,ProShares,Developed Markets
+Population,AGNG,Global X Aging Population ETF,81823488.0,Global X Funds,Developed Markets
+Robotics,BOTZ,Global X Robotics & Artificial Intelligence ETF,3743227648.0,Global X Funds,Developed Markets
+Satellite,UFO,Procure Space ETF,1321313024.0,Procure ETF Trust,
+Semiconductor,SMH,VanEck Vectors Semiconductor ETF,67822489600.0,VanEck Asset Management,Technology
+Solar,TAN,Invesco Solar ETF,2292250112.0,Invesco Investment Management,Developed Markets
+Space,ARKX,ARK Space Exploration & Innovation ETF,1110362624.0,ARK ETF Trust,
+Telecom,TDIV,First Trust NASDAQ Technology Dividend Index Fund,4663850496.0,First Trust Advisors,Growth
+Vehicle,ARKQ,ARK Autonomous Technology & Robotics ETF,2405846528.0,ARK ETF Trust,Technology
+Water,ITEQ,BlueStar Israel Technology ETF,123561656.0,Exchange Traded Concepts,Emerging Markets
+Wind,FAN,First Trust Global Wind Energy ETF,319683360.0,First Trust Advisors,Developed Markets
+|,XLV,Health Care Select Sector SPDR Fund,38248288256.0,State Street Global Advisors,Health Care

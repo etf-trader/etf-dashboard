@@ -1,19 +1,34 @@
-name: ETF Dashboard Deploy
+name: Weekly ETF Dashboard Update
 
 on:
-  push:
-    paths:
-      - 'etf_analysis/index.html'   # index.html 푸시될 때만 실행
-  workflow_dispatch:
+  schedule:
+    - cron: '0 21 * * *'   # 매일 오전 6시 KST (= 전날 21:00 UTC)
+  workflow_dispatch:        # 수동 실행 버튼도 활성화
 
 jobs:
-  deploy:
+  update:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Verify index.html exists
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run weekly update
+        run: python thematic_etf_weekly.py
+
+      - name: Commit & push updated HTML
         run: |
-          ls -lh etf_analysis/index.html
-          echo "✓ index.html 확인 완료"
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add etf_analysis/index.html
+          git diff --cached --quiet || git commit -m "chore: weekly ETF dashboard update $(date +'%Y-%m-%d')"
+          git push
