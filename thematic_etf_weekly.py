@@ -417,9 +417,9 @@ html = f"""<!DOCTYPE html>
 const DATA = {data_json};
 let currentSym    = null;
 let currentMode   = 'daily';
-let currentPeriod = '1W';
+let currentPeriod = '1D';
 
-document.getElementById('dateRange').textContent = DATA.date_1w;
+document.getElementById('dateRange').textContent = DATA.date_1d;
 
 function switchPeriod(p) {{
   currentPeriod = p;
@@ -446,6 +446,7 @@ function renderSector(data) {{
   const labels  = sorted.map(d => d.name + '  (' + d.sym + ')');
   const returns = sorted.map(d => d.ret);
 
+  Plotly.purge('chartSector');
   Plotly.newPlot('chartSector', [{{
     type: 'bar', orientation: 'h',
     x: returns, y: labels,
@@ -460,7 +461,7 @@ function renderSector(data) {{
     ...baseLayout,
     height: sorted.length * 30 + 60,
     dragmode: false,
-    xaxis: {{ ...baseLayout.xaxis, ticksuffix: '%' }},
+    xaxis: {{ ...baseLayout.xaxis, ticksuffix: '%', type: 'linear' }},
     yaxis: {{ ...baseLayout.yaxis, automargin: true }},
   }}, cfg);
 
@@ -487,6 +488,7 @@ function renderBar(divId, data) {{
     return short + '  (' + s + ')';
   }});
 
+  Plotly.purge(divId);
   Plotly.newPlot(divId, [{{
     type: 'bar', orientation: 'h',
     x: data.returns, y: labels,
@@ -501,7 +503,7 @@ function renderBar(divId, data) {{
     ...baseLayout,
     height: {TOP_N} * 30 + 60,
     dragmode: false,
-    xaxis: {{ ...baseLayout.xaxis, ticksuffix: '%' }},
+    xaxis: {{ ...baseLayout.xaxis, ticksuffix: '%', type: 'linear' }},
     yaxis: {{ ...baseLayout.yaxis, automargin: true }},
   }}, cfg);
 
@@ -510,9 +512,9 @@ function renderBar(divId, data) {{
   }});
 }}
 
-renderBar('chartWinner', DATA.winners_1w);
-renderBar('chartLoser',  DATA.losers_1w);
-renderSector(DATA.sector_1w);
+renderBar('chartWinner', DATA.winners_1d);
+renderBar('chartLoser',  DATA.losers_1d);
+renderSector(DATA.sector_1d);
 
 function openModal(sym) {{
   currentSym  = sym;
