@@ -28,6 +28,13 @@ DAILY_DAYS  = '3mo'
 WEEKLY_DAYS = '1y'
 
 SECTOR_TICKERS = ['SPY', 'XLB', 'XLC', 'XLE', 'XLF', 'XLI', 'XLK', 'XLP', 'XLU', 'XLV', 'XLY', 'XLRE']
+
+RRG_TICKERS    = ['XLB', 'XLC', 'XLE', 'XLF', 'XLI', 'XLK', 'XLP', 'XLU', 'XLV', 'XLY', 'XLRE']
+RRG_BENCHMARK  = '^SPX'
+RRG_DAYS       = 360
+RRG_PERIOD     = 5
+RRG_WINDOW     = 14
+RRG_TAIL       = 7
 SECTOR_NAMES = {
     'SPY':  'S&P 500',
     'XLB':  'Materials',
@@ -136,6 +143,76 @@ ret_1d.update(sector_1d)
 ret_1w.update(sector_1w)
 
 # ─────────────────────────────────────────────
+# 2-2. RRG 데이터 계산
+# ─────────────────────────────────────────────
+import datetime
+print("RRG 데이터 계산 중...")
+
+from_date = datetime.datetime.today() - datetime.timedelta(days=RRG_DAYS)
+to_date   = datetime.datetime.today()
+
+rrg_price     = yf.download(RRG_TICKERS,   start=from_date, end=to_date, auto_adjust=True, progress=False)['Close']
+rrg_benchmark = yf.download(RRG_BENCHMARK, start=from_date, end=to_date, auto_adjust=True, progress=False)['Close']
+
+# 공통 인덱스 정렬
+common_idx    = rrg_price.index.intersection(rrg_benchmark.index)
+rrg_price     = rrg_price.loc[common_idx]
+rrg_benchmark = rrg_benchmark.loc[common_idx]
+if isinstance(rrg_benchmark, pd.DataFrame):
+    rrg_benchmark = rrg_benchmark.iloc[:, 0]
+
+# period 간격 리샘플링
+def resample_by_period(df, p):
+    rev = df.iloc[::-1]
+    return rev.iloc[::p].iloc[::-1]
+
+rp = resample_by_period(rrg_price,     RRG_PERIOD)
+rb = resample_by_period(rrg_benchmark, RRG_PERIOD)
+if isinstance(rp, pd.Series):
+    rp = rp.to_frame()
+
+rrg_traces = []
+for ticker in RRG_TICKERS:
+    if ticker not in rp.columns:
+        continue
+    rs  = 100 * (rp[ticker] / rb)
+    rsr = (100 + (rs - rs.rolling(window=RRG_WINDOW).mean()) /
+           rs.rolling(window=RRG_WINDOW).std(ddof=0)).dropna()
+    if len(rsr) < 2:
+        continue
+    rsr_roc = 100 * ((rsr / rsr.iloc[0]) - 1)
+    rsm = (101 + ((rsr_roc - rsr_roc.rolling(window=RRG_WINDOW).mean()) /
+                  rsr_roc.rolling(window=RRG_WINDOW).std(ddof=0))).dropna()
+    if len(rsm) < 2:
+        continue
+    rsr = rsr[rsr.index.isin(rsm.index)].iloc[-RRG_TAIL:]
+    rsm = rsm[rsm.index.isin(rsr.index)].iloc[-RRG_TAIL:]
+    if len(rsr) == 0:
+        continue
+
+    def get_quadrant(x, y):
+        if x >= 100 and y >= 100: return 'leading'
+        if x <  100 and y >= 100: return 'improving'
+        if x >= 100 and y <  100: return 'weakening'
+        return 'lagging'
+
+    color_map = {'leading':'#00c48c','improving':'#3a6fff','weakening':'#f5a623','lagging':'#ff4d6d'}
+    quad  = get_quadrant(float(rsr.iloc[-1]), float(rsm.iloc[-1]))
+    color = color_map[quad]
+
+    rrg_traces.append({
+        'ticker':  ticker,
+        'name':    SECTOR_NAMES.get(ticker, ticker),
+        'x':       [round(v, 4) for v in rsr.tolist()],
+        'y':       [round(v, 4) for v in rsm.tolist()],
+        'dates':   rsr.index.strftime('%Y-%m-%d').tolist(),
+        'color':   color,
+        'quad':    quad,
+    })
+
+print(f"  RRG 계산 완료: {len(rrg_traces)}개 티커")
+
+# ─────────────────────────────────────────────
 # 3. 팝업용 상세 데이터 수집 (winners + losers 전체)
 # ─────────────────────────────────────────────
 all_syms = list(dict.fromkeys(
@@ -234,6 +311,7 @@ payload = {
     'sector_1d':  make_sector_data(sector_1d),
     'sector_1w':  make_sector_data(sector_1w),
     'detail':     detail,
+    'rrg':        rrg_traces,
 }
 
 # None은 null로, NaN/Inf는 0으로 변환
@@ -370,6 +448,22 @@ html = f"""<!DOCTYPE html>
   <div class="chart-box">
     <h2 class="loser">📉 Thematic ETF — Bottom {TOP_N}</h2>
     <div id="chartLoser"></div>
+  </div>
+</div>
+
+<div style="padding: 0 24px 20px;">
+  <div style="background:#16181f;border-radius:10px;padding:16px;">
+    <h2 style="font-size:0.95rem;font-weight:600;color:#a0aec0;margin-bottom:4px;">
+      🔄 Relative Rotation Graph
+    </h2>
+    <p style="font-size:0.75rem;color:#555;margin-bottom:10px;">
+      vs S&P 500 &nbsp;·&nbsp;
+      <span style="color:#00c48c">■ Leading</span> &nbsp;
+      <span style="color:#3a6fff">■ Improving</span> &nbsp;
+      <span style="color:#f5a623">■ Weakening</span> &nbsp;
+      <span style="color:#ff4d6d">■ Lagging</span>
+    </p>
+    <div id="chartRRG"></div>
   </div>
 </div>
 
@@ -615,6 +709,92 @@ function renderHoldings() {{
 document.addEventListener('keydown', e => {{
   if (e.key === 'Escape') document.getElementById('overlay').classList.remove('open');
 }});
+
+// ── RRG ─────────────────────────────────────
+function renderRRG() {{
+  const traces = DATA.rrg;
+  if (!traces || traces.length === 0) return;
+
+  const plotTraces = [];
+
+  traces.forEach(t => {{
+    // 궤적 선
+    plotTraces.push({{
+      type: 'scatter', mode: 'lines',
+      x: t.x, y: t.y,
+      line: {{ color: t.color, width: 1.5 }},
+      showlegend: false,
+      hoverinfo: 'skip',
+    }});
+
+    // 중간 점
+    if (t.x.length > 2) {{
+      plotTraces.push({{
+        type: 'scatter', mode: 'markers',
+        x: t.x.slice(1, -1), y: t.y.slice(1, -1),
+        marker: {{ color: t.color, size: 5, symbol: 'circle' }},
+        showlegend: false,
+        hoverinfo: 'skip',
+      }});
+    }}
+
+    // 끝점 (라벨 포함)
+    plotTraces.push({{
+      type: 'scatter', mode: 'markers+text',
+      x: [t.x[t.x.length - 1]],
+      y: [t.y[t.y.length - 1]],
+      marker: {{ color: t.color, size: 12, symbol: 'square' }},
+      text: [t.name + ' (' + t.ticker + ')'],
+      textposition: 'top center',
+      textfont: {{ color: '#ffffff', size: 10 }},
+      name: t.name,
+      showlegend: false,
+      hovertemplate: '<b>' + t.name + ' (' + t.ticker + ')</b><br>' +
+                     'RSR: %{{x:.2f}}<br>RSM: %{{y:.2f}}<extra></extra>',
+    }});
+  }});
+
+  // 사분면 배경
+  const allX = traces.flatMap(t => t.x);
+  const allY = traces.flatMap(t => t.y);
+  const xPad = (Math.max(...allX) - Math.min(...allX)) * 0.1 || 2;
+  const yPad = (Math.max(...allY) - Math.min(...allY)) * 0.1 || 2;
+  const xMin = Math.min(...allX) - xPad;
+  const xMax = Math.max(...allX) + xPad;
+  const yMin = Math.min(...allY) - yPad;
+  const yMax = Math.max(...allY) + yPad;
+
+  const shapes = [
+    {{ type:'rect', x0:xMin, x1:100, y0:100,  y1:yMax,  fillcolor:'rgba(58,111,255,0.08)',  line:{{width:0}} }},
+    {{ type:'rect', x0:100,  x1:xMax, y0:100, y1:yMax,  fillcolor:'rgba(0,196,140,0.08)',   line:{{width:0}} }},
+    {{ type:'rect', x0:100,  x1:xMax, y0:yMin, y1:100,  fillcolor:'rgba(245,166,35,0.08)',  line:{{width:0}} }},
+    {{ type:'rect', x0:xMin, x1:100, y0:yMin,  y1:100,  fillcolor:'rgba(255,77,109,0.08)',  line:{{width:0}} }},
+    {{ type:'line', x0:100, x1:100, y0:yMin, y1:yMax, line:{{color:'#444',width:1,dash:'dash'}} }},
+    {{ type:'line', x0:xMin, x1:xMax, y0:100, y1:100, line:{{color:'#444',width:1,dash:'dash'}} }},
+  ];
+
+  const annotations = [
+    {{ x:(xMin+100)/2, y:yMax-yPad*0.3, text:'Improving', showarrow:false, font:{{color:'#3a6fff',size:11}} }},
+    {{ x:(100+xMax)/2, y:yMax-yPad*0.3, text:'Leading',   showarrow:false, font:{{color:'#00c48c',size:11}} }},
+    {{ x:(100+xMax)/2, y:yMin+yPad*0.3, text:'Weakening', showarrow:false, font:{{color:'#f5a623',size:11}} }},
+    {{ x:(xMin+100)/2, y:yMin+yPad*0.3, text:'Lagging',   showarrow:false, font:{{color:'#ff4d6d',size:11}} }},
+  ];
+
+  Plotly.purge('chartRRG');
+  Plotly.newPlot('chartRRG', plotTraces, {{
+    paper_bgcolor: 'transparent',
+    plot_bgcolor:  '#0f1117',
+    height: 520,
+    margin: {{ t:10, b:50, l:60, r:20 }},
+    font:   {{ color:'#aaa', size:11 }},
+    xaxis:  {{ title:'Relative Strength Ratio',    gridcolor:'#1e2030', zeroline:false, range:[xMin,xMax] }},
+    yaxis:  {{ title:'Relative Strength Momentum', gridcolor:'#1e2030', zeroline:false, range:[yMin,yMax] }},
+    shapes, annotations,
+    dragmode: false,
+  }}, cfg);
+}}
+
+renderRRG();
 </script>
 </body>
 </html>"""
