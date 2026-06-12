@@ -332,7 +332,8 @@ const baseLayout = {{
 const cfg = {{ displayModeBar: false, responsive: true, scrollZoom: false }};
 
 function renderBar(divId, data) {
-  const isMobile = window.innerWidth <= 768;
+  // f-string 에러를 방지하기 위해 최신 미디어쿼리 매칭 방식으로 변경
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
   const maxLen   = isMobile ? 14 : 30;
   const labels = data.symbols.map((s, i) => {
     const n = data.names[i] || s;
@@ -346,21 +347,20 @@ function renderBar(divId, data) {
     marker: { color: data.returns.map(v => v >= 0 ? '#00c48c' : '#ff4d6d') },
     text: data.returns.map(v => (v >= 0 ? '+' : '') + v.toFixed(2) + '%'),
     
-    // ─── [핵심 수정 부분] 막대 내부에 글자 겹치기 ───
-    textposition: 'inside',       // 텍스트를 무조건 막대 안쪽(겹치게) 배치
-    insidetextanchor: 'end',      // 막대 끝부분(기둥 바깥쪽 경계선 안)에 정렬 ('start'로 바꾸면 Y축 근처에 정렬됨)
+    // 막대 내부에 글자 겹치기
+    textposition: 'inside',       
+    insidetextanchor: 'end',      
     insidetextfont: {
-      color: '#ffffff',           // 어두운 테마 막대 위에서 잘 보이도록 흰색 글씨 추천
+      color: '#ffffff',           
       size: 11,
       weight: 'bold'
     },
-    // ───────────────────────────────────────────────
 
     hovertemplate: '<b>%{y}</b><br>%{x:.2f}%<extra></extra>',
     customdata: data.symbols,
   }], {
     ...baseLayout,
-    height: {TOP_N} * 44 + 60,    // 막대와 글자가 합쳐지므로 기존의 컴팩트한 높이로 원복
+    height: {TOP_N} * 44 + 60,    
     dragmode: false,
     xaxis: { ...baseLayout.xaxis, ticksuffix: '%' },
     yaxis: { ...baseLayout.yaxis, automargin: true },
