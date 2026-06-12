@@ -37,13 +37,14 @@ theme_map = df.set_index('symbol')['theme'].to_dict()
 print(f"총 {len(tickers)}개 티커 로드")
 
 # ─────────────────────────────────────────────
-# 2. 주간 수익률 계산 (티커별 개별 다운로드)
+# 2. 수익률 계산 (1D / 1W 모두)
 # ─────────────────────────────────────────────
-print("주간 수익률 다운로드 중...")
+print("수익률 다운로드 중...")
 
-ret_map   = {}
-date_from = None
-date_to   = None
+ret_1d = {}
+ret_1w = {}
+date_1d_from = date_1d_to = None
+date_1w_from = date_1w_to = None
 
 for i, sym in enumerate(tickers):
     print(f"  [{i+1}/{len(tickers)}] {sym}", end='\r')
@@ -55,28 +56,43 @@ for i, sym in enumerate(tickers):
             hist = hist.dropna(subset=['Close'])
             if len(hist) < 2:
                 break
-            # 최근 5 거래일 기준 수익률 계산
+
+            # 1D: 전일 대비 당일
+            r1d = (hist['Close'].iloc[-1] / hist['Close'].iloc[-2] - 1) * 100
+            if not math.isnan(float(r1d)):
+                ret_1d[sym] = round(float(r1d), 2)
+            if date_1d_from is None:
+                date_1d_from = hist.index[-2].strftime('%Y-%m-%d')
+                date_1d_to   = hist.index[-1].strftime('%Y-%m-%d')
+
+            # 1W: 최근 5 거래일
             hist_week = hist.tail(5)
-            ret = (hist_week['Close'].iloc[-1] / hist_week['Close'].iloc[0] - 1) * 100
-            if not math.isnan(float(ret)):
-                ret_map[sym] = round(float(ret), 2)
-            if date_from is None:
-                date_from = hist_week.index[0].strftime('%Y-%m-%d')
-                date_to   = hist_week.index[-1].strftime('%Y-%m-%d')
+            r1w = (hist_week['Close'].iloc[-1] / hist_week['Close'].iloc[0] - 1) * 100
+            if not math.isnan(float(r1w)):
+                ret_1w[sym] = round(float(r1w), 2)
+            if date_1w_from is None:
+                date_1w_from = hist_week.index[0].strftime('%Y-%m-%d')
+                date_1w_to   = hist_week.index[-1].strftime('%Y-%m-%d')
             break
         except Exception:
             time.sleep(1)
 
-weekly_ret = pd.Series(ret_map).sort_values()
-print(f"\n  {date_from} ~ {date_to}, {len(weekly_ret)}개 수익률 계산 완료")
+ret_1d_series = pd.Series(ret_1d).sort_values()
+ret_1w_series = pd.Series(ret_1w).sort_values()
+print(f"\n  1D: {len(ret_1d_series)}개 / 1W: {len(ret_1w_series)}개 수익률 계산 완료")
 
-winners = weekly_ret.nlargest(TOP_N).sort_values()
-losers  = weekly_ret.nsmallest(TOP_N).sort_values(ascending=False)
+winners_1d = ret_1d_series.nlargest(TOP_N).sort_values()
+losers_1d  = ret_1d_series.nsmallest(TOP_N).sort_values(ascending=False)
+winners_1w = ret_1w_series.nlargest(TOP_N).sort_values()
+losers_1w  = ret_1w_series.nsmallest(TOP_N).sort_values(ascending=False)
 
 # ─────────────────────────────────────────────
 # 3. 팝업용 상세 데이터 수집 (winners + losers 전체)
 # ─────────────────────────────────────────────
-all_syms = list(dict.fromkeys(winners.index.tolist() + losers.index.tolist()))
+all_syms = list(dict.fromkeys(
+    winners_1d.index.tolist() + losers_1d.index.tolist() +
+    winners_1w.index.tolist() + losers_1w.index.tolist()
+))
 detail   = {}
 
 print(f"상세 데이터 수집 중 ({len(all_syms)}개)...")
@@ -122,7 +138,8 @@ for i, sym in enumerate(all_syms):
             'theme':      theme_map.get(sym, ''),
             'aum':        info.get('totalAssets'),
             'expense':    info.get('annualReportExpenseRatio'),
-            'weekly_ret': ret_map.get(sym, 0),
+            'ret_1d': ret_1d.get(sym, 0),
+            'ret_1w': ret_1w.get(sym, 0),
             'daily':      daily_data,
             'weekly':     weekly_data,
             'holdings':   holdings,
@@ -132,7 +149,8 @@ for i, sym in enumerate(all_syms):
         detail[sym] = {
             'name':       name_map.get(sym, sym),
             'theme':      theme_map.get(sym, ''),
-            'weekly_ret': ret_map.get(sym, 0),
+            'ret_1d': ret_1d.get(sym, 0),
+            'ret_1w': ret_1w.get(sym, 0),
             'daily': {}, 'weekly': {}, 'holdings': [],
         }
 
@@ -149,9 +167,12 @@ def make_bar_data(series):
     }
 
 payload = {
-    'date_range': f'{date_from} ~ {date_to}',
-    'winners':    make_bar_data(winners),
-    'losers':     make_bar_data(losers),
+    'date_1d':    f'{date_1d_from} ~ {date_1d_to}',
+    'date_1w':    f'{date_1w_from} ~ {date_1w_to}',
+    'winners_1d': make_bar_data(winners_1d),
+    'losers_1d':  make_bar_data(losers_1d),
+    'winners_1w': make_bar_data(winners_1w),
+    'losers_1w':  make_bar_data(losers_1w),
     'detail':     detail,
 }
 
@@ -262,6 +283,14 @@ html = f"""<!DOCTYPE html>
 <header>
   <h1>📊 Thematic ETF Weekly Dashboard</h1>
   <span id="dateRange"></span>
+  <div style="margin-top:10px;display:flex;gap:8px;">
+    <button id="btn1D" onclick="switchPeriod('1D')"
+      style="padding:5px 16px;border-radius:6px;border:1px solid #3a6fff;
+             background:#3a6fff;color:#fff;cursor:pointer;font-size:0.85rem;font-weight:600">1D</button>
+    <button id="btn1W" onclick="switchPeriod('1W')"
+      style="padding:5px 16px;border-radius:6px;border:1px solid #444;
+             background:none;color:#aaa;cursor:pointer;font-size:0.85rem;font-weight:600">1W</button>
+  </div>
 </header>
 
 <div class="charts-wrap">
@@ -317,10 +346,27 @@ html = f"""<!DOCTYPE html>
 
 <script>
 const DATA = {data_json};
-let currentSym  = null;
-let currentMode = 'daily';
+let currentSym    = null;
+let currentMode   = 'daily';
+let currentPeriod = '1W';
 
-document.getElementById('dateRange').textContent = DATA.date_range;
+document.getElementById('dateRange').textContent = DATA.date_1w;
+
+function switchPeriod(p) {{
+  currentPeriod = p;
+  document.getElementById('dateRange').textContent = p === '1D' ? DATA.date_1d : DATA.date_1w;
+  ['1D','1W'].forEach(id => {{
+    const btn = document.getElementById('btn' + id);
+    const on  = (id === p);
+    btn.style.background  = on ? '#3a6fff' : 'none';
+    btn.style.color       = on ? '#fff'    : '#aaa';
+    btn.style.borderColor = on ? '#3a6fff' : '#444';
+  }});
+  const w = p === '1D' ? DATA.winners_1d : DATA.winners_1w;
+  const l = p === '1D' ? DATA.losers_1d  : DATA.losers_1w;
+  renderBar('chartWinner', w);
+  renderBar('chartLoser',  l);
+}}
 
 const baseLayout = {{
   paper_bgcolor: 'transparent', plot_bgcolor: '#0f1117',
@@ -363,8 +409,8 @@ function renderBar(divId, data) {{
   }});
 }}
 
-renderBar('chartWinner', DATA.winners);
-renderBar('chartLoser',  DATA.losers);
+renderBar('chartWinner', DATA.winners_1w);
+renderBar('chartLoser',  DATA.losers_1w);
 
 function openModal(sym) {{
   currentSym  = sym;
@@ -377,9 +423,10 @@ function openModal(sym) {{
   document.getElementById('popTheme').textContent   = d.theme || '-';
   document.getElementById('popAum').textContent     =
     d.aum ? '$' + (d.aum / 1e9).toFixed(1) + 'B' : '-';
+  const ret = currentPeriod === '1D' ? d.ret_1d : d.ret_1w;
   const retEl = document.getElementById('popRet');
-  retEl.textContent = (d.weekly_ret >= 0 ? '+' : '') + d.weekly_ret + '%';
-  retEl.className   = 'ret ' + (d.weekly_ret >= 0 ? 'pos' : 'neg');
+  retEl.textContent = (ret >= 0 ? '+' : '') + ret + '%';
+  retEl.className   = 'ret ' + (ret >= 0 ? 'pos' : 'neg');
 
   switchTab(0);
   document.getElementById('overlay').classList.add('open');
