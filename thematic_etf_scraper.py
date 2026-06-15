@@ -6,8 +6,9 @@ ssl._create_default_https_context = ssl._create_unverified_context
 =====================================
 필터: category / category_group / name / symbol 제외 조건
 테마: category_group 값을 그대로 사용
-출력: etf_analysis/thematic_etfs_v2.csv        ← 전체 ETF (AUM 포함)
+출력: etf_analysis/thematic_etfs_v2.csv         ← 전체 ETF (AUM 포함)
       etf_analysis/thematic_etfs_top1_v2.csv   ← 테마(category_group)별 AUM 최대 1개
+      etf_analysis/thematic_etfs_above_5b_v2.csv ← AUM 50억 달러 이상 ETF (AUM 내림차순 정렬)
 """
 
 import financedatabase as fd
@@ -98,3 +99,21 @@ print(top1[['theme', 'symbol', 'name', 'aum', 'category']].to_string(index=False
 
 top1.to_csv('etf_analysis/thematic_etfs_top1_v2.csv', index=False, encoding='utf-8-sig')
 print("\n✓ etf_analysis/thematic_etfs_top1_v2.csv 저장 완료")
+
+# ─────────────────────────────────────────────
+# 5. AUM 30억 달러 이상 테마 ETF 추출 및 정렬 (Added Code)
+# ─────────────────────────────────────────────
+print("\n[추가 기능] AUM 30억 달러 이상 ETF 정렬 및 저장 중...")
+
+# AUM 3,000,000,000 이상 조건 필터 및 내림차순 정렬
+df_above_3b = (
+    df[df['aum'] >= 3_000_000_000][out_cols]
+    .sort_values('aum', ascending=False)
+    .reset_index(drop=True)
+)
+
+print(f"\nAUM 3B 이상 테마 ETF ({len(df_above_3b)}개):")
+print(df_above_3b[['theme', 'symbol', 'name', 'aum']].to_string(index=False))
+
+df_above_3b.to_csv('etf_analysis/thematic_etfs_above_3b_v2.csv', index=False, encoding='utf-8-sig')
+print("\n✓ etf_analysis/thematic_etfs_above_3b_v2.csv 저장 완료")
