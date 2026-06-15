@@ -4,7 +4,7 @@ ssl._create_default_https_context = ssl._create_unverified_context
 """
 build_etf.py  (구 thematic_etf_weekly.py)
 ==========================================
-전제: thematic_etf_scraper.py 실행 후 etf_analysis/thematic_etfs_v2.csv 존재
+전제: thematic_etf_scraper.py 실행 후 etf_analysis/thematic_etfs_above_3b_v2.csv 존재
 출력: etf_analysis/index.html  (ETF + Stock 탭 통합)
 """
 
@@ -40,7 +40,7 @@ SECTOR_NAMES = {
 # ─────────────────────────────────────────────
 # 1. 티커 리스트 로드
 # ─────────────────────────────────────────────
-df = pd.read_csv('etf_analysis/thematic_etfs_v2.csv')
+df = pd.read_csv('etf_analysis/thematic_etfs_above_3b_v2.csv')
 tickers  = df['symbol'].tolist()
 name_map = df.set_index('symbol')['name'].to_dict()
 theme_map= df.set_index('symbol')['theme'].to_dict()
