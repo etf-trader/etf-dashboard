@@ -116,7 +116,7 @@ def calc_indicators(ohlcv: pd.DataFrame, spy: pd.Series) -> dict:
     low    = ohlcv['Low'].squeeze()
     volume = ohlcv['Volume'].squeeze()
 
-    dates = close.index.strftime('%y %b').tolist()
+    dates = close.index.strftime('%Y-%m-%d').tolist()
 
     # ── Donchian ──────────────────────────────
     upper_don = high.rolling(DONCHIAN_PERIOD).max()
