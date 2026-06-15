@@ -6,7 +6,7 @@ build_etf.py → build_stock.py 순서대로 실행
 import subprocess
 import sys
 
-scripts = ['build_etf.py', 'build_stock.py']
+scripts = ['thematic_etf_scraper.py', 'build_etf.py', 'build_stock.py']
 
 for script in scripts:
     print(f"\n{'='*50}")
