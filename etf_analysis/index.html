@@ -725,7 +725,7 @@ function renderStockCharts(payload) {
   const finalVals = tickvals.filter((_, i) => i % stride === 0);
   const finalText = ticktext.filter((_, i) => i % stride === 0);
   const xax = {
-    gridcolor:'#1a1d27', showgrid:true, zeroline:false, type:'category',
+    gridcolor:'#1a1d27', showgrid:true, zeroline:false,
     tickmode: 'array',
     tickvals: finalVals,
     ticktext: finalText,
