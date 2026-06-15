@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ETF Dashboard</title>
+<script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #0f1117; color: #e0e0e0; font-family: -apple-system, 'Segoe UI', sans-serif; }
+
+  /* ── 상단 네비바 ── */
+  .navbar {
+    display: flex; align-items: center; gap: 0;
+    padding: 0 32px;
+    background: #0f1117;
+    border-bottom: 1px solid #222;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .navbar h1 {
+    font-size: 1.15rem; font-weight: 700; color: #fff;
+    margin-right: 32px; padding: 16px 0; white-space: nowrap;
+  }
+  .nav-tab {
+    padding: 18px 22px; font-size: 0.9rem; font-weight: 600;
+    color: #555; cursor: pointer; border: none; background: none;
+    border-bottom: 3px solid transparent; transition: color .15s, border-color .15s;
+  }
+  .nav-tab:hover { color: #aaa; }
+  .nav-tab.active { color: #fff; border-bottom-color: #3a6fff; }
+
+  /* ── 탭 페이지 ── */
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ── ETF 탭 공통 ── */
+  header.etf-header { padding: 16px 32px 12px; }
+  header.etf-header span { font-size: 0.85rem; color: #888; }
+
+  .charts-wrap { display: flex; gap: 16px; padding: 20px 24px; }
+  @media (max-width: 768px) {
+    .charts-wrap { flex-direction: column; }
+    .chart-box h2 { font-size: 0.88rem; }
+    .navbar h1 { font-size: 1rem; }
+    .nav-tab { padding: 14px 14px; font-size: 0.82rem; }
+  }
+  .chart-box { flex: 1; background: #16181f; border-radius: 10px; padding: 16px; }
+  .chart-box h2 { font-size: 0.95rem; font-weight: 600; margin-bottom: 10px; }
+  .chart-box h2.winner { color: #00c48c; }
+  .chart-box h2.loser  { color: #ff4d6d; }
+
+  /* ── 공통 모달 ── */
+  .overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.65); z-index: 100;
+    align-items: center; justify-content: center;
+  }
+  .overlay.open { display: flex; }
+  .modal {
+    background: #1a1d27; border-radius: 14px;
+    width: min(860px, 94vw); max-height: 88vh;
+    overflow: hidden; display: flex; flex-direction: column;
+    box-shadow: 0 8px 40px rgba(0,0,0,.6);
+  }
+  .modal-header {
+    padding: 18px 22px 14px; border-bottom: 1px solid #2a2d3a;
+    display: flex; justify-content: space-between; align-items: flex-start;
+  }
+  .modal-header .meta h3 { font-size: 1rem; color: #fff; }
+  .modal-header .meta p  { font-size: 0.8rem; color: #888; margin-top: 4px; }
+  .modal-header .ret {
+    font-size: 1.4rem; font-weight: 700; white-space: nowrap; margin-left: 16px;
+  }
+  .modal-header .ret.pos { color: #00c48c; }
+  .modal-header .ret.neg { color: #ff4d6d; }
+  .close-btn {
+    background: none; border: none; color: #888; font-size: 1.4rem;
+    cursor: pointer; padding: 0 4px; line-height: 1;
+  }
+  .close-btn:hover { color: #fff; }
+
+  .tabs { display: flex; gap: 4px; padding: 12px 22px 0; border-bottom: 1px solid #2a2d3a; }
+  .tab {
+    padding: 7px 18px; border-radius: 6px 6px 0 0; font-size: 0.85rem;
+    cursor: pointer; color: #888; border: 1px solid transparent;
+    border-bottom: none; background: none;
+  }
+  .tab.active { color: #fff; background: #23263a; border-color: #2a2d3a; }
+  .tab-content { display: none; flex: 1; overflow-y: auto; padding: 16px 22px; }
+  .tab-content.active { display: block; }
+
+  .holdings-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  .holdings-table th {
+    text-align: left; color: #888; font-weight: 500;
+    padding: 6px 10px; border-bottom: 1px solid #2a2d3a;
+  }
+  .holdings-table td { padding: 8px 10px; border-bottom: 1px solid #1e2030; color: #ccc; }
+  .holdings-table tr:last-child td { border-bottom: none; }
+  .weight-bar {
+    display: inline-block; height: 6px; background: #3a6fff;
+    border-radius: 3px; margin-left: 8px; vertical-align: middle;
+  }
+  .no-data { color: #555; font-size: 0.85rem; padding: 20px 0; }
+
+  .chips { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+  .chip {
+    background: #23263a; border-radius: 6px; padding: 4px 10px;
+    font-size: 0.78rem; color: #aaa;
+  }
+  .chip span { color: #ddd; font-weight: 600; }
+
+  /* ── Stock 탭 ── */
+  .stock-page { padding: 20px 24px; }
+
+  .stock-search-wrap {
+    background: #16181f; border-radius: 10px; padding: 16px 20px;
+    margin-bottom: 20px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;
+  }
+  .stock-search-wrap label { font-size: 0.85rem; color: #888; white-space: nowrap; }
+
+  .search-input-wrap { position: relative; flex: 1; min-width: 200px; }
+  .search-input-wrap input {
+    width: 100%; padding: 8px 14px; background: #0f1117;
+    border: 1px solid #2a2d3a; border-radius: 7px;
+    color: #e0e0e0; font-size: 0.9rem; outline: none;
+  }
+  .search-input-wrap input:focus { border-color: #3a6fff; }
+  .autocomplete-list {
+    position: absolute; top: calc(100% + 4px); left: 0; right: 0;
+    background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 7px;
+    max-height: 240px; overflow-y: auto; z-index: 200; display: none;
+  }
+  .autocomplete-list.open { display: block; }
+  .autocomplete-item {
+    padding: 8px 14px; cursor: pointer; font-size: 0.85rem;
+    display: flex; gap: 10px; align-items: baseline;
+  }
+  .autocomplete-item:hover, .autocomplete-item.selected { background: #23263a; }
+  .autocomplete-item .ac-ticker { color: #7eb3ff; font-weight: 700; min-width: 60px; }
+  .autocomplete-item .ac-name   { color: #888; font-size: 0.78rem; }
+  .autocomplete-item .ac-sector { color: #555; font-size: 0.75rem; margin-left: auto; }
+
+  .stock-info-bar {
+    display: flex; gap: 16px; flex-wrap: wrap; align-items: center;
+    margin-bottom: 16px; padding: 12px 20px;
+    background: #16181f; border-radius: 10px;
+    min-height: 52px;
+  }
+  .stock-info-bar .si-ticker { font-size: 1.1rem; font-weight: 700; color: #fff; }
+  .stock-info-bar .si-name   { font-size: 0.85rem; color: #888; }
+  .stock-info-bar .si-sector { font-size: 0.78rem; color: #555;
+    background: #23263a; padding: 2px 8px; border-radius: 4px; }
+  .stock-info-bar .si-price  { font-size: 1.05rem; font-weight: 600; color: #fff; margin-left: auto; }
+  .stock-info-bar .si-ret    { font-size: 0.9rem; font-weight: 600; }
+  .stock-info-bar .si-ret.pos { color: #00c48c; }
+  .stock-info-bar .si-ret.neg { color: #ff4d6d; }
+  .stock-empty {
+    color: #333; font-size: 0.9rem; text-align: center; padding: 40px 0;
+  }
+
+  /* Stock 차트 영역 */
+  .stock-chart-area {
+    background: #16181f; border-radius: 10px; padding: 16px;
+  }
+  .subplot-row {
+    border-bottom: 1px solid #1a1d27; margin-bottom: 4px; padding-bottom: 4px;
+  }
+  .subplot-row:last-child { border-bottom: none; }
+  .subplot-label {
+    font-size: 0.72rem; color: #555; font-weight: 600; letter-spacing: .04em;
+    text-transform: uppercase; margin-bottom: 2px; padding-left: 4px;
+  }
+</style>
+</head>
+<body>
+
+<!-- ── 네비바 ── -->
+<nav class="navbar">
+  <h1>📊 Dashboard</h1>
+  <button class="nav-tab active" onclick="switchPage('etf')">ETF</button>
+  <button class="nav-tab"        onclick="switchPage('stock')">Stock</button>
+</nav>
+
+<!-- ════════════════════════════════════════
+     ETF 탭
+═════════════════════════════════════════ -->
+<div id="page-etf" class="page active">
+
+<header class="etf-header">
+  <span id="dateRange"></span>
+  <div style="margin-top:10px;display:flex;gap:8px;">
+    <button id="btn1D" onclick="switchPeriod('1D')"
+      style="padding:5px 16px;border-radius:6px;border:1px solid #3a6fff;
+             background:#3a6fff;color:#fff;cursor:pointer;font-size:0.85rem;font-weight:600">1D</button>
+    <button id="btn1W" onclick="switchPeriod('1W')"
+      style="padding:5px 16px;border-radius:6px;border:1px solid #444;
+             background:none;color:#aaa;cursor:pointer;font-size:0.85rem;font-weight:600">1W</button>
+  </div>
+</header>
+
+<div style="padding: 0 24px 20px;">
+  <div style="background:#16181f;border-radius:10px;padding:16px;">
+    <h2 style="font-size:0.95rem;font-weight:600;color:#a0aec0;margin-bottom:10px;">
+      🗂 Sector ETF Returns
+    </h2>
+    <div id="chartSector"></div>
+  </div>
+</div>
+
+<div class="charts-wrap">
+  <div class="chart-box">
+    <h2 class="winner">📈 Thematic ETF — Top 10</h2>
+    <div id="chartWinner"></div>
+  </div>
+  <div class="chart-box">
+    <h2 class="loser">📉 Thematic ETF — Bottom 10</h2>
+    <div id="chartLoser"></div>
+  </div>
+</div>
+
+<div style="padding: 0 24px 20px;">
+  <div style="background:#16181f;border-radius:10px;padding:16px;">
+    <h2 style="font-size:0.95rem;font-weight:600;color:#a0aec0;margin-bottom:4px;">
+      🔄 Relative Rotation Graph
+    </h2>
+    <p style="font-size:0.75rem;color:#555;margin-bottom:10px;">
+      vs S&amp;P 500 &nbsp;·&nbsp;
+      <span style="color:#00c48c">■ Leading</span> &nbsp;
+      <span style="color:#3a6fff">■ Improving</span> &nbsp;
+      <span style="color:#f5a623">■ Weakening</span> &nbsp;
+      <span style="color:#ff4d6d">■ Lagging</span>
+    </p>
+    <div id="chartRRG"></div>
+  </div>
+</div>
+
+<!-- ETF 팝업 모달 -->
+<div class="overlay" id="etfOverlay" onclick="closeEtfModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="meta">
+        <h3 id="popSymbol"></h3>
+        <p id="popName"></p>
+        <div class="chips">
+          <div class="chip">Theme <span id="popTheme"></span></div>
+          <div class="chip">AUM <span id="popAum"></span></div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="ret" id="popRet"></div>
+        <button class="close-btn" onclick="closeEtfModal()">✕</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchEtfTab(0)">Price Chart</button>
+      <button class="tab"        onclick="switchEtfTab(1)">Top Holdings</button>
+    </div>
+    <div class="tab-content active" id="etfTab0">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <button onclick="renderEtfChart('daily')"  id="btnDaily"
+          style="padding:4px 14px;border-radius:5px;border:1px solid #3a6fff;
+                 background:#3a6fff;color:#fff;cursor:pointer;font-size:0.82rem">Daily</button>
+        <button onclick="renderEtfChart('weekly')" id="btnWeekly"
+          style="padding:4px 14px;border-radius:5px;border:1px solid #444;
+                 background:none;color:#aaa;cursor:pointer;font-size:0.82rem">Weekly</button>
+      </div>
+      <div id="etfPriceChart" style="height:340px"></div>
+    </div>
+    <div class="tab-content" id="etfTab1">
+      <div id="etfHoldingsWrap"></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /page-etf -->
+
+
+<!-- ════════════════════════════════════════
+     Stock 탭
+═════════════════════════════════════════ -->
+<div id="page-stock" class="page">
+<div class="stock-page">
+
+  <!-- 검색창 -->
+  <div class="stock-search-wrap">
+    <label>🔍 종목 검색</label>
+    <div class="search-input-wrap">
+      <input type="text" id="stockSearchInput" placeholder="티커 또는 종목명 입력 (예: AAPL, Apple)"
+             autocomplete="off"
+             oninput="onSearchInput()" onkeydown="onSearchKeydown(event)">
+      <div class="autocomplete-list" id="autocompleteList"></div>
+    </div>
+    <div style="font-size:0.78rem;color:#444;" id="stockManifestInfo"></div>
+  </div>
+
+  <!-- 종목 정보 바 -->
+  <div class="stock-info-bar" id="stockInfoBar">
+    <span class="stock-empty">종목을 검색해 선택하면 차트가 표시됩니다</span>
+  </div>
+
+  <!-- 차트 영역 -->
+  <div class="stock-chart-area" id="stockChartArea">
+
+    <!-- 1. Price + MA + Donchian -->
+    <div class="subplot-row">
+      <div class="subplot-label">Price · MA · Donchian (20)</div>
+      <div id="sc0" style="height:280px"></div>
+    </div>
+
+    <!-- 2. Stochastic -->
+    <div class="subplot-row">
+      <div class="subplot-label">Stochastic (5,5)</div>
+      <div id="sc1" style="height:120px"></div>
+    </div>
+
+    <!-- 3. RSI -->
+    <div class="subplot-row">
+      <div class="subplot-label">RSI (14)</div>
+      <div id="sc2" style="height:110px"></div>
+    </div>
+
+    <!-- 4. Williams %R -->
+    <div class="subplot-row">
+      <div class="subplot-label">Williams %R (14)</div>
+      <div id="sc3" style="height:110px"></div>
+    </div>
+
+    <!-- 5. Relative Strength vs SPY -->
+    <div class="subplot-row">
+      <div class="subplot-label">Relative Strength vs SPY</div>
+      <div id="sc4" style="height:110px"></div>
+    </div>
+
+    <!-- 6. MACD -->
+    <div class="subplot-row">
+      <div class="subplot-label">MACD (12,26,9)</div>
+      <div id="sc5" style="height:110px"></div>
+    </div>
+
+    <!-- 7. MACD Oscillator -->
+    <div class="subplot-row">
+      <div class="subplot-label">MACD Oscillator</div>
+      <div id="sc6" style="height:100px"></div>
+    </div>
+
+    <!-- 8. MA50 Deviation -->
+    <div class="subplot-row">
+      <div class="subplot-label">MA50 Deviation (%)</div>
+      <div id="sc7" style="height:100px"></div>
+    </div>
+
+    <!-- 9. OBV -->
+    <div class="subplot-row">
+      <div class="subplot-label">OBV · OBV EMA</div>
+      <div id="sc8" style="height:110px"></div>
+    </div>
+
+    <!-- 10. UDVR -->
+    <div class="subplot-row">
+      <div class="subplot-label">UDVR (20)</div>
+      <div id="sc9" style="height:100px"></div>
+    </div>
+
+  </div><!-- /stock-chart-area -->
+</div>
+</div><!-- /page-stock -->
+
+
+<script>
+// ══════════════════════════════════════════════════════
+//  ETF 데이터 (Python이 embed)
+// ══════════════════════════════════════════════════════
+const ETF_DATA = __ETF_DATA_PLACEHOLDER__;
+// ══════════════════════════════════════════════════════
+//  공통 Plotly 설정
+// ══════════════════════════════════════════════════════
+const baseLayout = {
+  paper_bgcolor: 'transparent', plot_bgcolor: '#0f1117',
+  margin: { t: 4, b: 36, l: 60, r: 16 },
+  font:  { color: '#aaa', size: 11 },
+  xaxis: { gridcolor: '#1e2030', showgrid: true },
+  yaxis: { gridcolor: '#1e2030', showgrid: true },
+};
+const cfg = { displayModeBar: false, responsive: true, scrollZoom: false };
+
+const subLayout = (extra={}) => ({
+  paper_bgcolor: 'transparent', plot_bgcolor: '#0f1117',
+  margin: { t: 6, b: 28, l: 64, r: 12 },
+  font:  { color: '#888', size: 10 },
+  xaxis: { gridcolor: '#1a1d27', showgrid: true, zeroline: false },
+  yaxis: { gridcolor: '#1a1d27', showgrid: true, zeroline: false, automargin: true },
+  showlegend: false,
+  ...extra,
+});
+
+// ══════════════════════════════════════════════════════
+//  페이지 전환
+// ══════════════════════════════════════════════════════
+function switchPage(name) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  event.currentTarget.classList.add('active');
+
+  if (name === 'stock' && !stockManifest) loadManifest();
+}
+
+// ══════════════════════════════════════════════════════
+//  ETF 탭 로직 (기존 코드 그대로)
+// ══════════════════════════════════════════════════════
+let currentEtfSym  = null;
+let currentEtfMode = 'daily';
+let currentPeriod  = '1D';
+
+document.getElementById('dateRange').textContent = ETF_DATA.date_1d;
+
+function switchPeriod(p) {
+  currentPeriod = p;
+  document.getElementById('dateRange').textContent = p === '1D' ? ETF_DATA.date_1d : ETF_DATA.date_1w;
+  ['1D','1W'].forEach(id => {
+    const btn = document.getElementById('btn' + id);
+    const on  = (id === p);
+    btn.style.background  = on ? '#3a6fff' : 'none';
+    btn.style.color       = on ? '#fff'    : '#aaa';
+    btn.style.borderColor = on ? '#3a6fff' : '#444';
+  });
+  renderBar('chartWinner', p === '1D' ? ETF_DATA.winners_1d : ETF_DATA.winners_1w);
+  renderBar('chartLoser',  p === '1D' ? ETF_DATA.losers_1d  : ETF_DATA.losers_1w);
+  renderSector(p === '1D' ? ETF_DATA.sector_1d : ETF_DATA.sector_1w);
+}
+
+function renderSector(data) {
+  const sorted = data.symbols
+    .map((s,i) => ({ sym:s, name:data.names[i], ret:data.returns[i] }))
+    .sort((a,b) => a.ret - b.ret);
+  Plotly.purge('chartSector');
+  Plotly.newPlot('chartSector', [{
+    type:'bar', orientation:'h',
+    x: sorted.map(d=>d.ret), y: sorted.map(d=>d.name+'  ('+d.sym+')'),
+    marker:{ color: sorted.map(d=>d.ret>=0?'#00c48c':'#ff4d6d') },
+    text: sorted.map(d=>(d.ret>=0?'+':'')+d.ret.toFixed(2)+'%'),
+    textposition:'inside', insidetextanchor:'middle',
+    textfont:{ color:'#ffffff', size:11 },
+    hovertemplate:'<b>%{y}</b><br>%{x:.2f}%<extra></extra>',
+    customdata: sorted.map(d=>d.sym),
+  }], { ...baseLayout, height: sorted.length*30+60, dragmode:false,
+    xaxis:{...baseLayout.xaxis, ticksuffix:'%'},
+    yaxis:{...baseLayout.yaxis, automargin:true} }, cfg);
+  document.getElementById('chartSector').on('plotly_click', e => openEtfModal(e.points[0].customdata));
+}
+
+function renderBar(divId, data) {
+  const isMobile = window.innerWidth <= 768;
+  const maxLen = isMobile ? 14 : 30;
+  const labels = data.symbols.map((s,i) => {
+    const n = data.names[i] || s;
+    return (n.length > maxLen ? n.slice(0,maxLen)+'…' : n) + '  ('+s+')';
+  });
+  Plotly.purge(divId);
+  Plotly.newPlot(divId, [{
+    type:'bar', orientation:'h',
+    x: data.returns, y: labels,
+    marker:{ color: data.returns.map(v=>v>=0?'#00c48c':'#ff4d6d') },
+    text: data.returns.map(v=>(v>=0?'+':'')+v.toFixed(2)+'%'),
+    textposition:'inside', insidetextanchor:'middle',
+    textfont:{ color:'#ffffff', size:11 },
+    hovertemplate:'<b>%{y}</b><br>%{x:.2f}%<extra></extra>',
+    customdata: data.symbols,
+  }], { ...baseLayout, height: 10*30+60, dragmode:false,
+    xaxis:{...baseLayout.xaxis, ticksuffix:'%'},
+    yaxis:{...baseLayout.yaxis, automargin:true} }, cfg);
+  document.getElementById(divId).on('plotly_click', e => openEtfModal(e.points[0].customdata));
+}
+
+renderBar('chartWinner', ETF_DATA.winners_1d);
+renderBar('chartLoser',  ETF_DATA.losers_1d);
+renderSector(ETF_DATA.sector_1d);
+
+function openEtfModal(sym) {
+  currentEtfSym  = sym;
+  currentEtfMode = 'daily';
+  const d = ETF_DATA.detail[sym];
+  if (!d) return;
+  document.getElementById('popSymbol').textContent = sym;
+  document.getElementById('popName').textContent   = d.name || '';
+  document.getElementById('popTheme').textContent  = d.theme || '-';
+  document.getElementById('popAum').textContent    = d.aum ? '$'+(d.aum/1e9).toFixed(1)+'B' : '-';
+  const ret = currentPeriod==='1D' ? d.ret_1d : d.ret_1w;
+  const el  = document.getElementById('popRet');
+  el.textContent = (ret>=0?'+':'')+ret+'%';
+  el.className   = 'ret '+(ret>=0?'pos':'neg');
+  switchEtfTab(0);
+  document.getElementById('etfOverlay').classList.add('open');
+  setTimeout(() => renderEtfChart('daily'), 50);
+}
+function closeEtfModal(e) {
+  if (!e || e.target===document.getElementById('etfOverlay'))
+    document.getElementById('etfOverlay').classList.remove('open');
+}
+function switchEtfTab(idx) {
+  document.querySelectorAll('#etfOverlay .tab').forEach((t,i) => t.classList.toggle('active', i===idx));
+  document.querySelectorAll('#etfOverlay .tab-content').forEach((c,i) => c.classList.toggle('active', i===idx));
+  if (idx===1) renderEtfHoldings();
+}
+function renderEtfChart(mode) {
+  currentEtfMode = mode;
+  const d = ETF_DATA.detail[currentEtfSym];
+  const src = mode==='daily' ? d.daily : d.weekly;
+  ['Daily','Weekly'].forEach(m => {
+    const btn = document.getElementById('btn'+m);
+    const on  = (m.toLowerCase()===mode);
+    btn.style.background  = on ? '#3a6fff' : 'none';
+    btn.style.color       = on ? '#fff'    : '#aaa';
+    btn.style.borderColor = on ? '#3a6fff' : '#444';
+  });
+  if (!src||!src.dates||!src.dates.length) {
+    document.getElementById('etfPriceChart').innerHTML='<p class="no-data">No data</p>'; return;
+  }
+  Plotly.newPlot('etfPriceChart', [{
+    type:'scatter', mode:'lines', x:src.dates, y:src.close,
+    line:{color:'#3a6fff',width:2}, fill:'tozeroy', fillcolor:'rgba(58,111,255,0.08)',
+    hovertemplate:'%{x}<br><b>$%{y:.2f}</b><extra></extra>',
+  }], { ...baseLayout, height:340, yaxis:{...baseLayout.yaxis, tickprefix:'$'} }, cfg);
+}
+function renderEtfHoldings() {
+  const holdings = ETF_DATA.detail[currentEtfSym]?.holdings || [];
+  const wrap = document.getElementById('etfHoldingsWrap');
+  if (!holdings.length) { wrap.innerHTML='<p class="no-data">Holdings data not available.</p>'; return; }
+  const maxW = Math.max(...holdings.map(h=>h.weight));
+  wrap.innerHTML = `<table class="holdings-table"><thead><tr>
+    <th>#</th><th>Symbol</th><th>Name</th><th style="text-align:right">Weight</th>
+  </tr></thead><tbody>${holdings.map((h,i)=>`
+    <tr>
+      <td style="color:#555">${i+1}</td>
+      <td style="color:#7eb3ff;font-weight:600">${h.symbol}</td>
+      <td>${h.name}</td>
+      <td style="text-align:right">${h.weight.toFixed(2)}%
+        <span class="weight-bar" style="width:${(h.weight/maxW*60).toFixed(0)}px"></span>
+      </td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+// RRG
+function renderRRG() {
+  const traces = ETF_DATA.rrg;
+  if (!traces||!traces.length) return;
+  const plotTraces = [];
+  traces.forEach(t => {
+    plotTraces.push({ type:'scatter', mode:'lines', x:t.x, y:t.y,
+      line:{color:t.color,width:1.5}, showlegend:false, hoverinfo:'skip' });
+    if (t.x.length>2) plotTraces.push({ type:'scatter', mode:'markers',
+      x:t.x.slice(1,-1), y:t.y.slice(1,-1),
+      marker:{color:t.color,size:5,symbol:'circle'}, showlegend:false, hoverinfo:'skip' });
+    plotTraces.push({ type:'scatter', mode:'markers+text',
+      x:[t.x[t.x.length-1]], y:[t.y[t.y.length-1]],
+      marker:{color:t.color,size:12,symbol:'square'},
+      text:[t.name+' ('+t.ticker+')'], textposition:'top center',
+      textfont:{color:'#ffffff',size:10}, name:t.name, showlegend:false,
+      hovertemplate:'<b>'+t.name+' ('+t.ticker+')</b><br>RSR:%{x:.2f}<br>RSM:%{y:.2f}<extra></extra>' });
+  });
+  const allX=traces.flatMap(t=>t.x), allY=traces.flatMap(t=>t.y);
+  const xPad=(Math.max(...allX)-Math.min(...allX))*0.1||2;
+  const yPad=(Math.max(...allY)-Math.min(...allY))*0.1||2;
+  const xMin=Math.min(...allX)-xPad, xMax=Math.max(...allX)+xPad;
+  const yMin=Math.min(...allY)-yPad, yMax=Math.max(...allY)+yPad;
+  const shapes=[
+    {type:'rect',x0:xMin,x1:100,y0:100,y1:yMax,fillcolor:'rgba(58,111,255,0.08)',line:{width:0}},
+    {type:'rect',x0:100,x1:xMax,y0:100,y1:yMax,fillcolor:'rgba(0,196,140,0.08)',line:{width:0}},
+    {type:'rect',x0:100,x1:xMax,y0:yMin,y1:100,fillcolor:'rgba(245,166,35,0.08)',line:{width:0}},
+    {type:'rect',x0:xMin,x1:100,y0:yMin,y1:100,fillcolor:'rgba(255,77,109,0.08)',line:{width:0}},
+    {type:'line',x0:100,x1:100,y0:yMin,y1:yMax,line:{color:'#444',width:1,dash:'dash'}},
+    {type:'line',x0:xMin,x1:xMax,y0:100,y1:100,line:{color:'#444',width:1,dash:'dash'}},
+  ];
+  const annotations=[
+    {x:(xMin+100)/2,y:yMax-yPad*0.3,text:'Improving',showarrow:false,font:{color:'#3a6fff',size:11}},
+    {x:(100+xMax)/2,y:yMax-yPad*0.3,text:'Leading',  showarrow:false,font:{color:'#00c48c',size:11}},
+    {x:(100+xMax)/2,y:yMin+yPad*0.3,text:'Weakening',showarrow:false,font:{color:'#f5a623',size:11}},
+    {x:(xMin+100)/2,y:yMin+yPad*0.3,text:'Lagging',  showarrow:false,font:{color:'#ff4d6d',size:11}},
+  ];
+  Plotly.purge('chartRRG');
+  Plotly.newPlot('chartRRG', plotTraces, {
+    paper_bgcolor:'transparent', plot_bgcolor:'#0f1117', height:520,
+    margin:{t:10,b:50,l:60,r:20}, font:{color:'#aaa',size:11},
+    xaxis:{title:'Relative Strength Ratio',   gridcolor:'#1e2030',zeroline:false,range:[xMin,xMax]},
+    yaxis:{title:'Relative Strength Momentum',gridcolor:'#1e2030',zeroline:false,range:[yMin,yMax]},
+    shapes, annotations, dragmode:false,
+  }, cfg);
+}
+renderRRG();
+
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') {
+    document.getElementById('etfOverlay').classList.remove('open');
+  }
+});
+
+
+// ══════════════════════════════════════════════════════
+//  Stock 탭 로직
+// ══════════════════════════════════════════════════════
+let stockManifest  = null;   // manifest.json 로드 후 저장
+let currentStock   = null;   // 현재 선택된 종목 payload
+let acIndex        = -1;     // 자동완성 선택 인덱스
+let acItems        = [];     // 현재 자동완성 결과
+
+// manifest 로드 (Stock 탭 첫 진입 시)
+async function loadManifest() {
+  try {
+    const res = await fetch('stocks/manifest.json');
+    if (!res.ok) throw new Error('manifest.json 없음');
+    const json = await res.json();
+    stockManifest = json.stocks;
+    document.getElementById('stockManifestInfo').textContent =
+      `${json.count}개 종목 · ${json.generated} 기준`;
+  } catch(e) {
+    document.getElementById('stockManifestInfo').textContent = '⚠ 데이터 없음 (build_stock.py 실행 필요)';
+  }
+}
+
+// 검색 입력
+function onSearchInput() {
+  const q = document.getElementById('stockSearchInput').value.trim().toUpperCase();
+  const list = document.getElementById('autocompleteList');
+  if (!stockManifest || q.length < 1) { list.classList.remove('open'); return; }
+
+  acItems = stockManifest.filter(s =>
+    s.ticker.includes(q) || s.name.toUpperCase().includes(q)
+  ).slice(0, 20);
+
+  if (!acItems.length) { list.classList.remove('open'); return; }
+
+  acIndex = -1;
+  list.innerHTML = acItems.map((s,i) => `
+    <div class="autocomplete-item" data-i="${i}" onclick="selectStock(${i})">
+      <span class="ac-ticker">${s.ticker}</span>
+      <span class="ac-name">${s.name}</span>
+      <span class="ac-sector">${s.sector||''}</span>
+    </div>`).join('');
+  list.classList.add('open');
+}
+
+// 키보드 탐색
+function onSearchKeydown(e) {
+  const list = document.getElementById('autocompleteList');
+  if (!list.classList.contains('open')) return;
+  if (e.key === 'ArrowDown') {
+    acIndex = Math.min(acIndex+1, acItems.length-1);
+    updateAcHighlight();
+  } else if (e.key === 'ArrowUp') {
+    acIndex = Math.max(acIndex-1, 0);
+    updateAcHighlight();
+  } else if (e.key === 'Enter') {
+    if (acIndex >= 0) selectStock(acIndex);
+    else if (acItems.length) selectStock(0);
+  } else if (e.key === 'Escape') {
+    list.classList.remove('open');
+  }
+}
+function updateAcHighlight() {
+  document.querySelectorAll('.autocomplete-item').forEach((el,i) =>
+    el.classList.toggle('selected', i===acIndex));
+}
+
+// 종목 선택 → JSON 로드 → 차트 렌더
+async function selectStock(idx) {
+  const s = acItems[idx];
+  document.getElementById('stockSearchInput').value = s.ticker;
+  document.getElementById('autocompleteList').classList.remove('open');
+
+  // 정보 바 로딩 표시
+  updateInfoBar(s, null);
+
+  try {
+    const res = await fetch(`stocks/${s.ticker}.json`);
+    if (!res.ok) throw new Error(`${s.ticker}.json 없음`);
+    const payload = await res.json();
+    currentStock = payload;
+    updateInfoBar(s, payload);
+    renderStockCharts(payload);
+  } catch(e) {
+    document.getElementById('stockInfoBar').innerHTML =
+      `<span style="color:#ff4d6d">⚠ ${s.ticker} 데이터를 불러올 수 없습니다</span>`;
+  }
+}
+
+function updateInfoBar(s, payload) {
+  const bar = document.getElementById('stockInfoBar');
+  if (!payload) {
+    bar.innerHTML = `
+      <span class="si-ticker">${s.ticker}</span>
+      <span class="si-name">${s.name}</span>
+      <span style="color:#555;font-size:0.82rem">로딩 중...</span>`;
+    return;
+  }
+  const ret1d = payload.ret_1d;
+  const ret1w = payload.ret_1w;
+  bar.innerHTML = `
+    <span class="si-ticker">${payload.ticker}</span>
+    <span class="si-name">${payload.name}</span>
+    ${payload.sector ? `<span class="si-sector">${payload.sector}</span>` : ''}
+    <span class="si-price">$${payload.last_close.toFixed(2)}</span>
+    <span class="si-ret ${ret1d>=0?'pos':'neg'}">1D ${ret1d>=0?'+':''}${ret1d}%</span>
+    <span class="si-ret ${ret1w>=0?'pos':'neg'}">1W ${ret1w>=0?'+':''}${ret1w}%</span>`;
+}
+
+// ── Stock 차트 렌더링 ──────────────────────────────
+function renderStockCharts(payload) {
+  const d = payload.data;
+  const x = d.dates;
+
+  // 공통 x축 설정 — 월 첫 등장 위치만 틱으로 찍어 중복 제거
+  const isMob = window.innerWidth <= 768;
+  const seen = new Set();
+  const tickvals = [], ticktext = [];
+  x.forEach((v, i) => {
+    if (!seen.has(v)) {
+      seen.add(v);
+      tickvals.push(v);
+      ticktext.push(v);
+    }
+  });
+  // 모바일은 최대 6개, 데스크탑은 12개로 추가 간소화
+  const maxTicks = isMob ? 6 : 12;
+  const stride = Math.max(1, Math.floor(tickvals.length / maxTicks));
+  const finalVals = tickvals.filter((_, i) => i % stride === 0);
+  const finalText = ticktext.filter((_, i) => i % stride === 0);
+  const xax = {
+    gridcolor:'#1a1d27', showgrid:true, zeroline:false, type:'category',
+    tickmode: 'array',
+    tickvals: finalVals,
+    ticktext: finalText,
+    tickangle: -45,
+    tickfont: { size: isMob ? 9 : 10 },
+  };
+  const yax = { gridcolor:'#1a1d27', showgrid:true, zeroline:false, automargin:true };
+
+  // ── 0. Price + MA + Donchian ──
+  Plotly.purge('sc0');
+  Plotly.newPlot('sc0', [
+    // Donchian fill
+    { x, y:d.upper_don, type:'scatter', mode:'lines', line:{color:'rgba(0,196,196,0)', width:0},
+      showlegend:false, hoverinfo:'skip' },
+    { x, y:d.lower_don, type:'scatter', mode:'lines', fill:'tonexty',
+      fillcolor:'rgba(0,196,196,0.06)', line:{color:'rgba(0,196,196,0)',width:0},
+      showlegend:false, hoverinfo:'skip' },
+    // Donchian lines
+    { x, y:d.upper_don, name:'Don Upper', type:'scatter', mode:'lines',
+      line:{color:'rgba(0,196,196,0.5)',width:1,dash:'dot'} },
+    { x, y:d.lower_don, name:'Don Lower', type:'scatter', mode:'lines',
+      line:{color:'rgba(0,196,196,0.5)',width:1,dash:'dot'} },
+    { x, y:d.mid_don,   name:'Don Mid',   type:'scatter', mode:'lines',
+      line:{color:'rgba(0,196,196,0.3)',width:1,dash:'dot'} },
+    // MAs
+    { x, y:d.ma5,   name:'MA5',   type:'scatter', mode:'lines', line:{width:1.2, color:'#f0c040'} },
+    { x, y:d.ma25,  name:'MA25',  type:'scatter', mode:'lines', line:{width:1.2, color:'#f08040'} },
+    { x, y:d.ma50,  name:'MA50',  type:'scatter', mode:'lines', line:{width:1.5, color:'#40a0f0'} },
+    { x, y:d.ma100, name:'MA100', type:'scatter', mode:'lines', line:{width:1.2, color:'#9040f0'} },
+    { x, y:d.ma150, name:'MA150', type:'scatter', mode:'lines', line:{width:1.2, color:'#f04080'} },
+    { x, y:d.ma200, name:'MA200', type:'scatter', mode:'lines', line:{width:2.0, color:'#ff4d6d'} },
+    // High / Low
+    { x, y:d.high, name:'High', type:'scatter', mode:'lines',
+      line:{color:'rgba(0,196,140,0.35)',width:1,dash:'dot'} },
+    { x, y:d.low,  name:'Low',  type:'scatter', mode:'lines',
+      line:{color:'rgba(255,77,109,0.35)',width:1,dash:'dot'} },
+    // Close (최상위)
+    { x, y:d.close, name:'Close', type:'scatter', mode:'lines',
+      line:{color:'#ffffff',width:2}, hovertemplate:'%{x}<br>$%{y:.2f}<extra>Close</extra>' },
+  ], { ...subLayout(), height:280,
+    xaxis:{...xax}, yaxis:{...yax, tickprefix:'$'},
+    legend:{ orientation:'h', y:1.08, font:{size:9}, bgcolor:'rgba(0,0,0,0)' },
+    showlegend:true,
+  }, cfg);
+
+  // ── 1. Stochastic ──
+  Plotly.purge('sc1');
+  Plotly.newPlot('sc1', [
+    { x, y:d.slow_k, name:'%K', type:'scatter', mode:'lines', line:{color:'#3a6fff',width:1.5} },
+    { x, y:d.slow_d, name:'%D', type:'scatter', mode:'lines', line:{color:'#f5a623',width:1.5} },
+  ], { ...subLayout(), height:120, xaxis:xax, yaxis:{...yax, range:[0,100]},
+    shapes:[
+      {type:'line',x0:x[0],x1:x[x.length-1],y0:80,y1:80,line:{color:'#ff4d6d',width:1,dash:'dash'}},
+      {type:'line',x0:x[0],x1:x[x.length-1],y0:20,y1:20,line:{color:'#00c48c',width:1,dash:'dash'}},
+    ],
+    showlegend:true, legend:{orientation:'h',y:1.15,font:{size:9},bgcolor:'rgba(0,0,0,0)'},
+  }, cfg);
+
+  // ── 2. RSI ──
+  Plotly.purge('sc2');
+  Plotly.newPlot('sc2', [
+    { x, y:d.rsi, name:'RSI', type:'scatter', mode:'lines', line:{color:'#c084fc',width:1.5} },
+  ], { ...subLayout(), height:110, xaxis:xax, yaxis:{...yax, range:[0,100]},
+    shapes:[
+      {type:'line',x0:x[0],x1:x[x.length-1],y0:70,y1:70,line:{color:'#ff4d6d',width:1,dash:'dash'}},
+      {type:'line',x0:x[0],x1:x[x.length-1],y0:30,y1:30,line:{color:'#00c48c',width:1,dash:'dash'}},
+    ],
+  }, cfg);
+
+  // ── 3. Williams %R ──
+  Plotly.purge('sc3');
+  Plotly.newPlot('sc3', [
+    { x, y:d.williams_r, name:'%R', type:'scatter', mode:'lines', line:{color:'#60a5fa',width:1.5} },
+  ], { ...subLayout(), height:110, xaxis:xax, yaxis:{...yax, range:[-100,0]},
+    shapes:[
+      {type:'line',x0:x[0],x1:x[x.length-1],y0:-20,y1:-20,line:{color:'#ff4d6d',width:1,dash:'dash'}},
+      {type:'line',x0:x[0],x1:x[x.length-1],y0:-80,y1:-80,line:{color:'#00c48c',width:1,dash:'dash'}},
+    ],
+  }, cfg);
+
+  // ── 4. Relative Strength ──
+  Plotly.purge('sc4');
+  Plotly.newPlot('sc4', [
+    { x, y:d.rs_index, name:'RS',     type:'scatter', mode:'lines', line:{color:'#00c48c',width:1.5} },
+    { x, y:d.rs_ma50,  name:'RS MA50',type:'scatter', mode:'lines', line:{color:'#f5a623',width:1.5,dash:'dot'} },
+  ], { ...subLayout(), height:110, xaxis:xax, yaxis:yax,
+    showlegend:true, legend:{orientation:'h',y:1.15,font:{size:9},bgcolor:'rgba(0,0,0,0)'},
+  }, cfg);
+
+  // ── 5. MACD ──
+  Plotly.purge('sc5');
+  Plotly.newPlot('sc5', [
+    { x, y:d.macd_spread, name:'MACD',   type:'scatter', mode:'lines', line:{color:'#f97316',width:1.5} },
+    { x, y:d.macd_signal, name:'Signal', type:'scatter', mode:'lines', line:{color:'#a855f7',width:1.5} },
+  ], { ...subLayout(), height:110, xaxis:xax, yaxis:yax,
+    showlegend:true, legend:{orientation:'h',y:1.15,font:{size:9},bgcolor:'rgba(0,0,0,0)'},
+  }, cfg);
+
+  // ── 6. MACD Oscillator ──
+  const oscColors = d.macd_oscill.map(v => v === null ? 'rgba(0,0,0,0)' : (v >= 0 ? '#ff7f7f' : '#7fa0ff'));
+  Plotly.purge('sc6');
+  Plotly.newPlot('sc6', [
+    { x, y:d.macd_oscill, type:'bar', marker:{color:oscColors},
+      hovertemplate:'%{x}<br>%{y:.4f}<extra>OSC</extra>' },
+  ], { ...subLayout(), height:100, xaxis:xax, yaxis:yax, bargap:0.1 }, cfg);
+
+  // ── 7. MA50 Deviation ──
+  Plotly.purge('sc7');
+  Plotly.newPlot('sc7', [
+    { x, y:d.ma50_dev, name:'MA50 Dev%', type:'scatter', mode:'lines',
+      line:{color:'#fb7185',width:1.5},
+      fill:'tozeroy', fillcolor:'rgba(251,113,133,0.08)',
+      hovertemplate:'%{x}<br>%{y:.2f}%<extra></extra>' },
+  ], { ...subLayout(), height:100, xaxis:xax,
+    yaxis:{...yax, ticksuffix:'%'},
+    shapes:[{type:'line',x0:x[0],x1:x[x.length-1],y0:0,y1:0,
+      line:{color:'#444',width:1,dash:'dash'}}],
+  }, cfg);
+
+  // ── 8. OBV ──
+  Plotly.purge('sc8');
+  Plotly.newPlot('sc8', [
+    { x, y:d.obv,     name:'OBV',     type:'scatter', mode:'lines', line:{color:'#a16207',width:1.5} },
+    { x, y:d.obv_ema, name:'OBV EMA', type:'scatter', mode:'lines', line:{color:'#f5a623',width:1.5} },
+  ], { ...subLayout(), height:110, xaxis:xax, yaxis:yax,
+    showlegend:true, legend:{orientation:'h',y:1.15,font:{size:9},bgcolor:'rgba(0,0,0,0)'},
+  }, cfg);
+
+  // ── 9. UDVR ──
+  Plotly.purge('sc9');
+  Plotly.newPlot('sc9', [
+    { x, y:d.udvr, name:'UDVR', type:'scatter', mode:'lines',
+      line:{color:'#a855f7',width:1.5},
+      hovertemplate:'%{x}<br>%{y:.3f}<extra>UDVR</extra>' },
+  ], { ...subLayout(), height:100, xaxis:xax, yaxis:yax,
+    shapes:[{type:'line',x0:x[0],x1:x[x.length-1],y0:1,y1:1,
+      line:{color:'#555',width:1,dash:'dash'}}],
+  }, cfg);
+}
+
+// 차트 외부 클릭 시 자동완성 닫기
+document.addEventListener('click', e => {
+  if (!e.target.closest('.search-input-wrap'))
+    document.getElementById('autocompleteList').classList.remove('open');
+});
+</script>
+</body>
+</html>
