@@ -251,7 +251,8 @@ data_json  = json.dumps(payload, ensure_ascii=False)
 # ─────────────────────────────────────────────
 # 5. index.html 생성 (템플릿에 데이터 embed)
 # ─────────────────────────────────────────────
-with open('etf_analysis/index.html', 'r', encoding='utf-8') as f:
+# index.template.html → index.html 로 변경
+with open('etf_analysis/index.template.html', 'r', encoding='utf-8') as f:
     html = f.read()
 
 html = html.replace('__ETF_DATA_PLACEHOLDER__', data_json)
