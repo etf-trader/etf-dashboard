@@ -26,7 +26,7 @@ pd.set_option('display.max_colwidth', 50)
 # ─────────────────────────────────────────────
 EXCLUDE_CATEGORY     = 'bond|cash|currencies|market|cap|blend|trading|value|basket|factors|growth'
 EXCLUDE_CATEGORY_GRP = 'alternatives|fixed income'
-EXCLUDE_NAME         = 'Select Sector SPDR Fund|2x|3x|short'
+EXCLUDE_NAME         = 'Select Sector SPDR Fund|2x|3x'
 EXCLUDE_SYMBOLS      = ['IDU', 'IYE', 'IYF', 'IYH', 'IYJ', 'IYM', 'IYR', 'IYW', 'IYZ']
 
 # ─────────────────────────────────────────────
@@ -96,5 +96,5 @@ top1 = (
 print(f"\n테마별 대표 ETF ({len(top1)}개):")
 print(top1[['theme', 'symbol', 'name', 'aum', 'category']].to_string(index=False))
 
-top1.to_csv('etf_analysis/thematic_etfs.csv', index=False, encoding='utf-8-sig')
-print("\n✓ etf_analysis/thematic_etfs.csv 저장 완료")
+top1.to_csv('etf_analysis/thematic_etfs_top1_v2.csv', index=False, encoding='utf-8-sig')
+print("\n✓ etf_analysis/thematic_etfs_top1_v2.csv 저장 완료")
