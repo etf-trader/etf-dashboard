@@ -50,31 +50,63 @@ to_date   = datetime.datetime.today()
 print("SPY holdings 다운로드 중...")
 
 rows = []
+import io
+import ssl
+import time
+import requests
+import pandas as pd
+
+ssl._create_default_https_context = ssl._create_unverified_context
+
 while True:
     try:
-        holdings = pd.read_csv(
-            'https://www.blackrock.com/varnish-api/blk-one01-product-data/product-data/api/v1/get-fund-document'
-            '?appType=PRODUCT_PAGE&appSubType=ISHARES&targetSite=us-ishares&locale=en_US'
-            '&portfolioId=239726&userType=individual&asOfDate=20260518&component=holdings',
-            skiprows=[0, 1, 2, 3, 4, 5, 6, 7, 8]
+        url = (
+            'https://www.ssga.com/us/en/intermediary/library-content/products/'
+            'fund-data/etfs/us/holdings-daily-us-en-spy.xlsx'
         )
+        r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=30)
+
+        if r.status_code != 200:
+            raise Exception(f"HTTP {r.status_code}")
+
+        holdings = pd.read_excel(io.BytesIO(r.content), skiprows=4, engine='openpyxl')
         break
     except Exception as e:
         print(f"  holdings 연결 오류: {e}. 5초 후 재시도...")
         time.sleep(5)
 
-# Equity만 필터
-index_equity = holdings[(holdings['Asset Class'] != 'Equity')].index
-holdings.drop(index_equity, inplace=True)
+# USD 종목만 (현금·기타 제거)
+if 'Local Currency' in holdings.columns:
+    holdings = holdings[holdings['Local Currency'] == 'USD']
 
-# yfinance용 티커 변환
-holdings['Ticker'] = holdings['Ticker'].replace({'BRKB': 'BRK-B', 'BFB': 'BF-B'})
+# SEDOL '-' 제거 (비상장·기타 항목)
+if 'SEDOL' in holdings.columns:
+    holdings = holdings[holdings['SEDOL'] != '-']
 
-df_loop = holdings[['Ticker', 'Name', 'Sector']].copy()
-df_loop = df_loop.reset_index(drop=True)
-df_loop = df_loop.dropna(subset=['Ticker'])
-df_loop['Ticker'] = df_loop['Ticker'].astype(str).str.strip()
-df_loop = df_loop[df_loop['Ticker'] != '']
+# 컬럼명 동적 탐지
+ticker_col = next((c for c in holdings.columns if 'ticker' in str(c).lower() or 'symbol' in str(c).lower()), None)
+name_col   = next((c for c in holdings.columns if 'name'   in str(c).lower()), None)
+sector_col = next((c for c in holdings.columns if 'sector' in str(c).lower()), None)
+
+# Sector 컬럼이 있으면 포함, 없으면 빈 문자열로 채움
+use_cols = [col for col in [ticker_col, name_col, sector_col] if col is not None]
+holdings = holdings[use_cols].dropna(subset=[ticker_col])
+holdings.columns = ['Ticker', 'Name', 'Sector'][:len(use_cols)]
+
+if 'Sector' not in holdings.columns:
+    holdings['Sector'] = ''
+
+# yfinance용 티커 변환 (SSGA는 '.' 구분자 사용)
+holdings['Ticker'] = (
+    holdings['Ticker']
+    .astype(str).str.strip()
+    .str.replace('.', '-', regex=False)
+    .replace({'BRK-B': 'BRK-B', 'BF-B': 'BF-B'})  # 이미 변환됨, 명시적 보험
+)
+
+holdings = holdings[holdings['Ticker'] != '']
+
+df_loop = holdings[['Ticker', 'Name', 'Sector']].copy().reset_index(drop=True)
 
 tickers = df_loop['Ticker'].tolist()
 print(f"  총 {len(tickers)}개 종목 로드")
