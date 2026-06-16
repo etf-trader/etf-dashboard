@@ -1,6 +1,3 @@
-import ssl
-ssl._create_default_https_context = ssl._create_unverified_context
-
 """
 build_etf.py  (구 thematic_etf_weekly.py)
 ==========================================
