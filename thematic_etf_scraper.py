@@ -1,6 +1,3 @@
-import ssl
-ssl._create_default_https_context = ssl._create_unverified_context
-
 """
 미국 상장 테마 ETF 리스트 수집기 v2
 =====================================
