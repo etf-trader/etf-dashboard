@@ -331,6 +331,7 @@ payload = {
     'sector_1w':  make_sector_data(sector_1w),
     'detail':     detail,
     'rrg':        rrg_traces,
+    'sector_stocks': sector_stocks,
 }
 
 def sanitize(obj):
