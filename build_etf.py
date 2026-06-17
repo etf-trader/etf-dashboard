@@ -172,24 +172,7 @@ from io import BytesIO
 print("섹터 내 종목 Winner/Loser 계산 중...")
 sector_stocks = {}
 
-def get_stock_returns(ticker):
-    """1D, 1W 수익률을 한 번의 다운로드로 함께 계산"""
-    hist = yf.Ticker(ticker).history(period='1mo', interval='1d', auto_adjust=True)
-    if hist is None or len(hist) < 2:
-        raise ValueError(f"데이터 없음: {ticker}")
-    hist = hist.dropna(subset=['Close'])
-    if len(hist) < 2:
-        raise ValueError(f"데이터 부족: {ticker}")
-
-    ret_1d = float(hist['Close'].iloc[-1] / hist['Close'].iloc[-2] - 1)
-
-    hist_week = hist.tail(5)
-    if len(hist_week) < 2:
-        raise ValueError(f"1W 데이터 부족: {ticker}")
-    ret_1w = float(hist_week['Close'].iloc[-1] / hist_week['Close'].iloc[0] - 1)
-
-    return ret_1d, ret_1w
-
+# ✨ 함수를 없애고 메인 흐름에서 데이터를 다이렉트로 처리하도록 개선하여 일관성 확보
 for etf in RRG_TICKERS:  # XLB~XLRE (SPY 제외)
     try:
         holdings_url = f"https://www.ssga.com/us/en/intermediary/library-content/products/fund-data/etfs/us/holdings-daily-us-en-{etf.lower()}.xlsx"
@@ -223,12 +206,30 @@ for etf in RRG_TICKERS:  # XLB~XLRE (SPY 제외)
             ticker = row['Ticker']
             name   = row['Name']
             try:
-                ret_1d, ret_1w = get_stock_returns(ticker)
+                # 개별 종목 데이터를 가져와 기존 전역 딕셔너리(ret_1d, ret_1w)에 직접 추가합니다.
+                hist = yf.Ticker(ticker).history(period='1mo', interval='1d', auto_adjust=True)
+                if hist is None or len(hist) < 2: continue
+                hist = hist.dropna(subset=['Close'])
+                if len(hist) < 2: continue
+
+                # 1D 계산 및 전역 딕셔너리 반영
+                val_1d = (hist['Close'].iloc[-1] / hist['Close'].iloc[-2] - 1) * 100
+                if not math.isnan(float(val_1d)):
+                    ret_1d[ticker] = round(float(val_1d), 2)
+
+                # 1W 계산 및 전역 딕셔너리 반영
+                hist_week = hist.tail(5)
+                if len(hist_week) < 2: continue
+                val_1w = (hist_week['Close'].iloc[-1] / hist_week['Close'].iloc[0] - 1) * 100
+                if not math.isnan(float(val_1w)):
+                    ret_1w[ticker] = round(float(val_1w), 2)
+
+                # 순위 산정용 리스트에 추가
                 stock_returns.append({
                     'ticker': ticker,
                     'name':   name,
-                    'ret_1d': round(ret_1d * 100, 2),
-                    'ret_1w': round(ret_1w * 100, 2),
+                    'ret_1d': ret_1d[ticker],
+                    'ret_1w': ret_1w[ticker],
                 })
             except Exception:
                 continue
@@ -285,6 +286,8 @@ for i, sym in enumerate(all_syms):
         except Exception:
             pass
         info = t.info
+        
+        # 이제 전역 ret_1d와 ret_1w가 완벽하게 딕셔너리로 유지되므로 안심하고 원래 코드 그대로 사용 가능합니다.
         detail[sym] = {
             'name':    name_map.get(sym, sym),
             'theme':   theme_map.get(sym, ''),
@@ -346,7 +349,6 @@ data_json  = json.dumps(payload, ensure_ascii=False)
 # ─────────────────────────────────────────────
 # 5. index.html 생성 (템플릿에 데이터 embed)
 # ─────────────────────────────────────────────
-# index.template.html → index.html 로 변경
 with open('etf_analysis/index.template.html', 'r', encoding='utf-8') as f:
     html = f.read()
 
