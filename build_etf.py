@@ -162,7 +162,6 @@ for ticker in RRG_TICKERS:
     })
 print(f"  RRG 완료: {len(rrg_traces)}개")
 
-
 # ─────────────────────────────────────────────
 # 2-3. 섹터 내 종목 Winner/Loser (SSGA holdings 기반, 1D + 1W)
 # ─────────────────────────────────────────────
@@ -200,11 +199,10 @@ for etf in RRG_TICKERS:  # XLB~XLRE (SPY 제외)
         h['Ticker'] = h['Ticker'].astype(str).str.strip().str.replace('.', '-', regex=False)
         h = h[h['Ticker'] != '']
 
-        # 💡 [개선 1] 하나씩 요청하지 않고, 섹터 내 종목들을 한 번에 통째로 묶어서 다운로드 (차단 방지 핵심)
         ticker_list = h['Ticker'].tolist()
         print(f"  [{etf}] {len(ticker_list)}개 종목 데이터 벌크 다운로드 중...")
         
-        # group_by_ticker=True를 주면 종목별로 깔끔하게 데이터가 묶여서 옵니다.
+        # 벌크 다운로드로 야후 차단 회피
         group_hist = yf.download(ticker_list, period='1mo', interval='1d', auto_adjust=True, group_by_ticker=True, progress=False)
 
         stock_returns = []
@@ -212,34 +210,37 @@ for etf in RRG_TICKERS:  # XLB~XLRE (SPY 제외)
 
         for ticker in ticker_list:
             try:
-                # 데이터프레임에서 이 종목의 데이터만 추출
                 if ticker not in group_hist.columns.levels[0]: continue
                 hist = group_hist[ticker].dropna(subset=['Close'])
                 if len(hist) < 2: continue
 
-                # 1D 계산 및 전역 딕셔너리 반영
+                # 임시 변수에 먼저 계산 (에러 시 전역 딕셔너리 오염 방지)
                 val_1d = (hist['Close'].iloc[-1] / hist['Close'].iloc[-2] - 1) * 100
-                if not math.isnan(float(val_1d)):
-                    ret_1d[ticker] = round(float(val_1d), 2)
-
-                # 1W 계산 및 전역 딕셔너리 반영
+                
                 hist_week = hist.tail(5)
                 if len(hist_week) < 2: continue
                 val_1w = (hist_week['Close'].iloc[-1] / hist_week['Close'].iloc[0] - 1) * 100
-                if not math.isnan(float(val_1w)):
-                    ret_1w[ticker] = round(float(val_1w), 2)
+
+                if math.isnan(float(val_1d)) or math.isnan(float(val_1w)): continue
+
+                # ✨ 1D, 1W 둘 다 안전하게 계산 완료된 청정 데이터만 최종 반영
+                calc_1d = round(float(val_1d), 2)
+                calc_1w = round(float(val_1w), 2)
+
+                ret_1d[ticker] = calc_1d
+                ret_1w[ticker] = calc_1w
 
                 stock_returns.append({
                     'ticker': ticker,
                     'name':   name_dict.get(ticker, ticker),
-                    'ret_1d': ret_1d[ticker],
-                    'ret_1w': ret_1w[ticker],
+                    'ret_1d': calc_1d,
+                    'ret_1w': calc_1w,
                 })
             except Exception:
                 continue
 
-        # 💡 [개선 2] 다음 섹터로 넘어가기 전에 야후 서버가 숨 쉴 틈(2초)을 줍니다.
-        time.sleep(2)
+        # 야후 서버 차단 방지를 위한 휴식
+        time.sleep(1)
 
         if not stock_returns:
             print(f"  [{etf}] 종목 수익률 없음")
@@ -265,6 +266,8 @@ for etf in RRG_TICKERS:  # XLB~XLRE (SPY 제외)
         continue
 
 print(f"  섹터 종목 Winner/Loser 완료: {len(sector_stocks)}개 섹터")
+
+
 
 # ─────────────────────────────────────────────
 # 3. 팝업 상세 데이터
