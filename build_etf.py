@@ -222,12 +222,12 @@ for etf in RRG_TICKERS:  # XLB~XLRE (SPY 제외)
             ticker = row['Ticker']
             name   = row['Name']
             try:
-                ret_1d, ret_1w = get_stock_returns(ticker)
+                stock_ret_1d, stock_ret_1w = get_stock_returns(ticker)   # 변수명 변경
                 stock_returns.append({
                     'ticker': ticker,
                     'name':   name,
-                    'ret_1d': round(ret_1d * 100, 2),
-                    'ret_1w': round(ret_1w * 100, 2),
+                    'ret_1d': round(stock_ret_1d * 100, 2),
+                    'ret_1w': round(stock_ret_1w * 100, 2),
                 })
             except Exception:
                 continue
