@@ -172,7 +172,6 @@ from io import BytesIO
 print("섹터 내 종목 Winner/Loser 계산 중...")
 sector_stocks = {}
 
-# ✨ 함수를 없애고 메인 흐름에서 데이터를 다이렉트로 처리하도록 개선하여 일관성 확보
 for etf in RRG_TICKERS:  # XLB~XLRE (SPY 제외)
     try:
         holdings_url = f"https://www.ssga.com/us/en/intermediary/library-content/products/fund-data/etfs/us/holdings-daily-us-en-{etf.lower()}.xlsx"
@@ -201,15 +200,21 @@ for etf in RRG_TICKERS:  # XLB~XLRE (SPY 제외)
         h['Ticker'] = h['Ticker'].astype(str).str.strip().str.replace('.', '-', regex=False)
         h = h[h['Ticker'] != '']
 
+        # 💡 [개선 1] 하나씩 요청하지 않고, 섹터 내 종목들을 한 번에 통째로 묶어서 다운로드 (차단 방지 핵심)
+        ticker_list = h['Ticker'].tolist()
+        print(f"  [{etf}] {len(ticker_list)}개 종목 데이터 벌크 다운로드 중...")
+        
+        # group_by_ticker=True를 주면 종목별로 깔끔하게 데이터가 묶여서 옵니다.
+        group_hist = yf.download(ticker_list, period='1mo', interval='1d', auto_adjust=True, group_by_ticker=True, progress=False)
+
         stock_returns = []
-        for _, row in h.iterrows():
-            ticker = row['Ticker']
-            name   = row['Name']
+        name_dict = h.set_index('Ticker')['Name'].to_dict()
+
+        for ticker in ticker_list:
             try:
-                # 개별 종목 데이터를 가져와 기존 전역 딕셔너리(ret_1d, ret_1w)에 직접 추가합니다.
-                hist = yf.Ticker(ticker).history(period='1mo', interval='1d', auto_adjust=True)
-                if hist is None or len(hist) < 2: continue
-                hist = hist.dropna(subset=['Close'])
+                # 데이터프레임에서 이 종목의 데이터만 추출
+                if ticker not in group_hist.columns.levels[0]: continue
+                hist = group_hist[ticker].dropna(subset=['Close'])
                 if len(hist) < 2: continue
 
                 # 1D 계산 및 전역 딕셔너리 반영
@@ -224,15 +229,17 @@ for etf in RRG_TICKERS:  # XLB~XLRE (SPY 제외)
                 if not math.isnan(float(val_1w)):
                     ret_1w[ticker] = round(float(val_1w), 2)
 
-                # 순위 산정용 리스트에 추가
                 stock_returns.append({
                     'ticker': ticker,
-                    'name':   name,
+                    'name':   name_dict.get(ticker, ticker),
                     'ret_1d': ret_1d[ticker],
                     'ret_1w': ret_1w[ticker],
                 })
             except Exception:
                 continue
+
+        # 💡 [개선 2] 다음 섹터로 넘어가기 전에 야후 서버가 숨 쉴 틈(2초)을 줍니다.
+        time.sleep(2)
 
         if not stock_returns:
             print(f"  [{etf}] 종목 수익률 없음")
@@ -258,7 +265,6 @@ for etf in RRG_TICKERS:  # XLB~XLRE (SPY 제외)
         continue
 
 print(f"  섹터 종목 Winner/Loser 완료: {len(sector_stocks)}개 섹터")
-
 
 # ─────────────────────────────────────────────
 # 3. 팝업 상세 데이터
