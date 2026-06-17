@@ -171,6 +171,24 @@ from io import BytesIO
 print("섹터 내 종목 Winner/Loser 계산 중...")
 sector_stocks = {}
 
+def get_stock_returns(ticker):
+    """1D, 1W 수익률을 한 번의 다운로드로 함께 계산"""
+    hist = yf.Ticker(ticker).history(period='1mo', interval='1d', auto_adjust=True)
+    if hist is None or len(hist) < 2:
+        raise ValueError(f"데이터 없음: {ticker}")
+    hist = hist.dropna(subset=['Close'])
+    if len(hist) < 2:
+        raise ValueError(f"데이터 부족: {ticker}")
+
+    ret_1d = float(hist['Close'].iloc[-1] / hist['Close'].iloc[-2] - 1)
+
+    hist_week = hist.tail(5)
+    if len(hist_week) < 2:
+        raise ValueError(f"1W 데이터 부족: {ticker}")
+    ret_1w = float(hist_week['Close'].iloc[-1] / hist_week['Close'].iloc[0] - 1)
+
+    return ret_1d, ret_1w
+
 for etf in RRG_TICKERS:  # XLB~XLRE (SPY 제외)
     try:
         holdings_url = f"https://www.ssga.com/us/en/intermediary/library-content/products/fund-data/etfs/us/holdings-daily-us-en-{etf.lower()}.xlsx"
@@ -199,48 +217,20 @@ for etf in RRG_TICKERS:  # XLB~XLRE (SPY 제외)
         h['Ticker'] = h['Ticker'].astype(str).str.strip().str.replace('.', '-', regex=False)
         h = h[h['Ticker'] != '']
 
-        ticker_list = h['Ticker'].tolist()
-        print(f"  [{etf}] {len(ticker_list)}개 종목 데이터 벌크 다운로드 중...")
-        
-        # 벌크 다운로드로 야후 차단 회피
-        group_hist = yf.download(ticker_list, period='1mo', interval='1d', auto_adjust=True, group_by_ticker=True, progress=False)
-
         stock_returns = []
-        name_dict = h.set_index('Ticker')['Name'].to_dict()
-
-        for ticker in ticker_list:
+        for _, row in h.iterrows():
+            ticker = row['Ticker']
+            name   = row['Name']
             try:
-                if ticker not in group_hist.columns.levels[0]: continue
-                hist = group_hist[ticker].dropna(subset=['Close'])
-                if len(hist) < 2: continue
-
-                # 임시 변수에 먼저 계산 (에러 시 전역 딕셔너리 오염 방지)
-                val_1d = (hist['Close'].iloc[-1] / hist['Close'].iloc[-2] - 1) * 100
-                
-                hist_week = hist.tail(5)
-                if len(hist_week) < 2: continue
-                val_1w = (hist_week['Close'].iloc[-1] / hist_week['Close'].iloc[0] - 1) * 100
-
-                if math.isnan(float(val_1d)) or math.isnan(float(val_1w)): continue
-
-                # ✨ 1D, 1W 둘 다 안전하게 계산 완료된 청정 데이터만 최종 반영
-                calc_1d = round(float(val_1d), 2)
-                calc_1w = round(float(val_1w), 2)
-
-                ret_1d[ticker] = calc_1d
-                ret_1w[ticker] = calc_1w
-
+                ret_1d, ret_1w = get_stock_returns(ticker)
                 stock_returns.append({
                     'ticker': ticker,
-                    'name':   name_dict.get(ticker, ticker),
-                    'ret_1d': calc_1d,
-                    'ret_1w': calc_1w,
+                    'name':   name,
+                    'ret_1d': round(ret_1d * 100, 2),
+                    'ret_1w': round(ret_1w * 100, 2),
                 })
             except Exception:
                 continue
-
-        # 야후 서버 차단 방지를 위한 휴식
-        time.sleep(1)
 
         if not stock_returns:
             print(f"  [{etf}] 종목 수익률 없음")
@@ -266,7 +256,6 @@ for etf in RRG_TICKERS:  # XLB~XLRE (SPY 제외)
         continue
 
 print(f"  섹터 종목 Winner/Loser 완료: {len(sector_stocks)}개 섹터")
-
 
 
 # ─────────────────────────────────────────────
