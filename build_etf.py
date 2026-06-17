@@ -162,6 +162,104 @@ for ticker in RRG_TICKERS:
     })
 print(f"  RRG 완료: {len(rrg_traces)}개")
 
+
+# ─────────────────────────────────────────────
+# 2-3. 섹터 내 종목 Winner/Loser (SSGA holdings 기반, 1D + 1W)
+# ─────────────────────────────────────────────
+import requests
+from io import BytesIO
+
+print("섹터 내 종목 Winner/Loser 계산 중...")
+sector_stocks = {}
+
+# ✨ 함수를 없애고 메인 흐름에서 데이터를 다이렉트로 처리하도록 개선하여 일관성 확보
+for etf in RRG_TICKERS:  # XLB~XLRE (SPY 제외)
+    try:
+        holdings_url = f"https://www.ssga.com/us/en/intermediary/library-content/products/fund-data/etfs/us/holdings-daily-us-en-{etf.lower()}.xlsx"
+        r = requests.get(holdings_url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=10)
+
+        if r.status_code != 200:
+            print(f"  [{etf}] holdings 다운로드 실패: HTTP {r.status_code}")
+            continue
+
+        h = pd.read_excel(BytesIO(r.content), skiprows=4)
+
+        if 'Local Currency' in h.columns:
+            h = h[h['Local Currency'] == 'USD']
+        if 'SEDOL' in h.columns:
+            h = h[h['SEDOL'] != '-']
+
+        ticker_col = next((c for c in h.columns if 'ticker' in str(c).lower() or 'symbol' in str(c).lower()), None)
+        name_col   = next((c for c in h.columns if 'name' in str(c).lower()), None)
+
+        if not ticker_col or not name_col:
+            print(f"  [{etf}] 컬럼 찾기 실패: {h.columns.tolist()}")
+            continue
+
+        h = h[[ticker_col, name_col]].dropna()
+        h.columns = ['Ticker', 'Name']
+        h['Ticker'] = h['Ticker'].astype(str).str.strip().str.replace('.', '-', regex=False)
+        h = h[h['Ticker'] != '']
+
+        stock_returns = []
+        for _, row in h.iterrows():
+            ticker = row['Ticker']
+            name   = row['Name']
+            try:
+                # 개별 종목 데이터를 가져와 기존 전역 딕셔너리(ret_1d, ret_1w)에 직접 추가합니다.
+                hist = yf.Ticker(ticker).history(period='1mo', interval='1d', auto_adjust=True)
+                if hist is None or len(hist) < 2: continue
+                hist = hist.dropna(subset=['Close'])
+                if len(hist) < 2: continue
+
+                # 1D 계산 및 전역 딕셔너리 반영
+                val_1d = (hist['Close'].iloc[-1] / hist['Close'].iloc[-2] - 1) * 100
+                if not math.isnan(float(val_1d)):
+                    ret_1d[ticker] = round(float(val_1d), 2)
+
+                # 1W 계산 및 전역 딕셔너리 반영
+                hist_week = hist.tail(5)
+                if len(hist_week) < 2: continue
+                val_1w = (hist_week['Close'].iloc[-1] / hist_week['Close'].iloc[0] - 1) * 100
+                if not math.isnan(float(val_1w)):
+                    ret_1w[ticker] = round(float(val_1w), 2)
+
+                # 순위 산정용 리스트에 추가
+                stock_returns.append({
+                    'ticker': ticker,
+                    'name':   name,
+                    'ret_1d': ret_1d[ticker],
+                    'ret_1w': ret_1w[ticker],
+                })
+            except Exception:
+                continue
+
+        if not stock_returns:
+            print(f"  [{etf}] 종목 수익률 없음")
+            continue
+
+        stock_df = pd.DataFrame(stock_returns)
+
+        top10_1d    = stock_df.sort_values('ret_1d', ascending=False).head(TOP_N)[['ticker','name','ret_1d']].rename(columns={'ret_1d':'ret'}).to_dict('records')
+        bottom10_1d = stock_df.sort_values('ret_1d', ascending=True).head(TOP_N)[['ticker','name','ret_1d']].rename(columns={'ret_1d':'ret'}).to_dict('records')
+        top10_1w    = stock_df.sort_values('ret_1w', ascending=False).head(TOP_N)[['ticker','name','ret_1w']].rename(columns={'ret_1w':'ret'}).to_dict('records')
+        bottom10_1w = stock_df.sort_values('ret_1w', ascending=True).head(TOP_N)[['ticker','name','ret_1w']].rename(columns={'ret_1w':'ret'}).to_dict('records')
+
+        sector_stocks[etf] = {
+            'top_1d':    top10_1d,
+            'bottom_1d': bottom10_1d,
+            'top_1w':    top10_1w,
+            'bottom_1w': bottom10_1w,
+        }
+        print(f"  [{etf}] {len(stock_returns)}개 종목 처리 완료")
+
+    except Exception as e:
+        print(f"  [{etf}] 처리 중 에러: {e}")
+        continue
+
+print(f"  섹터 종목 Winner/Loser 완료: {len(sector_stocks)}개 섹터")
+
+
 # ─────────────────────────────────────────────
 # 3. 팝업 상세 데이터
 # ─────────────────────────────────────────────
@@ -188,6 +286,8 @@ for i, sym in enumerate(all_syms):
         except Exception:
             pass
         info = t.info
+        
+        # 이제 전역 ret_1d와 ret_1w가 완벽하게 딕셔너리로 유지되므로 안심하고 원래 코드 그대로 사용 가능합니다.
         detail[sym] = {
             'name':    name_map.get(sym, sym),
             'theme':   theme_map.get(sym, ''),
@@ -234,6 +334,7 @@ payload = {
     'sector_1w':  make_sector_data(sector_1w),
     'detail':     detail,
     'rrg':        rrg_traces,
+    'sector_stocks': sector_stocks,
 }
 
 def sanitize(obj):
@@ -248,7 +349,6 @@ data_json  = json.dumps(payload, ensure_ascii=False)
 # ─────────────────────────────────────────────
 # 5. index.html 생성 (템플릿에 데이터 embed)
 # ─────────────────────────────────────────────
-# index.template.html → index.html 로 변경
 with open('etf_analysis/index.template.html', 'r', encoding='utf-8') as f:
     html = f.read()
 
