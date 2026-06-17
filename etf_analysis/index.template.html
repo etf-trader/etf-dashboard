@@ -183,6 +183,28 @@
     font-size: 0.72rem; color: #555; font-weight: 600; letter-spacing: .04em;
     text-transform: uppercase; margin-bottom: 2px; padding-left: 4px;
   }
+
+  /* ── Sector Winner/Loser 버튼 ── */
+  .sector-btn {
+    padding: 5px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600;
+    cursor: pointer; border: 1px solid #2a2d3a; background: #23263a; color: #888;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .sector-btn:hover { color: #ccc; border-color: #444; }
+  .sector-btn.active { background: #3a6fff; color: #fff; border-color: #3a6fff; }
+  
+  /* ── Sector Winner/Loser 테이블 ── */
+  .swl-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+  .swl-table th {
+    text-align:left; color:#555; font-weight:500;
+    padding:5px 10px; border-bottom:1px solid #2a2d3a;
+  }
+  .swl-table td { padding:7px 10px; border-bottom:1px solid #1e2030; color:#ccc; }
+  .swl-table tr:last-child td { border-bottom:none; }
+  .swl-ret-pos { color:#00c48c; font-weight:600; }
+  .swl-ret-neg { color:#ff4d6d; font-weight:600; }
+  .swl-empty { color:#444; font-size:0.82rem; padding:16px 0; text-align:center; }
+
 </style>
 </head>
 <body>
@@ -284,6 +306,40 @@
     </div>
   </div>
 </div>
+
+
+<!-- ════ Sector Winner / Loser ════ -->
+<div style="padding: 0 24px 32px;">
+  <div style="background:#16181f;border-radius:10px;padding:16px;">
+    <h2 style="font-size:0.95rem;font-weight:600;color:#a0aec0;margin-bottom:12px;">
+      🏆 Sector Winner / Loser
+    </h2>
+
+    <!-- 섹터 선택 버튼 -->
+    <div id="sectorBtnWrap" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
+      <!-- JS가 동적으로 생성 -->
+    </div>
+
+    <!-- Winner / Loser 리스트 -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+
+      <div style="background:#1a1d27;border-radius:8px;padding:14px;">
+        <h3 style="font-size:0.85rem;font-weight:700;color:#00c48c;margin-bottom:8px;">
+          📈 Top 10 — <span id="swlSectorLabel">-</span>
+        </h3>
+        <div id="swlWinnerBody"></div>
+      </div>
+
+      <div style="background:#1a1d27;border-radius:8px;padding:14px;">
+        <h3 style="font-size:0.85rem;font-weight:700;color:#ff4d6d;margin-bottom:8px;">
+          📉 Bottom 10 — <span id="swlLoserLabel">-</span>
+        </h3>
+        <div id="swlLoserBody"></div>
+      </div>
+
+    </div>
+  </div>
+</div> 
 
 </div><!-- /page-etf -->
 
@@ -604,6 +660,72 @@ function renderRRG() {
   }, cfg);
 }
 renderRRG();
+
+ // ══════════════════════════════════════════════════════
+//  Sector Winner / Loser
+// ══════════════════════════════════════════════════════
+(function() {
+  // Python embed 데이터에서 sector_stocks 가져오기
+  // ETF_DATA.sector_stocks = { XLB: { top:[{ticker,name,ret},...], bottom:[...] }, ... }
+  const ss = ETF_DATA.sector_stocks;
+  if (!ss) return;
+
+  const sectors = Object.keys(ss);
+  const wrap    = document.getElementById('sectorBtnWrap');
+
+  // 버튼 생성
+  sectors.forEach((etf, i) => {
+    const btn = document.createElement('button');
+    btn.className   = 'sector-btn' + (i === 0 ? ' active' : '');
+    btn.textContent = etf;
+    btn.onclick     = () => selectSectorWL(etf);
+    wrap.appendChild(btn);
+  });
+
+  // 첫 번째 섹터 표시
+  if (sectors.length) selectSectorWL(sectors[0]);
+
+  function selectSectorWL(etf) {
+    // 버튼 active 처리
+    wrap.querySelectorAll('.sector-btn').forEach(b =>
+      b.classList.toggle('active', b.textContent === etf));
+
+    const data = ss[etf];
+    document.getElementById('swlSectorLabel').textContent = etf;
+    document.getElementById('swlLoserLabel').textContent  = etf;
+
+    renderSWLTable('swlWinnerBody', data.top,    'pos');
+    renderSWLTable('swlLoserBody',  data.bottom, 'neg');
+  }
+
+  function renderSWLTable(divId, rows, sign) {
+    const div = document.getElementById(divId);
+    if (!rows || !rows.length) {
+      div.innerHTML = '<p class="swl-empty">데이터 없음</p>';
+      return;
+    }
+    div.innerHTML = `
+      <table class="swl-table">
+        <thead><tr>
+          <th style="width:32px">#</th>
+          <th style="width:72px">Ticker</th>
+          <th>Name</th>
+          <th style="text-align:right;width:80px">Return</th>
+        </tr></thead>
+        <tbody>
+          ${rows.map((r, i) => `
+            <tr>
+              <td style="color:#555">${i+1}</td>
+              <td style="color:#7eb3ff;font-weight:700">${r.ticker}</td>
+              <td>${r.name}</td>
+              <td style="text-align:right" class="${r.ret >= 0 ? 'swl-ret-pos' : 'swl-ret-neg'}">
+                ${r.ret >= 0 ? '+' : ''}${r.ret.toFixed(2)}%
+              </td>
+            </tr>`).join('')}
+        </tbody>
+      </table>`;
+  }
+})();
 
 document.addEventListener('keydown', e => {
   if (e.key==='Escape') {
