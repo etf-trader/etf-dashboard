@@ -109,6 +109,27 @@
   }
   .chip span { color: #ddd; font-weight: 600; }
 
+  /* ── Sector Winner/Loser 버튼 ── */
+  .sector-btn {
+    padding: 5px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600;
+    cursor: pointer; border: 1px solid #2a2d3a; background: #23263a; color: #888;
+    transition: background .15s, color .15s, border-color .15s;
+  }
+  .sector-btn:hover { color: #ccc; border-color: #444; }
+  .sector-btn.active { background: #3a6fff; color: #fff; border-color: #3a6fff; }
+
+  /* ── Sector Winner/Loser 테이블 ── */
+  .swl-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
+  .swl-table th {
+    text-align:left; color:#555; font-weight:500;
+    padding:5px 10px; border-bottom:1px solid #2a2d3a;
+  }
+  .swl-table td { padding:7px 10px; border-bottom:1px solid #1e2030; color:#ccc; }
+  .swl-table tr:last-child td { border-bottom:none; }
+  .swl-ret-pos { color:#00c48c; font-weight:600; }
+  .swl-ret-neg { color:#ff4d6d; font-weight:600; }
+  .swl-empty { color:#444; font-size:0.82rem; padding:16px 0; text-align:center; }
+
   /* ── Stock 탭 ── */
   .stock-page { padding: 20px 24px; }
 
@@ -158,19 +179,6 @@
     color: #333; font-size: 0.9rem; text-align: center; padding: 40px 0;
   }
 
-  /* Stock 펀더멘털 헤더 */
-  .stock-fundamentals {
-    background: #16181f; border-radius: 10px; padding: 12px 20px;
-    margin-bottom: 16px; text-align: center; display: none;
-  }
-  .stock-fundamentals.show { display: block; }
-  .stock-fundamentals .sf-title {
-    font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 6px;
-  }
-  .stock-fundamentals .sf-line {
-    font-size: 0.78rem; color: #888; line-height: 1.7;
-  }
-
   /* Stock 차트 영역 */
   .stock-chart-area {
     background: #16181f; border-radius: 10px; padding: 16px;
@@ -183,28 +191,6 @@
     font-size: 0.72rem; color: #555; font-weight: 600; letter-spacing: .04em;
     text-transform: uppercase; margin-bottom: 2px; padding-left: 4px;
   }
-
-  /* ── Sector Winner/Loser 버튼 ── */
-  .sector-btn {
-    padding: 5px 14px; border-radius: 6px; font-size: 0.82rem; font-weight: 600;
-    cursor: pointer; border: 1px solid #2a2d3a; background: #23263a; color: #888;
-    transition: background .15s, color .15s, border-color .15s;
-  }
-  .sector-btn:hover { color: #ccc; border-color: #444; }
-  .sector-btn.active { background: #3a6fff; color: #fff; border-color: #3a6fff; }
-  
-  /* ── Sector Winner/Loser 테이블 ── */
-  .swl-table { width:100%; border-collapse:collapse; font-size:0.82rem; }
-  .swl-table th {
-    text-align:left; color:#555; font-weight:500;
-    padding:5px 10px; border-bottom:1px solid #2a2d3a;
-  }
-  .swl-table td { padding:7px 10px; border-bottom:1px solid #1e2030; color:#ccc; }
-  .swl-table tr:last-child td { border-bottom:none; }
-  .swl-ret-pos { color:#00c48c; font-weight:600; }
-  .swl-ret-neg { color:#ff4d6d; font-weight:600; }
-  .swl-empty { color:#444; font-size:0.82rem; padding:16px 0; text-align:center; }
-
 </style>
 </head>
 <body>
@@ -269,6 +255,46 @@
   </div>
 </div>
 
+<!-- ════ Sector Winner / Loser (신규 추가) ════ -->
+<div style="padding: 0 24px 32px;">
+  <div style="background:#16181f;border-radius:10px;padding:16px;">
+    <h2 style="font-size:0.95rem;font-weight:600;color:#a0aec0;margin-bottom:12px;">
+      🏆 Sector Winner / Loser
+    </h2>
+
+    <!-- 섹터 선택 버튼 + 1D/1W 토글 -->
+    <div style="display:flex;justify-content:space-between;align-items:center;
+                flex-wrap:wrap;gap:10px;margin-bottom:16px;">
+      <div id="sectorBtnWrap" style="display:flex;flex-wrap:wrap;gap:8px;">
+        <!-- JS가 동적으로 섹터 버튼(XLB~XLRE) 생성 -->
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button id="swlBtn1D" class="sector-btn active" onclick="switchSWLPeriod('1D')">1D</button>
+        <button id="swlBtn1W" class="sector-btn" onclick="switchSWLPeriod('1W')">1W</button>
+      </div>
+    </div>
+
+    <!-- Winner / Loser 리스트 (위 아래 배치) -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+
+      <div style="background:#1a1d27;border-radius:8px;padding:14px;">
+        <h3 style="font-size:0.85rem;font-weight:700;color:#00c48c;margin-bottom:8px;">
+          📈 Top 10 — <span id="swlSectorLabel">-</span>
+        </h3>
+        <div id="swlWinnerBody"></div>
+      </div>
+
+      <div style="background:#1a1d27;border-radius:8px;padding:14px;">
+        <h3 style="font-size:0.85rem;font-weight:700;color:#ff4d6d;margin-bottom:8px;">
+          📉 Bottom 10 — <span id="swlLoserLabel">-</span>
+        </h3>
+        <div id="swlLoserBody"></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
 <!-- ETF 팝업 모달 -->
 <div class="overlay" id="etfOverlay" onclick="closeEtfModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
@@ -307,40 +333,6 @@
   </div>
 </div>
 
-
-<!-- ════ Sector Winner / Loser ════ -->
-<div style="padding: 0 24px 32px;">
-  <div style="background:#16181f;border-radius:10px;padding:16px;">
-    <h2 style="font-size:0.95rem;font-weight:600;color:#a0aec0;margin-bottom:12px;">
-      🏆 Sector Winner / Loser
-    </h2>
-
-    <!-- 섹터 선택 버튼 -->
-    <div id="sectorBtnWrap" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;">
-      <!-- JS가 동적으로 생성 -->
-    </div>
-
-    <!-- Winner / Loser 리스트 -->
-    <div style="display:flex;flex-direction:column;gap:12px;">
-
-      <div style="background:#1a1d27;border-radius:8px;padding:14px;">
-        <h3 style="font-size:0.85rem;font-weight:700;color:#00c48c;margin-bottom:8px;">
-          📈 Top 10 — <span id="swlSectorLabel">-</span>
-        </h3>
-        <div id="swlWinnerBody"></div>
-      </div>
-
-      <div style="background:#1a1d27;border-radius:8px;padding:14px;">
-        <h3 style="font-size:0.85rem;font-weight:700;color:#ff4d6d;margin-bottom:8px;">
-          📉 Bottom 10 — <span id="swlLoserLabel">-</span>
-        </h3>
-        <div id="swlLoserBody"></div>
-      </div>
-
-    </div>
-  </div>
-</div> 
-
 </div><!-- /page-etf -->
 
 
@@ -366,9 +358,6 @@
   <div class="stock-info-bar" id="stockInfoBar">
     <span class="stock-empty">종목을 검색해 선택하면 차트가 표시됩니다</span>
   </div>
-
-  <!-- 펀더멘털 헤더 (이름/산업, 시가총액, 매출, 배당 등) -->
-  <div class="stock-fundamentals" id="stockFundamentals"></div>
 
   <!-- 차트 영역 -->
   <div class="stock-chart-area" id="stockChartArea">
@@ -661,19 +650,29 @@ function renderRRG() {
 }
 renderRRG();
 
- // ══════════════════════════════════════════════════════
-//  Sector Winner / Loser
+document.addEventListener('keydown', e => {
+  if (e.key==='Escape') {
+    document.getElementById('etfOverlay').classList.remove('open');
+  }
+});
+
+// ══════════════════════════════════════════════════════
+//  Sector Winner / Loser (신규 추가)
+//  ETF_DATA.sector_stocks = {
+//    XLB: { top_1d:[{ticker,name,ret}], bottom_1d:[...], top_1w:[...], bottom_1w:[...] },
+//    ...
+//  }
 // ══════════════════════════════════════════════════════
 (function() {
-  // Python embed 데이터에서 sector_stocks 가져오기
-  // ETF_DATA.sector_stocks = { XLB: { top:[{ticker,name,ret},...], bottom:[...] }, ... }
   const ss = ETF_DATA.sector_stocks;
   if (!ss) return;
 
   const sectors = Object.keys(ss);
   const wrap    = document.getElementById('sectorBtnWrap');
+  let currentSector    = sectors[0];
+  let currentSWLPeriod = '1D';
 
-  // 버튼 생성
+  // 섹터 버튼(XLB~XLRE) 동적 생성
   sectors.forEach((etf, i) => {
     const btn = document.createElement('button');
     btn.className   = 'sector-btn' + (i === 0 ? ' active' : '');
@@ -682,23 +681,37 @@ renderRRG();
     wrap.appendChild(btn);
   });
 
-  // 첫 번째 섹터 표시
   if (sectors.length) selectSectorWL(sectors[0]);
 
+  // 1D/1W 토글 (HTML의 onclick에서 호출)
+  window.switchSWLPeriod = function(p) {
+    currentSWLPeriod = p;
+    ['1D','1W'].forEach(id => {
+      const btn = document.getElementById('swlBtn'+id);
+      btn.classList.toggle('active', id === p);
+    });
+    renderCurrentSWL();
+  };
+
   function selectSectorWL(etf) {
-    // 버튼 active 처리
+    currentSector = etf;
     wrap.querySelectorAll('.sector-btn').forEach(b =>
       b.classList.toggle('active', b.textContent === etf));
-
-    const data = ss[etf];
-    document.getElementById('swlSectorLabel').textContent = etf;
-    document.getElementById('swlLoserLabel').textContent  = etf;
-
-    renderSWLTable('swlWinnerBody', data.top,    'pos');
-    renderSWLTable('swlLoserBody',  data.bottom, 'neg');
+    renderCurrentSWL();
   }
 
-  function renderSWLTable(divId, rows, sign) {
+  function renderCurrentSWL() {
+    const data   = ss[currentSector];
+    const suffix = currentSWLPeriod === '1D' ? '_1d' : '_1w';
+
+    document.getElementById('swlSectorLabel').textContent = `${currentSector} (${currentSWLPeriod})`;
+    document.getElementById('swlLoserLabel').textContent  = `${currentSector} (${currentSWLPeriod})`;
+
+    renderSWLTable('swlWinnerBody', data['top' + suffix]);
+    renderSWLTable('swlLoserBody',  data['bottom' + suffix]);
+  }
+
+  function renderSWLTable(divId, rows) {
     const div = document.getElementById(divId);
     if (!rows || !rows.length) {
       div.innerHTML = '<p class="swl-empty">데이터 없음</p>';
@@ -726,12 +739,6 @@ renderRRG();
       </table>`;
   }
 })();
-
-document.addEventListener('keydown', e => {
-  if (e.key==='Escape') {
-    document.getElementById('etfOverlay').classList.remove('open');
-  }
-});
 
 
 // ══════════════════════════════════════════════════════
@@ -815,12 +822,10 @@ async function selectStock(idx) {
     const payload = await res.json();
     currentStock = payload;
     updateInfoBar(s, payload);
-    updateFundamentals(payload);
     renderStockCharts(payload);
   } catch(e) {
     document.getElementById('stockInfoBar').innerHTML =
       `<span style="color:#ff4d6d">⚠ ${s.ticker} 데이터를 불러올 수 없습니다</span>`;
-    document.getElementById('stockFundamentals').classList.remove('show');
   }
 }
 
@@ -842,25 +847,6 @@ function updateInfoBar(s, payload) {
     <span class="si-price">$${payload.last_close.toFixed(2)}</span>
     <span class="si-ret ${ret1d>=0?'pos':'neg'}">1D ${ret1d>=0?'+':''}${ret1d}%</span>
     <span class="si-ret ${ret1w>=0?'pos':'neg'}">1W ${ret1w>=0?'+':''}${ret1w}%</span>`;
-}
-
-// ── 펀더멘털 헤더 렌더링 ──────────────────────────
-function fmtVal(v, suffix='') {
-  return (v === null || v === undefined) ? '-' : v + suffix;
-}
-function updateFundamentals(payload) {
-  const box = document.getElementById('stockFundamentals');
-  const f = payload.fundamentals || {};
-  const title = payload.name + ' (' + payload.ticker + ')' +
-    (payload.industry ? ' / ' + payload.industry : '');
-
-  box.innerHTML = `
-    <div class="sf-title">${title}</div>
-    <div class="sf-line">Market cap: ${fmtVal(f.marketCap)}bil, Forward PE: ${fmtVal(f.forwardPE)}, ROE: ${fmtVal(f.returnOnEquity,'%')}</div>
-    <div class="sf-line">Revenue: ${fmtVal(f.totalRevenue)}bil, Revenue Growth: ${fmtVal(f.revenueGrowth,'%')}, Gross Margin: ${fmtVal(f.grossMargins,'%')}, Profit Margin: ${fmtVal(f.profitMargins,'%')}</div>
-    <div class="sf-line">Dividend Yield: ${fmtVal(f.dividendYield,'%')} &nbsp; Payout Ratio: ${fmtVal(f.payoutRatio,'%')}</div>
-  `;
-  box.classList.add('show');
 }
 
 // ── Stock 차트 렌더링 ──────────────────────────────
