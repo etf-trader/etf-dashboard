@@ -245,6 +245,60 @@ def calc_indicators(ohlcv: pd.DataFrame, spy: pd.Series) -> dict:
         'udvr': series_to_list(udvr),
     }
 
+def fetch_fundamentals(ticker: str) -> dict:
+    """
+    yf.Ticker(ticker).info 에서 펀더멘털 지표 추출.
+    네트워크 실패 시 빈 값(None / '')으로 채워 반환 (스크립트 중단 방지).
+    """
+    result = {
+        'industry':        '',
+        'marketCap':       None,
+        'forwardPE':       None,
+        'returnOnEquity':  None,
+        'totalRevenue':    None,
+        'revenueGrowth':   None,
+        'grossMargins':    None,
+        'profitMargins':   None,
+        'dividendYield':   None,
+        'payoutRatio':     None,
+    }
+
+    info = None
+    for attempt in range(2):
+        try:
+            info = yf.Ticker(ticker).info
+            break
+        except Exception as e:
+            if attempt == 0:
+                time.sleep(1)
+                continue
+            print(f"  {ticker}: info 조회 실패 ({e})")
+
+    if not info:
+        return result
+
+    def fmt(key, divisor=1, multiplier=1, decimals=1):
+        val = info.get(key)
+        if val is None:
+            return None
+        try:
+            return round(float(val) / divisor * multiplier, decimals)
+        except Exception:
+            return None
+
+    result['industry']       = info.get('industry', '') or ''
+    result['forwardPE']      = fmt('forwardPE')
+    result['marketCap']      = fmt('marketCap', 1e9)
+    result['dividendYield']  = fmt('dividendYield')
+    result['payoutRatio']    = fmt('payoutRatio', 1, 100)
+    result['totalRevenue']   = fmt('totalRevenue', 1e9)
+    result['revenueGrowth']  = fmt('revenueGrowth', 1, 100)
+    result['grossMargins']   = fmt('grossMargins', 1, 100)
+    result['profitMargins']  = fmt('profitMargins', 1, 100)
+    result['returnOnEquity'] = fmt('returnOnEquity', 1, 100)
+
+    return result
+
 # ─────────────────────────────────────────────
 # 4. 배치 다운로드 + 지표 계산 + JSON 저장
 # ─────────────────────────────────────────────
@@ -302,13 +356,20 @@ for batch_idx in range(total_batches):
             week_ago   = ohlcv['Close'].iloc[-6] if len(ohlcv) >= 6 else ohlcv['Close'].iloc[0]
             ret_1w = round((float(last_close) / float(week_ago) - 1) * 100, 2)
 
+            # 펀더멘털 정보 (yf.Ticker().info, 종목별 1회 호출)
+            fundamentals = fetch_fundamentals(ticker)
+            industry = fundamentals.pop('industry')
+            time.sleep(0.1)  # info 호출 과다 방지용 소폭 지연
+
             payload = {
                 'ticker': ticker,
                 'name':   name,
                 'sector': sector,
+                'industry': industry,
                 'ret_1d': ret_1d,
                 'ret_1w': ret_1w,
                 'last_close': round(float(last_close), 2),
+                'fundamentals': fundamentals,
                 'data': data,
             }
 
