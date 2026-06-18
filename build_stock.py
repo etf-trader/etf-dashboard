@@ -1,10 +1,10 @@
 """
 build_stock.py
 ==============
-SPY 구성종목 전체 다운로드 → 지표 계산 → JSON 저장
+SPY 구성종목 전체 다운로드 → 트레이더 지표 계산 → JSON 저장
 출력:
   etf_analysis/stocks/manifest.json   ← 티커/이름/섹터 목록
-  etf_analysis/stocks/{TICKER}.json   ← 종목별 OHLCV + 지표 데이터
+  etf_analysis/stocks/{TICKER}.json   ← 종목별 OHLCV + 필수 지표 데이터
 """
 
 import yfinance as yf
@@ -20,21 +20,19 @@ import os
 warnings.filterwarnings('ignore')
 
 # ─────────────────────────────────────────────
-# 설정
+# 트레이더 중심 설정 (중복 지표 삭제 및 MA 다이어트)
 # ─────────────────────────────────────────────
-DAYS_BEFORE   = 365 * 2
-OUT_DIR       = 'etf_analysis/stocks'
-BATCH_SIZE    = 50          # yf.download 배치 크기
+DAYS_BEFORE     = 365 * 2
+OUT_DIR         = 'etf_analysis/stocks'
+BATCH_SIZE      = 50          
 DONCHIAN_PERIOD = 20
-RSI_PERIOD    = 14
-STOCH_N       = 5
-WILLIAMS_N    = 14
-MACD_FAST     = 12
-MACD_SLOW     = 26
-MACD_SIGNAL   = 9
-MA_WINDOWS    = [5, 25, 50, 100, 150, 200]
-OBV_EMA_COM   = 20
-UDVR_PERIOD   = 20
+RSI_PERIOD      = 14
+STOCH_N         = 5
+MACD_FAST       = 12
+MACD_SLOW       = 26
+MACD_SIGNAL     = 9
+MA_WINDOWS      = [5, 20, 50, 200]  # 25, 100, 150, 200 -> 트레이더 표준 4개선으로 압축
+OBV_EMA_COM     = 20
 
 os.makedirs(OUT_DIR, exist_ok=True)
 
@@ -49,9 +47,7 @@ print("SPY holdings 다운로드 중...")
 rows = []
 import io
 import ssl
-import time
 import requests
-import pandas as pd
 
 ssl._create_default_https_context = ssl._create_unverified_context
 
@@ -72,20 +68,16 @@ while True:
         print(f"  holdings 연결 오류: {e}. 5초 후 재시도...")
         time.sleep(5)
 
-# USD 종목만 (현금·기타 제거)
 if 'Local Currency' in holdings.columns:
     holdings = holdings[holdings['Local Currency'] == 'USD']
 
-# SEDOL '-' 제거 (비상장·기타 항목)
 if 'SEDOL' in holdings.columns:
     holdings = holdings[holdings['SEDOL'] != '-']
 
-# 컬럼명 동적 탐지
 ticker_col = next((c for c in holdings.columns if 'ticker' in str(c).lower() or 'symbol' in str(c).lower()), None)
 name_col   = next((c for c in holdings.columns if 'name'   in str(c).lower()), None)
 sector_col = next((c for c in holdings.columns if 'sector' in str(c).lower()), None)
 
-# Sector 컬럼이 있으면 포함, 없으면 빈 문자열로 채움
 use_cols = [col for col in [ticker_col, name_col, sector_col] if col is not None]
 holdings = holdings[use_cols].dropna(subset=[ticker_col])
 holdings.columns = ['Ticker', 'Name', 'Sector'][:len(use_cols)]
@@ -93,18 +85,15 @@ holdings.columns = ['Ticker', 'Name', 'Sector'][:len(use_cols)]
 if 'Sector' not in holdings.columns:
     holdings['Sector'] = ''
 
-# yfinance용 티커 변환 (SSGA는 '.' 구분자 사용)
 holdings['Ticker'] = (
     holdings['Ticker']
     .astype(str).str.strip()
     .str.replace('.', '-', regex=False)
-    .replace({'BRK-B': 'BRK-B', 'BF-B': 'BF-B'})  # 이미 변환됨, 명시적 보험
+    .replace({'BRK-B': 'BRK-B', 'BF-B': 'BF-B'})
 )
 
 holdings = holdings[holdings['Ticker'] != '']
-
 df_loop = holdings[['Ticker', 'Name', 'Sector']].copy().reset_index(drop=True)
-
 tickers = df_loop['Ticker'].tolist()
 print(f"  총 {len(tickers)}개 종목 로드")
 
@@ -113,14 +102,13 @@ print(f"  총 {len(tickers)}개 종목 로드")
 # ─────────────────────────────────────────────
 print("SPY(벤치마크) 다운로드 중...")
 spy_df = yf.download('SPY', start=from_date, end=to_date, progress=False, auto_adjust=True)
-spy_close = spy_df['Close'].squeeze()  # Series
+spy_close = spy_df['Close'].squeeze()  
 spy_close.name = 'SPY'
 
 # ─────────────────────────────────────────────
-# 3. 지표 계산 함수
+# 3. 지표 계산 함수 (트레이더 버전 최적화)
 # ─────────────────────────────────────────────
 def safe(val):
-    """NaN/Inf → None 변환"""
     if val is None:
         return None
     try:
@@ -135,11 +123,6 @@ def series_to_list(s):
     return [safe(v) for v in s.tolist()]
 
 def calc_indicators(ohlcv: pd.DataFrame, spy: pd.Series) -> dict:
-    """
-    ohlcv: MultiIndex 없이 Open/High/Low/Close/Volume 컬럼
-    spy  : SPY Close Series (같은 인덱스 기준)
-    반환: 차트에 필요한 모든 시리즈 dict
-    """
     close  = ohlcv['Close'].squeeze()
     high   = ohlcv['High'].squeeze()
     low    = ohlcv['Low'].squeeze()
@@ -147,19 +130,19 @@ def calc_indicators(ohlcv: pd.DataFrame, spy: pd.Series) -> dict:
 
     dates = close.index.strftime('%Y-%m-%d').tolist()
 
-    # ── Donchian ──────────────────────────────
+    # ── Donchian ──
     upper_don = high.rolling(DONCHIAN_PERIOD).max()
     lower_don = low.rolling(DONCHIAN_PERIOD).min()
     mid_don   = (upper_don + lower_don) / 2
 
-    # ── Stochastic ────────────────────────────
+    # ── Stochastic ──
     low_min  = low.rolling(STOCH_N).min()
     high_max = high.rolling(STOCH_N).max()
     fast_k   = (close - low_min) / (high_max - low_min) * 100
     slow_k   = fast_k.rolling(STOCH_N).mean()
     slow_d   = slow_k.rolling(STOCH_N).mean()
 
-    # ── RSI ───────────────────────────────────
+    # ── RSI ──
     change      = close.diff()
     change_up   = change.clip(lower=0)
     change_down = (-change).clip(lower=0)
@@ -167,43 +150,32 @@ def calc_indicators(ohlcv: pd.DataFrame, spy: pd.Series) -> dict:
     avg_down    = change_down.rolling(RSI_PERIOD).mean()
     rsi         = 100 * avg_up / (avg_up + avg_down)
 
-    # ── Williams %R ───────────────────────────
-    h14        = high.rolling(WILLIAMS_N).max()
-    l14        = low.rolling(WILLIAMS_N).min()
-    williams_r = (h14 - close) / (h14 - l14) * -100
-
-    # ── Relative Strength vs SPY ──────────────
+    # ── Relative Strength vs SPY ──
     spy_aligned = spy.reindex(close.index).ffill()
     rs_index    = (close / spy_aligned)
     rs_index    = rs_index / rs_index.iloc[0]
     rs_ma50     = rs_index.rolling(50).mean()
 
-    # ── MACD ──────────────────────────────────
+    # ── MACD ──
     ema_fast    = close.ewm(span=MACD_FAST,   adjust=False).mean()
     ema_slow    = close.ewm(span=MACD_SLOW,   adjust=False).mean()
     macd_spread = ema_fast - ema_slow
     macd_signal = macd_spread.ewm(span=MACD_SIGNAL, adjust=False).mean()
     macd_oscill = macd_spread - macd_signal
 
-    # ── MA50 Deviation ────────────────────────
+    # ── MA50 Deviation ──
     ma50         = close.rolling(50).mean()
     ma50_dev     = (close - ma50) / ma50 * 100
 
-    # ── Moving Averages ───────────────────────
+    # ── Moving Averages (5, 20, 50, 200으로 핵심 최적화) ──
     mas = {w: close.rolling(w).mean() for w in MA_WINDOWS}
 
-    # ── OBV ───────────────────────────────────
+    # ── OBV ──
     direction = change.apply(lambda x: 1 if x > 0 else (-1 if x < 0 else 0))
     obv       = (volume * direction).cumsum()
     obv_ema   = obv.ewm(com=OBV_EMA_COM).mean()
 
-    # ── UDVR ──────────────────────────────────
-    up_mask   = (change > 0).astype(int)
-    down_mask = (change < 0).astype(int)
-    up_vol    = volume.multiply(up_mask).rolling(UDVR_PERIOD).sum()
-    down_vol  = volume.multiply(down_mask).rolling(UDVR_PERIOD).sum()
-    udvr      = up_vol / down_vol
-
+    # [Williams %R 및 UDVR 삭제로 연산 및 리턴 경량화]
     return {
         'dates':      dates,
         'close':      series_to_list(close),
@@ -211,45 +183,27 @@ def calc_indicators(ohlcv: pd.DataFrame, spy: pd.Series) -> dict:
         'high':       series_to_list(high),
         'low':        series_to_list(low),
         'volume':     [int(v) if not math.isnan(float(v)) else 0 for v in volume.tolist()],
-        # Donchian
         'upper_don':  series_to_list(upper_don),
         'lower_don':  series_to_list(lower_don),
         'mid_don':    series_to_list(mid_don),
-        # Stochastic
         'slow_k':     series_to_list(slow_k),
         'slow_d':     series_to_list(slow_d),
-        # RSI
         'rsi':        series_to_list(rsi),
-        # Williams %R
-        'williams_r': series_to_list(williams_r),
-        # RS
         'rs_index':   series_to_list(rs_index),
         'rs_ma50':    series_to_list(rs_ma50),
-        # MACD
         'macd_spread': series_to_list(macd_spread),
         'macd_signal': series_to_list(macd_signal),
         'macd_oscill': series_to_list(macd_oscill),
-        # MA50 Dev
         'ma50_dev':   series_to_list(ma50_dev),
-        # MAs
         'ma5':   series_to_list(mas[5]),
-        'ma25':  series_to_list(mas[25]),
+        'ma20':  series_to_list(mas[20]), # 마이너 커스텀 이평선 25 -> 실전 20선으로 고정
         'ma50':  series_to_list(mas[50]),
-        'ma100': series_to_list(mas[100]),
-        'ma150': series_to_list(mas[150]),
         'ma200': series_to_list(mas[200]),
-        # OBV
         'obv':     series_to_list(obv),
         'obv_ema': series_to_list(obv_ema),
-        # UDVR
-        'udvr': series_to_list(udvr),
     }
 
 def fetch_fundamentals(ticker: str) -> dict:
-    """
-    yf.Ticker(ticker).info 에서 펀더멘털 지표 추출.
-    네트워크 실패 시 빈 값(None / '')으로 채워 반환 (스크립트 중단 방지).
-    """
     result = {
         'industry':        '',
         'marketCap':       None,
@@ -262,18 +216,15 @@ def fetch_fundamentals(ticker: str) -> dict:
         'dividendYield':   None,
         'payoutRatio':     None,
     }
-
     info = None
     for attempt in range(2):
         try:
             info = yf.Ticker(ticker).info
             break
-        except Exception as e:
+        except Exception:
             if attempt == 0:
                 time.sleep(1)
                 continue
-            print(f"  {ticker}: info 조회 실패 ({e})")
-
     if not info:
         return result
 
@@ -296,7 +247,6 @@ def fetch_fundamentals(ticker: str) -> dict:
     result['grossMargins']   = fmt('grossMargins', 1, 100)
     result['profitMargins']  = fmt('profitMargins', 1, 100)
     result['returnOnEquity'] = fmt('returnOnEquity', 1, 100)
-
     return result
 
 # ─────────────────────────────────────────────
@@ -304,7 +254,6 @@ def fetch_fundamentals(ticker: str) -> dict:
 # ─────────────────────────────────────────────
 manifest = []
 failed   = []
-
 total_batches = math.ceil(len(tickers) / BATCH_SIZE)
 
 for batch_idx in range(total_batches):
@@ -313,8 +262,7 @@ for batch_idx in range(total_batches):
 
     for attempt in range(3):
         try:
-            raw = yf.download(batch, start=from_date, end=to_date,
-                              progress=False, auto_adjust=True)
+            raw = yf.download(batch, start=from_date, end=to_date, progress=False, auto_adjust=True)
             break
         except Exception as e:
             print(f"  다운로드 오류: {e}. 5초 후 재시도...")
@@ -324,7 +272,6 @@ for batch_idx in range(total_batches):
         failed.extend(batch)
         continue
 
-    # 단일 종목 배치면 MultiIndex가 없음
     single = (len(batch) == 1)
 
     for ticker in batch:
@@ -336,19 +283,14 @@ for batch_idx in range(total_batches):
             if single:
                 ohlcv = raw[['Open', 'High', 'Low', 'Close', 'Volume']].copy()
             else:
-                ohlcv = raw.xs(ticker, axis=1, level=1)[
-                    ['Open', 'High', 'Low', 'Close', 'Volume']
-                ].copy()
+                ohlcv = raw.xs(ticker, axis=1, level=1)[['Open', 'High', 'Low', 'Close', 'Volume']].copy()
 
             ohlcv = ohlcv.dropna(subset=['Close'])
-
             if len(ohlcv) < 60:
-                print(f"  {ticker}: 데이터 부족 ({len(ohlcv)}행), 스킵")
                 continue
 
             data = calc_indicators(ohlcv, spy_close)
 
-            # 기본 정보 추가
             last_close  = ohlcv['Close'].iloc[-1]
             prev_close  = ohlcv['Close'].iloc[-2] if len(ohlcv) >= 2 else last_close
             ret_1d = round((float(last_close) / float(prev_close) - 1) * 100, 2)
@@ -356,10 +298,9 @@ for batch_idx in range(total_batches):
             week_ago   = ohlcv['Close'].iloc[-6] if len(ohlcv) >= 6 else ohlcv['Close'].iloc[0]
             ret_1w = round((float(last_close) / float(week_ago) - 1) * 100, 2)
 
-            # 펀더멘털 정보 (yf.Ticker().info, 종목별 1회 호출)
             fundamentals = fetch_fundamentals(ticker)
             industry = fundamentals.pop('industry')
-            time.sleep(0.1)  # info 호출 과다 방지용 소폭 지연
+            time.sleep(0.1)  
 
             payload = {
                 'ticker': ticker,
@@ -403,7 +344,3 @@ with open(manifest_path, 'w', encoding='utf-8') as f:
     }, f, ensure_ascii=False)
 
 print(f"\n\n✓ 완료: {len(manifest)}개 저장, {len(failed)}개 실패")
-if failed:
-    print(f"  실패 목록: {failed}")
-print(f"  → {OUT_DIR}/manifest.json")
-print(f"  → {OUT_DIR}/{{TICKER}}.json")
