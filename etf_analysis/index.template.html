@@ -179,6 +179,19 @@
     color: #333; font-size: 0.9rem; text-align: center; padding: 40px 0;
   }
 
+ /* Stock 펀더멘털 헤더 */
+ .stock-fundamentals {
+   background: #16181f; border-radius: 10px; padding: 12px 20px;
+   margin-bottom: 16px; text-align: center; display: none;
+ }
+ .stock-fundamentals.show { display: block; }
+ .stock-fundamentals .sf-title {
+   font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 6px;
+ }
+ .stock-fundamentals .sf-line {
+   font-size: 0.78rem; color: #888; line-height: 1.7;
+ }
+
   /* Stock 차트 영역 (실전 트레이더용 5단 레이아웃) */
   .stock-chart-area {
     background: #16181f; border-radius: 10px; padding: 16px;
@@ -338,6 +351,9 @@
   <div class="stock-info-bar" id="stockInfoBar">
     <span class="stock-empty">종목을 검색해 선택하면 차트가 표시됩니다</span>
   </div>
+
+   <!-- 펀더멘털 헤더 (이름/산업, 시가총액, 매출, 배당 등) -->
+  <div class="stock-fundamentals" id="stockFundamentals"></div>
 
   <div class="stock-chart-area" id="stockChartArea">
 
@@ -749,10 +765,12 @@ async function selectStock(idx) {
     const payload = await res.json();
     currentStock = payload;
     updateInfoBar(s, payload);
+    updateFundamentals(payload);
     renderStockCharts(payload);
   } catch(e) {
     document.getElementById('stockInfoBar').innerHTML =
       `<span style="color:#ff4d6d">⚠ ${s.ticker} 데이터를 불러올 수 없습니다</span>`;
+    document.getElementById('stockFundamentals').classList.remove('show');
   }
 }
 
@@ -774,6 +792,25 @@ function updateInfoBar(s, payload) {
     <span class="si-price">$${payload.last_close.toFixed(2)}</span>
     <span class="si-ret ${ret1d>=0?'pos':'neg'}">1D ${ret1d>=0?'+':''}${ret1d}%</span>
     <span class="si-ret ${ret1w>=0?'pos':'neg'}">1W ${ret1w>=0?'+':''}${ret1w}%</span>`;
+}
+
+ // ── 펀더멘털 헤더 렌더링 ──────────────────────────
+function fmtVal(v, suffix='') {
+  return (v === null || v === undefined) ? '-' : v + suffix;
+}
+function updateFundamentals(payload) {
+  const box = document.getElementById('stockFundamentals');
+  const f = payload.fundamentals || {};
+  const title = payload.name + ' (' + payload.ticker + ')' +
+    (payload.industry ? ' / ' + payload.industry : '');
+ 
+  box.innerHTML = `
+    <div class="sf-title">${title}</div>
+    <div class="sf-line">Market cap: ${fmtVal(f.marketCap)}bil, Forward PE: ${fmtVal(f.forwardPE)}, ROE: ${fmtVal(f.returnOnEquity,'%')}</div>
+    <div class="sf-line">Revenue: ${fmtVal(f.totalRevenue)}bil, Revenue Growth: ${fmtVal(f.revenueGrowth,'%')}, Gross Margin: ${fmtVal(f.grossMargins,'%')}, Profit Margin: ${fmtVal(f.profitMargins,'%')}</div>
+    <div class="sf-line">Dividend Yield: ${fmtVal(f.dividendYield,'%')} &nbsp; Payout Ratio: ${fmtVal(f.payoutRatio,'%')}</div>
+  `;
+  box.classList.add('show');
 }
 
 // ── Stock 차트 렌더링 (트레이더 전용 5단 레이아웃 및 가이드선 무한 동기화) ──────────────────────────────
