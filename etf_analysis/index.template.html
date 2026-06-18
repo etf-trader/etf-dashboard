@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ETF Dashboard</title>
+<title>ETF & Stock Trader Dashboard</title>
 <script src="https://cdn.plot.ly/plotly-2.30.0.min.js"></script>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -179,7 +179,20 @@
     color: #333; font-size: 0.9rem; text-align: center; padding: 40px 0;
   }
 
-  /* Stock 차트 영역 */
+ /* Stock 펀더멘털 헤더 */
+ .stock-fundamentals {
+   background: #16181f; border-radius: 10px; padding: 12px 20px;
+   margin-bottom: 16px; text-align: center; display: none;
+ }
+ .stock-fundamentals.show { display: block; }
+ .stock-fundamentals .sf-title {
+   font-size: 0.95rem; font-weight: 700; color: #fff; margin-bottom: 6px;
+ }
+ .stock-fundamentals .sf-line {
+   font-size: 0.78rem; color: #888; line-height: 1.7;
+ }
+
+  /* Stock 차트 영역 (실전 트레이더용 5단 레이아웃) */
   .stock-chart-area {
     background: #16181f; border-radius: 10px; padding: 16px;
   }
@@ -195,16 +208,12 @@
 </head>
 <body>
 
-<!-- ── 네비바 ── -->
 <nav class="navbar">
   <h1>📊 Dashboard</h1>
   <button class="nav-tab active" onclick="switchPage('etf')">ETF</button>
   <button class="nav-tab"        onclick="switchPage('stock')">Stock</button>
 </nav>
 
-<!-- ════════════════════════════════════════
-     ETF 탭
-═════════════════════════════════════════ -->
 <div id="page-etf" class="page active">
 
 <header class="etf-header">
@@ -255,28 +264,22 @@
   </div>
 </div>
 
-<!-- ════ Sector Winner / Loser (신규 추가) ════ -->
 <div style="padding: 0 24px 32px;">
   <div style="background:#16181f;border-radius:10px;padding:16px;">
     <h2 style="font-size:0.95rem;font-weight:600;color:#a0aec0;margin-bottom:12px;">
       🏆 Sector Winner / Loser
     </h2>
 
-    <!-- 섹터 선택 버튼 + 1D/1W 토글 -->
     <div style="display:flex;justify-content:space-between;align-items:center;
                 flex-wrap:wrap;gap:10px;margin-bottom:16px;">
-      <div id="sectorBtnWrap" style="display:flex;flex-wrap:wrap;gap:8px;">
-        <!-- JS가 동적으로 섹터 버튼(XLB~XLRE) 생성 -->
-      </div>
+      <div id="sectorBtnWrap" style="display:flex;flex-wrap:wrap;gap:8px;"></div>
       <div style="display:flex;gap:6px;">
         <button id="swlBtn1D" class="sector-btn active" onclick="switchSWLPeriod('1D')">1D</button>
         <button id="swlBtn1W" class="sector-btn" onclick="switchSWLPeriod('1W')">1W</button>
       </div>
     </div>
 
-    <!-- Winner / Loser 리스트 (위 아래 배치) -->
     <div style="display:flex;flex-direction:column;gap:12px;">
-
       <div style="background:#1a1d27;border-radius:8px;padding:14px;">
         <h3 style="font-size:0.85rem;font-weight:700;color:#00c48c;margin-bottom:8px;">
           📈 Top 10 — <span id="swlSectorLabel">-</span>
@@ -290,12 +293,10 @@
         </h3>
         <div id="swlLoserBody"></div>
       </div>
-
     </div>
   </div>
 </div>
 
-<!-- ETF 팝업 모달 -->
 <div class="overlay" id="etfOverlay" onclick="closeEtfModal(event)">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-header">
@@ -333,16 +334,9 @@
   </div>
 </div>
 
-</div><!-- /page-etf -->
-
-
-<!-- ════════════════════════════════════════
-     Stock 탭
-═════════════════════════════════════════ -->
-<div id="page-stock" class="page">
+</div><div id="page-stock" class="page">
 <div class="stock-page">
 
-  <!-- 검색창 -->
   <div class="stock-search-wrap">
     <label>🔍 종목 검색</label>
     <div class="search-input-wrap">
@@ -354,80 +348,42 @@
     <div style="font-size:0.78rem;color:#444;" id="stockManifestInfo"></div>
   </div>
 
-  <!-- 종목 정보 바 -->
   <div class="stock-info-bar" id="stockInfoBar">
     <span class="stock-empty">종목을 검색해 선택하면 차트가 표시됩니다</span>
   </div>
 
-  <!-- 차트 영역 -->
+   <!-- 펀더멘털 헤더 (이름/산업, 시가총액, 매출, 배당 등) -->
+  <div class="stock-fundamentals" id="stockFundamentals"></div>
+
   <div class="stock-chart-area" id="stockChartArea">
 
-    <!-- 1. Price + MA + Donchian -->
     <div class="subplot-row">
-      <div class="subplot-label">Price · MA · Donchian (20)</div>
-      <div id="sc0" style="height:280px"></div>
+      <div class="subplot-label">Price · MA (5,20,50,200) · Donchian (20)</div>
+      <div id="sc0" style="height:300px"></div>
     </div>
 
-    <!-- 2. Stochastic -->
     <div class="subplot-row">
-      <div class="subplot-label">Stochastic (5,5)</div>
+      <div class="subplot-label">Stochastic (5,5) · RSI (14)</div>
       <div id="sc1" style="height:120px"></div>
     </div>
 
-    <!-- 3. RSI -->
     <div class="subplot-row">
-      <div class="subplot-label">RSI (14)</div>
-      <div id="sc2" style="height:110px"></div>
+      <div class="subplot-label">MACD Line &amp; Oscillator (12,26,9)</div>
+      <div id="sc2" style="height:135px"></div>
     </div>
 
-    <!-- 4. Williams %R -->
     <div class="subplot-row">
-      <div class="subplot-label">Williams %R (14)</div>
+      <div class="subplot-label">MA50 Deviation (%)</div>
       <div id="sc3" style="height:110px"></div>
     </div>
 
-    <!-- 5. Relative Strength vs SPY -->
-    <div class="subplot-row">
-      <div class="subplot-label">Relative Strength vs SPY</div>
-      <div id="sc4" style="height:110px"></div>
-    </div>
-
-    <!-- 6. MACD -->
-    <div class="subplot-row">
-      <div class="subplot-label">MACD (12,26,9)</div>
-      <div id="sc5" style="height:110px"></div>
-    </div>
-
-    <!-- 7. MACD Oscillator -->
-    <div class="subplot-row">
-      <div class="subplot-label">MACD Oscillator</div>
-      <div id="sc6" style="height:100px"></div>
-    </div>
-
-    <!-- 8. MA50 Deviation -->
-    <div class="subplot-row">
-      <div class="subplot-label">MA50 Deviation (%)</div>
-      <div id="sc7" style="height:100px"></div>
-    </div>
-
-    <!-- 9. OBV -->
     <div class="subplot-row">
       <div class="subplot-label">OBV · OBV EMA</div>
-      <div id="sc8" style="height:110px"></div>
+      <div id="sc4" style="height:120px"></div>
     </div>
 
-    <!-- 10. UDVR -->
-    <div class="subplot-row">
-      <div class="subplot-label">UDVR (20)</div>
-      <div id="sc9" style="height:100px"></div>
-    </div>
-
-  </div><!-- /stock-chart-area -->
-</div>
-</div><!-- /page-stock -->
-
-
-<script>
+  </div></div>
+</div><script>
 // ══════════════════════════════════════════════════════
 //  ETF 데이터 (Python이 embed)
 // ══════════════════════════════════════════════════════
@@ -468,7 +424,7 @@ function switchPage(name) {
 }
 
 // ══════════════════════════════════════════════════════
-//  ETF 탭 로직 (기존 코드 그대로)
+//  ETF 탭 로직
 // ══════════════════════════════════════════════════════
 let currentEtfSym  = null;
 let currentEtfMode = 'daily';
@@ -656,13 +612,7 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// ══════════════════════════════════════════════════════
-//  Sector Winner / Loser (신규 추가)
-//  ETF_DATA.sector_stocks = {
-//    XLB: { top_1d:[{ticker,name,ret}], bottom_1d:[...], top_1w:[...], bottom_1w:[...] },
-//    ...
-//  }
-// ══════════════════════════════════════════════════════
+// Sector Winner / Loser 
 (function() {
   const ss = ETF_DATA.sector_stocks;
   if (!ss) return;
@@ -672,7 +622,6 @@ document.addEventListener('keydown', e => {
   let currentSector    = sectors[0];
   let currentSWLPeriod = '1D';
 
-  // 섹터 버튼(XLB~XLRE) 동적 생성
   sectors.forEach((etf, i) => {
     const btn = document.createElement('button');
     btn.className   = 'sector-btn' + (i === 0 ? ' active' : '');
@@ -683,7 +632,6 @@ document.addEventListener('keydown', e => {
 
   if (sectors.length) selectSectorWL(sectors[0]);
 
-  // 1D/1W 토글 (HTML의 onclick에서 호출)
   window.switchSWLPeriod = function(p) {
     currentSWLPeriod = p;
     ['1D','1W'].forEach(id => {
@@ -742,14 +690,13 @@ document.addEventListener('keydown', e => {
 
 
 // ══════════════════════════════════════════════════════
-//  Stock 탭 로직
+//  Stock 탭 로직 (트레이더 핵심 최적화 완료)
 // ══════════════════════════════════════════════════════
-let stockManifest  = null;   // manifest.json 로드 후 저장
-let currentStock   = null;   // 현재 선택된 종목 payload
-let acIndex        = -1;     // 자동완성 선택 인덱스
-let acItems        = [];     // 현재 자동완성 결과
+let stockManifest  = null;   
+let currentStock   = null;   
+let acIndex        = -1;     
+let acItems        = [];     
 
-// manifest 로드 (Stock 탭 첫 진입 시)
 async function loadManifest() {
   try {
     const res = await fetch('stocks/manifest.json');
@@ -763,7 +710,6 @@ async function loadManifest() {
   }
 }
 
-// 검색 입력
 function onSearchInput() {
   const q = document.getElementById('stockSearchInput').value.trim().toUpperCase();
   const list = document.getElementById('autocompleteList');
@@ -785,7 +731,6 @@ function onSearchInput() {
   list.classList.add('open');
 }
 
-// 키보드 탐색
 function onSearchKeydown(e) {
   const list = document.getElementById('autocompleteList');
   if (!list.classList.contains('open')) return;
@@ -807,13 +752,11 @@ function updateAcHighlight() {
     el.classList.toggle('selected', i===acIndex));
 }
 
-// 종목 선택 → JSON 로드 → 차트 렌더
 async function selectStock(idx) {
   const s = acItems[idx];
   document.getElementById('stockSearchInput').value = s.ticker;
   document.getElementById('autocompleteList').classList.remove('open');
 
-  // 정보 바 로딩 표시
   updateInfoBar(s, null);
 
   try {
@@ -822,10 +765,12 @@ async function selectStock(idx) {
     const payload = await res.json();
     currentStock = payload;
     updateInfoBar(s, payload);
+    updateFundamentals(payload);
     renderStockCharts(payload);
   } catch(e) {
     document.getElementById('stockInfoBar').innerHTML =
       `<span style="color:#ff4d6d">⚠ ${s.ticker} 데이터를 불러올 수 없습니다</span>`;
+    document.getElementById('stockFundamentals').classList.remove('show');
   }
 }
 
@@ -849,170 +794,130 @@ function updateInfoBar(s, payload) {
     <span class="si-ret ${ret1w>=0?'pos':'neg'}">1W ${ret1w>=0?'+':''}${ret1w}%</span>`;
 }
 
-// ── Stock 차트 렌더링 ──────────────────────────────
+ // ── 펀더멘털 헤더 렌더링 ──────────────────────────
+function fmtVal(v, suffix='') {
+  return (v === null || v === undefined) ? '-' : v + suffix;
+}
+function updateFundamentals(payload) {
+  const box = document.getElementById('stockFundamentals');
+  const f = payload.fundamentals || {};
+  const title = payload.name + ' (' + payload.ticker + ')' +
+    (payload.industry ? ' / ' + payload.industry : '');
+ 
+  box.innerHTML = `
+    <div class="sf-title">${title}</div>
+    <div class="sf-line">Market cap: ${fmtVal(f.marketCap)}bil, Forward PE: ${fmtVal(f.forwardPE)}, ROE: ${fmtVal(f.returnOnEquity,'%')}</div>
+    <div class="sf-line">Revenue: ${fmtVal(f.totalRevenue)}bil, Revenue Growth: ${fmtVal(f.revenueGrowth,'%')}, Gross Margin: ${fmtVal(f.grossMargins,'%')}, Profit Margin: ${fmtVal(f.profitMargins,'%')}</div>
+    <div class="sf-line">Dividend Yield: ${fmtVal(f.dividendYield,'%')} &nbsp; Payout Ratio: ${fmtVal(f.payoutRatio,'%')}</div>
+  `;
+  box.classList.add('show');
+}
+
+// ── Stock 차트 렌더링 (트레이더 전용 5단 레이아웃 및 가이드선 무한 동기화) ──────────────────────────────
 function renderStockCharts(payload) {
   const d = payload.data;
   const x = d.dates;
 
-  // 공통 x축 설정 — 월 첫 등장 위치만 틱으로 찍어 중복 제거
+  // 공통 x축 틱 간소화 설정
   const isMob = window.innerWidth <= 768;
   const seen = new Set();
   const tickvals = [], ticktext = [];
-  x.forEach((v, i) => {
-    if (!seen.has(v)) {
-      seen.add(v);
-      tickvals.push(v);
-      ticktext.push(v);
-    }
+  x.forEach((v) => {
+    if (!seen.has(v)) { seen.add(v); tickvals.push(v); ticktext.push(v); }
   });
-  // 모바일은 최대 6개, 데스크탑은 12개로 추가 간소화
   const maxTicks = isMob ? 6 : 12;
   const stride = Math.max(1, Math.floor(tickvals.length / maxTicks));
   const finalVals = tickvals.filter((_, i) => i % stride === 0);
   const finalText = ticktext.filter((_, i) => i % stride === 0);
+
   const xax = {
     gridcolor:'#1a1d27', showgrid:true, zeroline:false,
-    tickmode: 'array',
-    tickvals: finalVals,
-    ticktext: finalText,
-    tickangle: -45,
+    tickmode: 'array', tickvals: finalVals, ticktext: finalText, tickangle: -45,
     tickfont: { size: isMob ? 9 : 10 },
+    // ── 실시간 마우스 오버 세로 가이드라인(Spikeline) 핵심 장착 ──
+    showspikes: true, spikemode: 'cursor+across', spikethickness: 1, spikedash: 'dash', spikecolor: '#a0aec0'
   };
   const yax = { gridcolor:'#1a1d27', showgrid:true, zeroline:false, automargin:true };
 
-  // ── 0. Price + MA + Donchian ──
+  // ── 1. Price + Trader MA(5,20,50,200) + Donchian ──
   Plotly.purge('sc0');
   Plotly.newPlot('sc0', [
-    // Donchian fill
-    { x, y:d.upper_don, type:'scatter', mode:'lines', line:{color:'rgba(0,196,196,0)', width:0},
-      showlegend:false, hoverinfo:'skip' },
-    { x, y:d.lower_don, type:'scatter', mode:'lines', fill:'tonexty',
-      fillcolor:'rgba(0,196,196,0.06)', line:{color:'rgba(0,196,196,0)',width:0},
-      showlegend:false, hoverinfo:'skip' },
-    // Donchian lines
-    { x, y:d.upper_don, name:'Don Upper', type:'scatter', mode:'lines',
-      line:{color:'rgba(0,196,196,0.5)',width:1,dash:'dot'} },
-    { x, y:d.lower_don, name:'Don Lower', type:'scatter', mode:'lines',
-      line:{color:'rgba(0,196,196,0.5)',width:1,dash:'dot'} },
-    { x, y:d.mid_don,   name:'Don Mid',   type:'scatter', mode:'lines',
-      line:{color:'rgba(0,196,196,0.3)',width:1,dash:'dot'} },
-    // MAs
+    { x, y:d.upper_don, type:'scatter', mode:'lines', line:{width:0}, showlegend:false, hoverinfo:'skip' },
+    { x, y:d.lower_don, type:'scatter', mode:'lines', fill:'tonexty', fillcolor:'rgba(0,196,196,0.04)', line:{width:0}, showlegend:false, hoverinfo:'skip' },
+    { x, y:d.upper_don, name:'Don Up', type:'scatter', mode:'lines', line:{color:'rgba(0,196,196,0.4)',width:1,dash:'dot'} },
+    { x, y:d.lower_don, name:'Don Low', type:'scatter', mode:'lines', line:{color:'rgba(0,196,196,0.4)',width:1,dash:'dot'} },
     { x, y:d.ma5,   name:'MA5',   type:'scatter', mode:'lines', line:{width:1.2, color:'#f0c040'} },
-    { x, y:d.ma25,  name:'MA25',  type:'scatter', mode:'lines', line:{width:1.2, color:'#f08040'} },
+    { x, y:d.ma20,  name:'MA20',  type:'scatter', mode:'lines', line:{width:1.5, color:'#f08040'} },
     { x, y:d.ma50,  name:'MA50',  type:'scatter', mode:'lines', line:{width:1.5, color:'#40a0f0'} },
-    { x, y:d.ma100, name:'MA100', type:'scatter', mode:'lines', line:{width:1.2, color:'#9040f0'} },
-    { x, y:d.ma150, name:'MA150', type:'scatter', mode:'lines', line:{width:1.2, color:'#f04080'} },
     { x, y:d.ma200, name:'MA200', type:'scatter', mode:'lines', line:{width:2.0, color:'#ff4d6d'} },
-    // High / Low
-    { x, y:d.high, name:'High', type:'scatter', mode:'lines',
-      line:{color:'rgba(0,196,140,0.35)',width:1,dash:'dot'} },
-    { x, y:d.low,  name:'Low',  type:'scatter', mode:'lines',
-      line:{color:'rgba(255,77,109,0.35)',width:1,dash:'dot'} },
-    // Close (최상위)
-    { x, y:d.close, name:'Close', type:'scatter', mode:'lines',
-      line:{color:'#ffffff',width:2}, hovertemplate:'%{x}<br>$%{y:.2f}<extra>Close</extra>' },
-  ], { ...subLayout(), height:280,
-    xaxis:{...xax}, yaxis:{...yax, tickprefix:'$'},
-    legend:{ orientation:'h', y:1.08, font:{size:9}, bgcolor:'rgba(0,0,0,0)' },
-    showlegend:true,
-  }, cfg);
+    { x, y:d.close, name:'Close', type:'scatter', mode:'lines', line:{color:'#ffffff',width:2}, hovertemplate:'%{x}<br>$%{y:.2f}<extra>Price</extra>' },
+  ], { ...subLayout(), height:300, xaxis:xax, yaxis:{...yax, tickprefix:'$'}, showlegend:true, legend:{orientation:'h',y:1.08,font:{size:9},bgcolor:'rgba(0,0,0,0)'} }, cfg);
 
-  // ── 1. Stochastic ──
+  // ── 2. Stochastic & RSI 복합 레이아웃 ──
   Plotly.purge('sc1');
   Plotly.newPlot('sc1', [
     { x, y:d.slow_k, name:'%K', type:'scatter', mode:'lines', line:{color:'#3a6fff',width:1.5} },
     { x, y:d.slow_d, name:'%D', type:'scatter', mode:'lines', line:{color:'#f5a623',width:1.5} },
-  ], { ...subLayout(), height:120, xaxis:xax, yaxis:{...yax, range:[0,100]},
+    { x, y:d.rsi,    name:'RSI(14)', type:'scatter', mode:'lines', line:{color:'#c084fc',width:1.2, dash:'dot'} },
+  ], { ...subLayout(), height:120, xaxis:xax, yaxis:{...yax, range:[0,100]}, showlegend:true, legend:{orientation:'h',y:1.15,font:{size:9},bgcolor:'rgba(0,0,0,0)'},
     shapes:[
-      {type:'line',x0:x[0],x1:x[x.length-1],y0:80,y1:80,line:{color:'#ff4d6d',width:1,dash:'dash'}},
-      {type:'line',x0:x[0],x1:x[x.length-1],y0:20,y1:20,line:{color:'#00c48c',width:1,dash:'dash'}},
-    ],
-    showlegend:true, legend:{orientation:'h',y:1.15,font:{size:9},bgcolor:'rgba(0,0,0,0)'},
+      {type:'line',x0:x[0],x1:x[x.length-1],y0:80,y1:80,line:{color:'rgba(255,77,109,0.3)',width:1,dash:'dash'}},
+      {type:'line',x0:x[0],x1:x[x.length-1],y0:20,y1:20,line:{color:'rgba(0,196,140,0.3)',width:1,dash:'dash'}},
+    ]
   }, cfg);
 
-  // ── 2. RSI ──
+  // ── 3. MACD Line & Oscillator 통합형 (스크롤 낭비 차단) ──
+  const oscColors = d.macd_oscill.map(v => v >= 0 ? '#00c48c' : '#ff4d6d');
   Plotly.purge('sc2');
   Plotly.newPlot('sc2', [
-    { x, y:d.rsi, name:'RSI', type:'scatter', mode:'lines', line:{color:'#c084fc',width:1.5} },
-  ], { ...subLayout(), height:110, xaxis:xax, yaxis:{...yax, range:[0,100]},
-    shapes:[
-      {type:'line',x0:x[0],x1:x[x.length-1],y0:70,y1:70,line:{color:'#ff4d6d',width:1,dash:'dash'}},
-      {type:'line',x0:x[0],x1:x[x.length-1],y0:30,y1:30,line:{color:'#00c48c',width:1,dash:'dash'}},
-    ],
-  }, cfg);
+    { x, y:d.macd_oscill, name:'Osc', type:'bar', marker:{color:oscColors}, opacity:0.35, hovertemplate:'Osc: %{y:.4f}<extra></extra>' },
+    { x, y:d.macd_spread, name:'MACD', type:'scatter', mode:'lines', line:{color:'#f97316',width:1.5} },
+    { x, y:d.macd_signal, name:'Signal', type:'scatter', mode:'lines', line:{color:'#a855f7',width:1.5} },
+  ], { ...subLayout(), height:135, xaxis:xax, yaxis:yax, showlegend:true, legend:{orientation:'h',y:1.15,font:{size:9},bgcolor:'rgba(0,0,0,0)'}, bargap:0.1 }, cfg);
 
-  // ── 3. Williams %R ──
+  // ── 4. MA50 Deviation ──
   Plotly.purge('sc3');
   Plotly.newPlot('sc3', [
-    { x, y:d.williams_r, name:'%R', type:'scatter', mode:'lines', line:{color:'#60a5fa',width:1.5} },
-  ], { ...subLayout(), height:110, xaxis:xax, yaxis:{...yax, range:[-100,0]},
-    shapes:[
-      {type:'line',x0:x[0],x1:x[x.length-1],y0:-20,y1:-20,line:{color:'#ff4d6d',width:1,dash:'dash'}},
-      {type:'line',x0:x[0],x1:x[x.length-1],y0:-80,y1:-80,line:{color:'#00c48c',width:1,dash:'dash'}},
-    ],
-  }, cfg);
+    { x, y:d.ma50_dev, name:'MA50 Dev%', type:'scatter', mode:'lines', line:{color:'#fb7185',width:1.5}, fill:'tozeroy', fillcolor:'rgba(251,113,133,0.06)', hovertemplate:'%{x}<br>%{y:.2f}%<extra></extra>' },
+  ], { ...subLayout(), height:110, xaxis:xax, yaxis:{...yax, ticksuffix:'%'}, shapes:[{type:'line',x0:x[0],x1:x[x.length-1],y0:0,y1:0,line:{color:'#444',width:1,dash:'dash'}}] }, cfg);
 
-  // ── 4. Relative Strength ──
+  // ── 5. OBV & OBV EMA ──
   Plotly.purge('sc4');
   Plotly.newPlot('sc4', [
-    { x, y:d.rs_index, name:'RS',     type:'scatter', mode:'lines', line:{color:'#00c48c',width:1.5} },
-    { x, y:d.rs_ma50,  name:'RS MA50',type:'scatter', mode:'lines', line:{color:'#f5a623',width:1.5,dash:'dot'} },
-  ], { ...subLayout(), height:110, xaxis:xax, yaxis:yax,
-    showlegend:true, legend:{orientation:'h',y:1.15,font:{size:9},bgcolor:'rgba(0,0,0,0)'},
-  }, cfg);
-
-  // ── 5. MACD ──
-  Plotly.purge('sc5');
-  Plotly.newPlot('sc5', [
-    { x, y:d.macd_spread, name:'MACD',   type:'scatter', mode:'lines', line:{color:'#f97316',width:1.5} },
-    { x, y:d.macd_signal, name:'Signal', type:'scatter', mode:'lines', line:{color:'#a855f7',width:1.5} },
-  ], { ...subLayout(), height:110, xaxis:xax, yaxis:yax,
-    showlegend:true, legend:{orientation:'h',y:1.15,font:{size:9},bgcolor:'rgba(0,0,0,0)'},
-  }, cfg);
-
-  // ── 6. MACD Oscillator ──
-  const oscColors = d.macd_oscill.map(v => v === null ? 'rgba(0,0,0,0)' : (v >= 0 ? '#ff7f7f' : '#7fa0ff'));
-  Plotly.purge('sc6');
-  Plotly.newPlot('sc6', [
-    { x, y:d.macd_oscill, type:'bar', marker:{color:oscColors},
-      hovertemplate:'%{x}<br>%{y:.4f}<extra>OSC</extra>' },
-  ], { ...subLayout(), height:100, xaxis:xax, yaxis:yax, bargap:0.1 }, cfg);
-
-  // ── 7. MA50 Deviation ──
-  Plotly.purge('sc7');
-  Plotly.newPlot('sc7', [
-    { x, y:d.ma50_dev, name:'MA50 Dev%', type:'scatter', mode:'lines',
-      line:{color:'#fb7185',width:1.5},
-      fill:'tozeroy', fillcolor:'rgba(251,113,133,0.08)',
-      hovertemplate:'%{x}<br>%{y:.2f}%<extra></extra>' },
-  ], { ...subLayout(), height:100, xaxis:xax,
-    yaxis:{...yax, ticksuffix:'%'},
-    shapes:[{type:'line',x0:x[0],x1:x[x.length-1],y0:0,y1:0,
-      line:{color:'#444',width:1,dash:'dash'}}],
-  }, cfg);
-
-  // ── 8. OBV ──
-  Plotly.purge('sc8');
-  Plotly.newPlot('sc8', [
     { x, y:d.obv,     name:'OBV',     type:'scatter', mode:'lines', line:{color:'#a16207',width:1.5} },
     { x, y:d.obv_ema, name:'OBV EMA', type:'scatter', mode:'lines', line:{color:'#f5a623',width:1.5} },
-  ], { ...subLayout(), height:110, xaxis:xax, yaxis:yax,
-    showlegend:true, legend:{orientation:'h',y:1.15,font:{size:9},bgcolor:'rgba(0,0,0,0)'},
-  }, cfg);
+  ], { ...subLayout(), height:120, xaxis:xax, yaxis:yax, showlegend:true, legend:{orientation:'h',y:1.15,font:{size:9},bgcolor:'rgba(0,0,0,0)'} }, cfg);
 
-  // ── 9. UDVR ──
-  Plotly.purge('sc9');
-  Plotly.newPlot('sc9', [
-    { x, y:d.udvr, name:'UDVR', type:'scatter', mode:'lines',
-      line:{color:'#a855f7',width:1.5},
-      hovertemplate:'%{x}<br>%{y:.3f}<extra>UDVR</extra>' },
-  ], { ...subLayout(), height:100, xaxis:xax, yaxis:yax,
-    shapes:[{type:'line',x0:x[0],x1:x[x.length-1],y0:1,y1:1,
-      line:{color:'#555',width:1,dash:'dash'}}],
-  }, cfg);
+  // ── 🔗 5개 분할 차트 전용 실시간 마우스 가이드 & 호버 연동 스크립트 ──
+  const chartIds = ['sc0', 'sc1', 'sc2', 'sc3', 'sc4'];
+  chartIds.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.on('plotly_hover', function(eventData) {
+      if (!eventData || !eventData.points || eventData.points.length === 0) return;
+      const pointIndex = eventData.points[0].pointIndex;
+      
+      chartIds.forEach(targetId => {
+        if (targetId === id) return;
+        const targetEl = document.getElementById(targetId);
+        if (targetEl && targetEl.data && targetEl.data.length > 0) {
+          Plotly.Fx.hover(targetEl, [{ curveNumber: 0, pointNumber: pointIndex }]);
+        }
+      });
+    });
+
+    el.on('plotly_unhover', function() {
+      chartIds.forEach(targetId => {
+        if (targetId === id) return;
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) { Plotly.Fx.hover(targetEl, []); }
+      });
+    });
+  });
 }
 
-// 차트 외부 클릭 시 자동완성 닫기
+// 외부 클릭 피드백
 document.addEventListener('click', e => {
   if (!e.target.closest('.search-input-wrap'))
     document.getElementById('autocompleteList').classList.remove('open');
