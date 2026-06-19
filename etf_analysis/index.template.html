@@ -192,13 +192,6 @@
    font-size: 0.78rem; color: #888; line-height: 1.7;
  }
 
-   /* Stock 섹션 라벨 (Technicals / Financials 구분) */
-  .stock-section-label {
-    font-size: 0.95rem; font-weight: 600; color: #a0aec0;
-    margin: 24px 4px 10px;
-  }
-  .stock-section-label:first-of-type { margin-top: 0; }
-
   /* Stock 차트 영역 (실전 트레이더용 5단 레이아웃) */
   .stock-chart-area {
     background: #16181f; border-radius: 10px; padding: 16px;
@@ -362,9 +355,6 @@
    <!-- 펀더멘털 헤더 (이름/산업, 시가총액, 매출, 배당 등) -->
   <div class="stock-fundamentals" id="stockFundamentals"></div>
 
-    <!-- 차트 영역 -->
-  <div class="stock-section-label">📊 Technicals</div>
-
   <div class="stock-chart-area" id="stockChartArea">
 
     <div class="subplot-row">
@@ -390,32 +380,9 @@
     <div class="subplot-row">
       <div class="subplot-label">OBV · OBV EMA</div>
       <div id="sc4" style="height:120px"></div>
-    </div><!-- /stock-chart-area -->
-
-    <!-- 재무제표 영역 (연간, 최근 4개년) -->
-  <div class="stock-section-label">💰 Financials (Annual · Last 4 Years)</div>
-  <div class="stock-chart-area" id="stockFinancialsArea">
-
-    <!-- 1. Revenue / Gross Profit / Operating Income -->
-    <div class="subplot-row">
-      <div class="subplot-label">Revenue · Gross Profit · Operating Income (mil)</div>
-      <div id="fc0" style="height:280px"></div>
     </div>
 
-    <!-- 2. Diluted EPS -->
-    <div class="subplot-row">
-      <div class="subplot-label">Diluted EPS</div>
-      <div id="fc1" style="height:140px"></div>
-    </div>
-
-    <!-- 3. Margins -->
-    <div class="subplot-row">
-      <div class="subplot-label">Margin (%)</div>
-      <div id="fc2" style="height:140px"></div>
-    </div>
-
-  </div><!-- /stock-financials-area -->
-  </div>
+  </div></div>
 </div><script>
 // ══════════════════════════════════════════════════════
 //  ETF 데이터 (Python이 embed)
@@ -800,7 +767,6 @@ async function selectStock(idx) {
     updateInfoBar(s, payload);
     updateFundamentals(payload);
     renderStockCharts(payload);
-    loadFinancials(s.ticker);
   } catch(e) {
     document.getElementById('stockInfoBar').innerHTML =
       `<span style="color:#ff4d6d">⚠ ${s.ticker} 데이터를 불러올 수 없습니다</span>`;
@@ -949,102 +915,6 @@ function renderStockCharts(payload) {
       });
     });
   });
-}
-
-// ── Financials (연간, 최근 4개년) 로드 + 렌더 ──────────
-function clearFinancialsNoData() {
-  document.querySelectorAll('#stockFinancialsArea .no-data').forEach(el => el.remove());
-}
-
-async function loadFinancials(ticker) {
-  clearFinancialsNoData();
-  try {
-    const res = await fetch(`financials/${ticker}.json`);
-    if (!res.ok) throw new Error(`financials/${ticker}.json 없음`);
-    const payload = await res.json();
-    renderFinancialsCharts(payload);
-  } catch(e) {
-    ['fc0','fc1','fc2'].forEach(id => Plotly.purge(id));
-    document.getElementById('stockFinancialsArea')
-      .insertAdjacentHTML('beforeend', '<p class="no-data">재무 데이터가 없습니다 (build_financials.py 실행 필요).</p>');
-  }
-}
-
-function hasData(arr) {
-  return Array.isArray(arr) && arr.some(v => v !== null && v !== undefined);
-}
-
-function renderFinancialsCharts(payload) {
-  clearFinancialsNoData();
-  const dates = payload.dates;
-
-  if (!dates || !dates.length) {
-    ['fc0','fc1','fc2'].forEach(id => Plotly.purge(id));
-    document.getElementById('stockFinancialsArea')
-      .insertAdjacentHTML('beforeend', '<p class="no-data">재무 데이터가 없습니다.</p>');
-    return;
-  }
-
-  const fxax = { type:'category', gridcolor:'#1a1d27', showgrid:false, zeroline:false };
-  const fyax = { gridcolor:'#1a1d27', showgrid:true, zeroline:false, automargin:true };
-
-  // ── 0. Revenue / Gross Profit / Operating Income (grouped bar) ──
-  const barTraces = [];
-  if (hasData(payload.revenue))
-    barTraces.push({ x:dates, y:payload.revenue, name:'Revenue', type:'bar',
-      marker:{color:'#3a6fff'}, hovertemplate:'%{x}<br>$%{y:,.0f}M<extra>Revenue</extra>' });
-  if (hasData(payload.gross_profit))
-    barTraces.push({ x:dates, y:payload.gross_profit, name:'Gross Profit', type:'bar',
-      marker:{color:'#a855f7'}, hovertemplate:'%{x}<br>$%{y:,.0f}M<extra>Gross Profit</extra>' });
-  if (hasData(payload.operating_income))
-    barTraces.push({ x:dates, y:payload.operating_income, name:'Operating Income', type:'bar',
-      marker:{color:'#00c48c'}, hovertemplate:'%{x}<br>$%{y:,.0f}M<extra>Operating Income</extra>' });
-
-  Plotly.purge('fc0');
-  if (barTraces.length) {
-    Plotly.newPlot('fc0', barTraces, { ...subLayout(), height:280,
-      xaxis:fxax, yaxis:{...fyax, tickprefix:'$', ticksuffix:'M'},
-      barmode:'group',
-      legend:{ orientation:'h', y:1.12, font:{size:9}, bgcolor:'rgba(0,0,0,0)' },
-      showlegend:true,
-    }, cfg);
-  } else {
-    document.getElementById('fc0').innerHTML = '<p class="no-data">데이터 없음</p>';
-  }
-
-  // ── 1. Diluted EPS ──
-  Plotly.purge('fc1');
-  if (hasData(payload.diluted_eps)) {
-    Plotly.newPlot('fc1', [
-      { x:dates, y:payload.diluted_eps, name:'Diluted EPS', type:'bar',
-        marker:{color:'#f5a623'}, hovertemplate:'%{x}<br>$%{y:.2f}<extra>EPS</extra>' },
-    ], { ...subLayout(), height:140, xaxis:fxax, yaxis:{...fyax, tickprefix:'$'} }, cfg);
-  } else {
-    document.getElementById('fc1').innerHTML = '<p class="no-data">데이터 없음</p>';
-  }
-
-  // ── 2. Margins ──
-  const marginTraces = [];
-  if (hasData(payload.gross_margin))
-    marginTraces.push({ x:dates, y:payload.gross_margin, name:'Gross Margin',
-      type:'scatter', mode:'lines+markers', line:{color:'#a855f7',width:1.5} });
-  if (hasData(payload.operating_margin))
-    marginTraces.push({ x:dates, y:payload.operating_margin, name:'Operating Margin',
-      type:'scatter', mode:'lines+markers', line:{color:'#00c48c',width:1.5} });
-  if (hasData(payload.net_margin))
-    marginTraces.push({ x:dates, y:payload.net_margin, name:'Net Margin',
-      type:'scatter', mode:'lines+markers', line:{color:'#f5a623',width:1.5} });
-
-  Plotly.purge('fc2');
-  if (marginTraces.length) {
-    Plotly.newPlot('fc2', marginTraces, { ...subLayout(), height:140,
-      xaxis:fxax, yaxis:{...fyax, ticksuffix:'%'},
-      legend:{ orientation:'h', y:1.18, font:{size:9}, bgcolor:'rgba(0,0,0,0)' },
-      showlegend:true,
-    }, cfg);
-  } else {
-    document.getElementById('fc2').innerHTML = '<p class="no-data">데이터 없음</p>';
-  }
 }
 
 // 외부 클릭 피드백
