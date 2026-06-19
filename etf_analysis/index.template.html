@@ -38,8 +38,10 @@
   header.etf-header span { font-size: 0.85rem; color: #888; }
 
   .charts-wrap { display: flex; gap: 16px; padding: 20px 24px; }
+  .swl-wrap { display: flex; gap: 12px; }
   @media (max-width: 768px) {
     .charts-wrap { flex-direction: column; }
+    .swl-wrap { flex-direction: column; }
     .chart-box h2 { font-size: 0.88rem; }
     .navbar h1 { font-size: 1rem; }
     .nav-tab { padding: 14px 14px; font-size: 0.82rem; }
@@ -244,17 +246,6 @@
   </div>
 </div>
 
-<div class="charts-wrap">
-  <div class="chart-box">
-    <h2 class="winner">📈 Thematic ETF — Top 10</h2>
-    <div id="chartWinner"></div>
-  </div>
-  <div class="chart-box">
-    <h2 class="loser">📉 Thematic ETF — Bottom 10</h2>
-    <div id="chartLoser"></div>
-  </div>
-</div>
-
 <div style="padding: 0 24px 20px;">
   <div style="background:#16181f;border-radius:10px;padding:16px;">
     <h2 style="font-size:0.95rem;font-weight:600;color:#a0aec0;margin-bottom:4px;">
@@ -286,21 +277,32 @@
       </div>
     </div>
 
-    <div style="display:flex;flex-direction:column;gap:12px;">
-      <div style="background:#1a1d27;border-radius:8px;padding:14px;">
+    <div class="swl-wrap">
+      <div style="background:#1a1d27;border-radius:8px;padding:14px;flex:1;">
         <h3 style="font-size:0.85rem;font-weight:700;color:#00c48c;margin-bottom:8px;">
           📈 Top 10 — <span id="swlSectorLabel">-</span>
         </h3>
         <div id="swlWinnerBody"></div>
       </div>
 
-      <div style="background:#1a1d27;border-radius:8px;padding:14px;">
+      <div style="background:#1a1d27;border-radius:8px;padding:14px;flex:1;">
         <h3 style="font-size:0.85rem;font-weight:700;color:#ff4d6d;margin-bottom:8px;">
           📉 Bottom 10 — <span id="swlLoserLabel">-</span>
         </h3>
         <div id="swlLoserBody"></div>
       </div>
     </div>
+  </div>
+</div>
+
+<div class="charts-wrap">
+  <div class="chart-box">
+    <h2 class="winner">📈 Thematic ETF — Top 10</h2>
+    <div id="chartWinner"></div>
+  </div>
+  <div class="chart-box">
+    <h2 class="loser">📉 Thematic ETF — Bottom 10</h2>
+    <div id="chartLoser"></div>
   </div>
 </div>
 
@@ -416,7 +418,7 @@
 
   </div><!-- /stock-financials-area -->
   </div>
-</div><script>
+</div></div><script>
 // ══════════════════════════════════════════════════════
 //  ETF 데이터 (Python이 embed)
 // ══════════════════════════════════════════════════════
@@ -645,7 +647,7 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// Sector Winner / Loser 
+// Sector Winner / Loser
 (function() {
   const ss = ETF_DATA.sector_stocks;
   if (!ss) return;
@@ -657,7 +659,7 @@ document.addEventListener('keydown', e => {
 
   sectors.forEach((etf, i) => {
     const btn = document.createElement('button');
-    btn.className   = 'sector-btn' + (i === 0 ? ' active' : '');
+    btn.className   = 'sector-pill' + (i === 0 ? ' active' : '');
     btn.textContent = etf;
     btn.onclick     = () => selectSectorWL(etf);
     wrap.appendChild(btn);
@@ -676,7 +678,7 @@ document.addEventListener('keydown', e => {
 
   function selectSectorWL(etf) {
     currentSector = etf;
-    wrap.querySelectorAll('.sector-btn').forEach(b =>
+    wrap.querySelectorAll('.sector-pill').forEach(b =>
       b.classList.toggle('active', b.textContent === etf));
     renderCurrentSWL();
   }
@@ -725,10 +727,10 @@ document.addEventListener('keydown', e => {
 // ══════════════════════════════════════════════════════
 //  Stock 탭 로직 (트레이더 핵심 최적화 완료)
 // ══════════════════════════════════════════════════════
-let stockManifest  = null;   
-let currentStock   = null;   
-let acIndex        = -1;     
-let acItems        = [];     
+let stockManifest  = null;
+let currentStock   = null;
+let acIndex        = -1;
+let acItems        = [];
 
 async function loadManifest() {
   try {
@@ -837,7 +839,7 @@ function updateFundamentals(payload) {
   const f = payload.fundamentals || {};
   const title = payload.name + ' (' + payload.ticker + ')' +
     (payload.industry ? ' / ' + payload.industry : '');
- 
+
   box.innerHTML = `
     <div class="sf-title">${title}</div>
     <div class="sf-line">Market cap: ${fmtVal(f.marketCap)}bil, Forward PE: ${fmtVal(f.forwardPE)}, ROE: ${fmtVal(f.returnOnEquity,'%')}</div>
@@ -931,7 +933,7 @@ function renderStockCharts(payload) {
     el.on('plotly_hover', function(eventData) {
       if (!eventData || !eventData.points || eventData.points.length === 0) return;
       const pointIndex = eventData.points[0].pointIndex;
-      
+
       chartIds.forEach(targetId => {
         if (targetId === id) return;
         const targetEl = document.getElementById(targetId);
