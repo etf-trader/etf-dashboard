@@ -2,10 +2,8 @@ name: Daily Dashboard Update
 
 on:
   schedule:
-    - cron: '0 21 * * *'      # Daily: 5PM EDT (summer)
-    - cron: '0 22 * * *'      # Daily: 5PM EST (winter)
-    - cron: '0 21 * * 6'      # Weekly Saturday: 5PM EDT (summer)
-    - cron: '0 22 * * 6'      # Weekly Saturday: 5PM EST (winter)
+    - cron: '0 21 * * *'      # 5PM EDT (summer)
+    - cron: '0 22 * * *'      # 5PM EST (winter)
   workflow_dispatch:
 
 jobs:
@@ -13,67 +11,55 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check it's actually 5PM New York time
+      - name: Determine NY time context
+        id: nytime
         run: |
           NY_HOUR=$(TZ="America/New_York" date +%H)
+          NY_DOW=$(TZ="America/New_York" date +%u)   # 1=Mon ... 6=Sat, 7=Sun
+
           if [ "$NY_HOUR" != "17" ]; then
-            echo "Not 5PM NY time (it's $NY_HOUR:00), skipping."
+            echo "Not 5PM NY time (it's $NY_HOUR:00). Skipping entire run."
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+            echo "run_financials=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
+          echo "should_run=true" >> "$GITHUB_OUTPUT"
+
+          if [ "$NY_DOW" == "6" ]; then
+            echo "run_financials=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "run_financials=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout
+        if: steps.nytime.outputs.should_run == 'true'
         uses: actions/checkout@v4
 
       - name: Set up Python
+        if: steps.nytime.outputs.should_run == 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Install dependencies
+        if: steps.nytime.outputs.should_run == 'true'
         run: pip install -r requirements.txt
 
       - name: Run build_all
+        if: steps.nytime.outputs.should_run == 'true'
         run: python build_all.py
 
+      - name: Run build_financials
+        if: steps.nytime.outputs.should_run == 'true' && steps.nytime.outputs.run_financials == 'true'
+        run: python build_financials.py
+
       - name: Commit & Push
+        if: steps.nytime.outputs.should_run == 'true'
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add etf_analysis/
           git diff --cached --quiet || git commit -m "auto: update dashboard $(date '+%Y-%m-%d %H:%M KST')"
-          git push
-
-  build_financials:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check it's actually Saturday 5PM New York time
-        run: |
-          NY_HOUR=$(TZ="America/New_York" date +%H)
-          NY_DOW=$(TZ="America/New_York" date +%u)   # 1=Mon ... 6=Sat, 7=Sun
-          if [ "$NY_HOUR" != "17" ] || [ "$NY_DOW" != "6" ]; then
-            echo "Not Saturday 5PM NY time, skipping."
-            exit 0
-          fi
-
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Run build_financials
-        run: python build_financials.py
-
-      - name: Commit & Push
-        run: |
-          git config user.name  "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add etf_analysis/
-          git diff --cached --quiet || git commit -m "auto: update financials $(date '+%Y-%m-%d %H:%M KST')"
+          git pull --rebase --autostash origin main
           git push
