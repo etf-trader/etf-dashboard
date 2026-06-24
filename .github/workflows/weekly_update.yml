@@ -2,14 +2,25 @@ name: Daily Dashboard Update
 
 on:
   schedule:
-    - cron: '0 21 * * *'   # 매일 21:00 UTC = 06:00 KST
-  workflow_dispatch:         # 수동 실행 가능
+    - cron: '0 21 * * *'      # Daily: 5PM EDT (summer)
+    - cron: '0 22 * * *'      # Daily: 5PM EST (winter)
+    - cron: '0 21 * * 6'      # Weekly Saturday: 5PM EDT (summer)
+    - cron: '0 22 * * 6'      # Weekly Saturday: 5PM EST (winter)
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Check it's actually 5PM New York time
+        run: |
+          NY_HOUR=$(TZ="America/New_York" date +%H)
+          if [ "$NY_HOUR" != "17" ]; then
+            echo "Not 5PM NY time (it's $NY_HOUR:00), skipping."
+            exit 0
+          fi
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -30,4 +41,39 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add etf_analysis/
           git diff --cached --quiet || git commit -m "auto: update dashboard $(date '+%Y-%m-%d %H:%M KST')"
+          git push
+
+  build_financials:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check it's actually Saturday 5PM New York time
+        run: |
+          NY_HOUR=$(TZ="America/New_York" date +%H)
+          NY_DOW=$(TZ="America/New_York" date +%u)   # 1=Mon ... 6=Sat, 7=Sun
+          if [ "$NY_HOUR" != "17" ] || [ "$NY_DOW" != "6" ]; then
+            echo "Not Saturday 5PM NY time, skipping."
+            exit 0
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run build_financials
+        run: python build_financials.py
+
+      - name: Commit & Push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add etf_analysis/
+          git diff --cached --quiet || git commit -m "auto: update financials $(date '+%Y-%m-%d %H:%M KST')"
           git push
