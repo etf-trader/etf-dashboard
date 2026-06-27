@@ -16,9 +16,29 @@ jobs:
         run: |
           NY_HOUR=$(TZ="America/New_York" date +%H)
           NY_DOW=$(TZ="America/New_York" date +%u)   # 1=Mon ... 6=Sat, 7=Sun
+          SCHEDULE="${{ github.event.schedule }}"
 
-          if [ "$NY_HOUR" != "17" ]; then
-            echo "Not 5PM NY time (it's $NY_HOUR:00). Skipping entire run."
+          # Only let each cron line proceed if NY hour is in a tolerant window
+          # around its intended target, so GitHub Actions delays don't cause skips.
+          SHOULD_RUN=false
+
+          if [ "$SCHEDULE" == "0 21 * * *" ]; then
+            # Intended for 5PM EDT; accept 17-18 to absorb delay/DST drift
+            if [ "$NY_HOUR" -ge 17 ] && [ "$NY_HOUR" -le 18 ]; then
+              SHOULD_RUN=true
+            fi
+          elif [ "$SCHEDULE" == "0 22 * * *" ]; then
+            # Intended for 5PM EST; accept 17-18 as well
+            if [ "$NY_HOUR" -ge 17 ] && [ "$NY_HOUR" -le 18 ]; then
+              SHOULD_RUN=true
+            fi
+          else
+            # workflow_dispatch or manual run: always allow
+            SHOULD_RUN=true
+          fi
+
+          if [ "$SHOULD_RUN" != "true" ]; then
+            echo "NY hour is $NY_HOUR, schedule '$SCHEDULE' not in target window. Skipping."
             echo "should_run=false" >> "$GITHUB_OUTPUT"
             echo "run_financials=false" >> "$GITHUB_OUTPUT"
             exit 0
