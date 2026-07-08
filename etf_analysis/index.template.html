@@ -347,9 +347,9 @@
 <div class="stock-page">
 
   <div class="stock-search-wrap">
-    <label>🔍 종목 검색</label>
+    <label>🔍 Search Stocks</label>
     <div class="search-input-wrap">
-      <input type="text" id="stockSearchInput" placeholder="티커 또는 종목명 입력 (예: AAPL, Apple)"
+      <input type="text" id="stockSearchInput" placeholder="Enter ticker or stock name (e.g. AAPL, Apple)"
              autocomplete="off"
              oninput="onSearchInput()" onkeydown="onSearchKeydown(event)">
       <div class="autocomplete-list" id="autocompleteList"></div>
@@ -358,7 +358,7 @@
   </div>
 
   <div class="stock-info-bar" id="stockInfoBar">
-    <span class="stock-empty">종목을 검색해 선택하면 차트가 표시됩니다</span>
+    <span class="stock-empty">Search for and select a stock to display the chart.</span>
   </div>
 
    <!-- 펀더멘털 헤더 (이름/산업, 시가총액, 매출, 배당 등) -->
@@ -739,7 +739,7 @@ async function loadManifest() {
     const json = await res.json();
     stockManifest = json.stocks;
     document.getElementById('stockManifestInfo').textContent =
-      `${json.count}개 종목 · ${json.generated} 기준`;
+      `${json.count} stocks · as of ${json.generated}`;
   } catch(e) {
     document.getElementById('stockManifestInfo').textContent = '⚠ 데이터 없음 (build_stock.py 실행 필요)';
   }
