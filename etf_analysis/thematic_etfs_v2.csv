@@ -68,8 +68,8 @@ GDX,VanEck Vectors Gold Miners ETF,Materials,Materials,VanEck Asset Management,P
 GDXJ,VanEck Vectors Junior Gold Miners ETF,Materials,Materials,VanEck Asset Management,PCX,7078291968.0
 GII,SPDR S&P Global Infrastructure ETF,Utilities,Utilities,State Street Global Advisors,PCX,962020032.0
 GLIF,AGFiQ Global Infrastructure ETF,Industrials,Utilities,AGF Investments,PCX,3757175.0
-GLRA.L,SPDR Dow Jones Global Real Estate UCITS ETF USD Cap,Real Estate,REITs,State Street Global Advisors,LSE,409137088.0
-GLRE.L,SPDR Dow Jones Global Real Estate UCITS ETF,Real Estate,REITs,State Street Global Advisors,LSE,409137088.0
+GLRA.L,SPDR Dow Jones Global Real Estate UCITS ETF USD Cap,Real Estate,REITs,State Street Global Advisors,LSE,416627392.0
+GLRE.L,SPDR Dow Jones Global Real Estate UCITS ETF,Real Estate,REITs,State Street Global Advisors,LSE,416627392.0
 GNR,SPDR S&P Global Natural Resources ETF,Materials,Materials,State Street Global Advisors,PCX,4480049664.0
 GOEX,Global X Gold Explorers ETF,Materials,Materials,Global X Funds,PCX,105357840.0
 GQRE,FlexShares Global Quality Real Estate Index Fund,Real Estate,REITs,Flexshares Trust,PCX,408352512.0
@@ -84,8 +84,8 @@ HTEC,Robo Global Healthcare Technology and Innovation ETF,Health Care,Health Car
 HYIN,WisdomTree Alternative Income Fund,Real Estate,REITs,WisdomTree Asset Management,BTS,51101864.0
 IBUY,Amplify Online Retail ETF,Consumer Discretionary,Consumer Discretionary,Amplify ETFs,PCX,107307680.0
 ICF,iShares Cohen & Steers REIT ETF,Real Estate,REITs,BlackRock Asset Management,BTS,2053588864.0
-IDAR.L,iShares Asia Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,LSE,222517616.0
-IDUP.L,iShares US Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,LSE,684622592.0
+IDAR.L,iShares Asia Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,LSE,214218992.0
+IDUP.L,iShares US Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,LSE,684602944.0
 IDWP.L,iShares Developed Markets Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,LSE,
 IEO,iShares U.S. Oil & Gas Exploration & Production ETF,Energy,Energy,BlackRock Asset Management,BTS,516133504.0
 IFGL,iShares International Developed Real Estate ETF,Real Estate,REITs,BlackRock Asset Management,NGM,82535104.0
@@ -96,7 +96,7 @@ IGV,iShares Expanded Tech-Software Sector ETF,Information Technology,Technology,
 IHE,iShares U.S. Pharmaceuticals ETF,Health Care,Health Care,BlackRock Asset Management,PCX,1138327168.0
 IHI,iShares U.S. Medical Devices ETF,Health Care,Health Care,BlackRock Asset Management,PCX,3023981056.0
 INDS,Pacer Benchmark Industrial Real Estate SCTR ETF,Real Estate,REITs,Pacer,PCX,114586672.0
-IUSP.SW,iShares US Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,EBS,684622592.0
+IUSP.SW,iShares US Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,EBS,684602944.0
 IVOL,Quadratic Interest Rate Volatility and Inflation Hedge ETF New,Equities,Inflation-Protected Securities,Exchange Traded Concepts,PCX,275789760.0
 IVRA,Invesco Real Assets ESG ETF,Equities,Real Estate Services,Invesco Investment Management,BTS,12015832.0
 IWDP.SW,iShares Developed Markets Property Yield UCITS ETF USD (Dist),Equities,REITs,BlackRock Asset Management,EBS,
@@ -113,7 +113,7 @@ KOIN,Capital Link NextGen Protocol ETF,Information Technology,Technology,Innovat
 LIT,Global X Lithium & Battery Tech ETF,Materials,Materials,Global X Funds,PCX,1772738304.0
 LRNZ,"TrueShares Technology, AI and Deep Learning ETF",Information Technology,Technology,TrueShares,PCX,41915840.0
 LYMUA.SW,Lyxor Index Fund - Lyxor FTSE EPRA/NAREIT United States UCITS ETF - Dist-USD,Real Estate,REITs,Lyxor International Asset Management,EBS,
-LYMWO.SW,Lyxor Index Fund - Lyxor FTSE EPRA/NAREIT Global Developed UCITS ETF Dist,Real Estate,REITs,Lyxor International Asset Management,EBS,70982784.0
+LYMWO.SW,Lyxor Index Fund - Lyxor FTSE EPRA/NAREIT Global Developed UCITS ETF Dist,Real Estate,REITs,Lyxor International Asset Management,EBS,73046448.0
 MLPX,Global X MLP & Energy Infrastructure ETF,Energy,Energy,Global X Funds,PCX,3484022272.0
 MORT,VanEck Vectors Mortgage REIT Income ETF,Real Estate,REITs,VanEck Asset Management,PCX,399810400.0
 NANR,SPDR S&P North American Natural Resources ETF,Equities,Materials,State Street Global Advisors,PCX,735533440.0
@@ -164,7 +164,7 @@ SRET,Global X SuperDividend REIT ETF,Real Estate,REITs,Global X Funds,NGM,232896
 SRVR,Pacer Benchmark Data & Infrastructure Real Estate SCTR ETF,Real Estate,REITs,Pacer,PCX,378428512.0
 THNQ,Robo Global Artificial Intelligence ETF,Information Technology,Technology,Robo Global,PCX,453371808.0
 TPYP,Tortoise North American Pipeline Fund,Energy,Energy,Tortoise Capital Advisors,PCX,853045120.0
-TRET.L,VanEck Vectors Global Real Estate UCITS ETF,Real Estate,REITs,VanEck Asset Management,LSE,353623520.0
+TRET.L,VanEck Vectors Global Real Estate UCITS ETF,Real Estate,REITs,VanEck Asset Management,LSE,408543584.0
 URE,ProShares Ultra Real Estate,Real Estate,REITs,ProShares,PCX,56319512.0
 USRT,iShares Core U.S. REIT ETF,Real Estate,REITs,BlackRock Asset Management,PCX,4356137472.0
 VEGI,iShares MSCI Global Agriculture Producers ETF,Materials,Materials,BlackRock Asset Management,PCX,157027920.0
