@@ -2,7 +2,7 @@
 ACES,ALPS Clean Energy ETF,Energy,Energy,ALPS ETF Trust,PCX,129431520.0
 AIQ,Global X Artificial Intelligence & Technology ETF,Information Technology,Technology,Global X Funds,NMS,10413852672.0
 AIRR,First Trust RBA American Industrial RenaissanceTM ETF,Industrials,Industrials,First Trust Advisors,NGM,11489859584.0
-AMLP,Alerian MLP ETF,Equities,Energy,ALPS ETF Trust,PCX,12160584704.0
+AMLP,Alerian MLP ETF,Equities,Energy,ALPS ETF Trust,PCX,
 AMUB,UBS ETRACS Alerian MLP Index ETN Series B,Equities,Energy,UBS Asset Management,PCX,36783072.0
 AMZA,InfraCap MLP ETF,Equities,Energy,Virtus,PCX,443470848.0
 AQWA,Global X Clean Water ETF,Utilities,Materials,Global X Funds,NMS,23876834.0
@@ -139,7 +139,7 @@ PYZ,Invesco DWA Basic Materials Momentum ETF,Materials,Materials,Invesco Investm
 QTUM,Defiance Quantum ETF,Information Technology,Technology,Defiance ETFs,PCX,6260666368.0
 RDOG,ALPS REIT Dividend Dogs ETF,Real Estate,REITs,ALPS ETF Trust,PCX,11411847.0
 REET,iShares Global REIT ETF,Real Estate,REITs,BlackRock Asset Management,PCX,4886244352.0
-REIT,ALPS Active REIT ETF,Real Estate,REITs,ALPS ETF Trust,NMS,54631388.0
+REIT,ALPS Active REIT ETF,Real Estate,REITs,ALPS ETF Trust,NMS,
 REK,ProShares Short Real Estate,Real Estate,REITs,ProShares,PCX,9776503.0
 REM,iShares Mortgage Real Estate Capped ETF,Real Estate,REITs,BlackRock Asset Management,BTS,547945600.0
 REMX,VanEck Vectors Rare Earth/Strategic Metals ETF,Materials,Materials,VanEck Asset Management,PCX,2694514944.0
