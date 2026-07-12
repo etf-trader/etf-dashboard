@@ -27,7 +27,7 @@ CARZ,First Trust NASDAQ Global Auto Index Fund,Consumer Discretionary,Consumer D
 CGW,Invesco S&P Global Water Index ETF,Utilities,Materials,Invesco Investment Management,PCX,1046667520.0
 CIBR,First Trust NASDAQ Cybersecurity ETF,Information Technology,Technology,First Trust Advisors,NMS,13836617728.0
 CLIX,ProShares Long Online/Short Stores ETF,Consumer Discretionary,Equities,ProShares,PCX,6886522.0
-CLOU,Global X Cloud Computing ETF Global X Cloud Computing ETF,Information Technology,Technology,Global X Funds,NGM,
+CLOU,Global X Cloud Computing ETF Global X Cloud Computing ETF,Information Technology,Technology,Global X Funds,NGM,228449024.0
 CNCR,Loncar Cancer Immunotherapy ETF,Health Care,Health Care,Loncar Investments,NGM,6946185.0
 CNRG,SPDR Kensho Clean Power ETF,Energy,Energy,State Street Global Advisors,PCX,249661440.0
 COPX,Global X Copper Miners ETF,Materials,Materials,Global X Funds,PCX,7154050560.0
@@ -59,10 +59,10 @@ FUTY,Fidelity MSCI Utilities Index ETF,Utilities,Utilities,Fidelity Investments,
 FXD,First Trust Consumer Discretionary AlphaDEX Fund,Consumer Discretionary,Consumer Discretionary,First Trust Advisors,PCX,266491296.0
 FXG,First Trust Consumer Staples AlphaDEX Fund,Consumer Staples,Consumer Staples,First Trust Advisors,PCX,225321808.0
 FXH,First Trust Health Care AlphaDEX Fund,Health Care,Health Care,First Trust Advisors,PCX,959064000.0
-FXL,First Trust Technology AlphaDEX Fund,Information Technology,Technology,First Trust Advisors,PCX,
+FXL,First Trust Technology AlphaDEX Fund,Information Technology,Technology,First Trust Advisors,PCX,2759701248.0
 FXN,First Trust Energy AlphaDEX Fund,Energy,Energy,First Trust Advisors,PCX,412602304.0
 FXO,First Trust Financials AlphaDEX Fund,Financials,Financials,First Trust Advisors,PCX,1058933312.0
-FXR,First Trust Industrials/Producer Durables AlphaDEX Fund,Industrials,Industrials,First Trust Advisors,PCX,733236544.0
+FXR,First Trust Industrials/Producer Durables AlphaDEX Fund,Industrials,Industrials,First Trust Advisors,PCX,
 GAMR,Wedbush ETFMG Video Game Tech ETF,Information Technology,Technology,ETF Management,PCX,39040728.0
 GDX,VanEck Vectors Gold Miners ETF,Materials,Materials,VanEck Asset Management,PCX,22753128448.0
 GDXJ,VanEck Vectors Junior Gold Miners ETF,Materials,Materials,VanEck Asset Management,PCX,7078291968.0
@@ -83,7 +83,7 @@ HPRD.L,HSBC FTSE EPRA NAREIT Developed UCITS ETF,Real Estate,REITs,HSBC Investme
 HTEC,Robo Global Healthcare Technology and Innovation ETF,Health Care,Health Care,Robo Global,PCX,59778232.0
 HYIN,WisdomTree Alternative Income Fund,Real Estate,REITs,WisdomTree Asset Management,BTS,51101864.0
 IBUY,Amplify Online Retail ETF,Consumer Discretionary,Consumer Discretionary,Amplify ETFs,PCX,107307680.0
-ICF,iShares Cohen & Steers REIT ETF,Real Estate,REITs,BlackRock Asset Management,BTS,2053588864.0
+ICF,iShares Cohen & Steers REIT ETF,Real Estate,REITs,BlackRock Asset Management,BTS,
 IDAR.L,iShares Asia Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,LSE,214218992.0
 IDUP.L,iShares US Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,LSE,684602944.0
 IDWP.L,iShares Developed Markets Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,LSE,
@@ -121,7 +121,7 @@ NERD,Roundhill BITKRAFT Esports & Digital Entertainment ETF,Information Technolo
 NETL,Fundamental Income Net Lease Real Estate ETF,Real Estate,REITs,Exchange Traded Concepts,PCX,53302056.0
 NFRA,FlexShares STOXX Global Broad Infrastructure Index Fund,Industrials,Utilities,Flexshares Trust,PCX,2940218112.0
 NURE,Nuveen Short-Term REIT ETF,Real Estate,REITs,Nuveen,BTS,35572212.0
-NXTG,First Trust IndXX NextG ETF,Information Technology,Technology,First Trust Advisors,NGM,563929472.0
+NXTG,First Trust IndXX NextG ETF,Information Technology,Technology,First Trust Advisors,NGM,
 ONLN,ProShares Online Retail ETF,Consumer Discretionary,Consumer Discretionary,ProShares,PCX,62625120.0
 PBE,Invesco Dynamic Biotechnology & Genome ETF,Health Care,Health Care,Invesco Investment Management,PCX,277922656.0
 PCEF,Invesco CEF Income Composite ETF,Financials,Equities,Invesco Investment Management,PCX,830461056.0
@@ -152,7 +152,7 @@ RWO,SPDR Dow Jones Global Real Estate ETF,Equities,REITs,State Street Global Adv
 RWR,SPDR Dow Jones REIT ETF,Equities,REITs,State Street Global Advisors,PCX,1844369792.0
 RWX,SPDR Dow Jones International Real Estate ETF,Equities,REITs,State Street Global Advisors,PCX,273015264.0
 SCHH,Schwab U.S. REIT ETF,Real Estate,REITs,Schwab ETFs,PCX,11128644608.0
-SIL,Global X Silver Miners ETF,Materials,Materials,Global X Funds,PCX,
+SIL,Global X Silver Miners ETF,Materials,Materials,Global X Funds,PCX,4207305472.0
 SILJ,ETFMG Prime Junior Silver Miners ETF,Materials,Materials,ETF Management,PCX,3404911360.0
 SIMS,SPDR S&P Kensho Intelligent Structures ETF,Industrials,Utilities,State Street Global Advisors,PCX,8946762.0
 SKYY,First Trust Cloud Computing ETF,Information Technology,Technology,First Trust Advisors,NGM,2719586048.0
