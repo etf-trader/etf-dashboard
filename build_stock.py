@@ -22,7 +22,7 @@ warnings.filterwarnings('ignore')
 # ─────────────────────────────────────────────
 # 트레이더 중심 설정 (중복 지표 삭제 및 MA 다이어트)
 # ─────────────────────────────────────────────
-DAYS_BEFORE     = 365 * 2
+DAYS_BEFORE     = 365 * 1
 OUT_DIR         = 'etf_analysis/stocks'
 BATCH_SIZE      = 50          
 DONCHIAN_PERIOD = 20
