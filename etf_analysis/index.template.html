@@ -370,7 +370,7 @@
   <div class="stock-chart-area" id="stockChartArea">
 
     <div class="subplot-row">
-      <div class="subplot-label">Price · MA (5,20,50,200) · Donchian (20)</div>
+      <div class="subplot-label">Price · EMA (5,9,20,50,200)</div>
       <div id="sc0" style="height:300px"></div>
     </div>
 
@@ -382,6 +382,11 @@
     <div class="subplot-row">
       <div class="subplot-label">MACD Line &amp; Oscillator (12,26,9)</div>
       <div id="sc2" style="height:135px"></div>
+    </div>
+
+    <div class="subplot-row">
+      <div class="subplot-label">9-20 EMA MACD</div>
+      <div id="sc5" style="height:135px"></div>
     </div>
 
     <div class="subplot-row">
@@ -875,17 +880,14 @@ function renderStockCharts(payload) {
   };
   const yax = { gridcolor:'#1a1d27', showgrid:true, zeroline:false, automargin:true };
 
-  // ── 1. Price + Trader MA(5,20,50,200) + Donchian ──
+  // ── 1. Price + Trader EMA(5,9,20,50,200) ──
   Plotly.purge('sc0');
   Plotly.newPlot('sc0', [
-    { x, y:d.upper_don, type:'scatter', mode:'lines', line:{width:0}, showlegend:false, hoverinfo:'skip' },
-    { x, y:d.lower_don, type:'scatter', mode:'lines', fill:'tonexty', fillcolor:'rgba(0,196,196,0.04)', line:{width:0}, showlegend:false, hoverinfo:'skip' },
-    { x, y:d.upper_don, name:'Don Up', type:'scatter', mode:'lines', line:{color:'rgba(0,196,196,0.4)',width:1,dash:'dot'} },
-    { x, y:d.lower_don, name:'Don Low', type:'scatter', mode:'lines', line:{color:'rgba(0,196,196,0.4)',width:1,dash:'dot'} },
-    { x, y:d.ma5,   name:'MA5',   type:'scatter', mode:'lines', line:{width:1.2, color:'#f0c040'} },
-    { x, y:d.ma20,  name:'MA20',  type:'scatter', mode:'lines', line:{width:1.5, color:'#f08040'} },
-    { x, y:d.ma50,  name:'MA50',  type:'scatter', mode:'lines', line:{width:1.5, color:'#40a0f0'} },
-    { x, y:d.ma200, name:'MA200', type:'scatter', mode:'lines', line:{width:2.0, color:'#ff4d6d'} },
+    { x, y:d.ma5,   name:'EMA5',   type:'scatter', mode:'lines', line:{width:1.2, color:'#f0c040'} },
+    { x, y:d.ma9,   name:'EMA9',   type:'scatter', mode:'lines', line:{width:1.3, color:'#22d3ee'} },
+    { x, y:d.ma20,  name:'EMA20',  type:'scatter', mode:'lines', line:{width:1.5, color:'#f08040'} },
+    { x, y:d.ma50,  name:'EMA50',  type:'scatter', mode:'lines', line:{width:1.5, color:'#40a0f0'} },
+    { x, y:d.ma200, name:'EMA200', type:'scatter', mode:'lines', line:{width:2.0, color:'#ff4d6d'} },
     { x, y:d.close, name:'Close', type:'scatter', mode:'lines', line:{color:'#ffffff',width:2}, hovertemplate:'%{x}<br>$%{y:.2f}<extra>Price</extra>' },
   ], { ...subLayout(), height:300, xaxis:xax, yaxis:{...yax, tickprefix:'$'}, showlegend:true, legend:{orientation:'h',y:1.08,font:{size:9},bgcolor:'rgba(0,0,0,0)'} }, cfg);
 
@@ -911,7 +913,14 @@ function renderStockCharts(payload) {
     { x, y:d.macd_signal, name:'Signal', type:'scatter', mode:'lines', line:{color:'#a855f7',width:1.5} },
   ], { ...subLayout(), height:135, xaxis:xax, yaxis:yax, showlegend:true, legend:{orientation:'h',y:1.15,font:{size:9},bgcolor:'rgba(0,0,0,0)'}, bargap:0.1 }, cfg);
 
-  // ── 4. MA50 Deviation ──
+  // ── 3b. 9-20 EMA MACD (구 Donchian 대체) ──
+  const osc2Colors = d.macd2_oscill.map(v => v >= 0 ? '#00c48c' : '#ff4d6d');
+  Plotly.purge('sc5');
+  Plotly.newPlot('sc5', [
+    { x, y:d.macd2_oscill, name:'Osc', type:'bar', marker:{color:osc2Colors}, opacity:0.35, hovertemplate:'Osc: %{y:.4f}<extra></extra>' },
+    { x, y:d.macd2_spread, name:'MACD(9,20)', type:'scatter', mode:'lines', line:{color:'#22d3ee',width:1.5} },
+    { x, y:d.macd2_signal, name:'Signal(9)', type:'scatter', mode:'lines', line:{color:'#a855f7',width:1.5} },
+  ], { ...subLayout(), height:135, xaxis:xax, yaxis:yax, showlegend:true, legend:{orientation:'h',y:1.15,font:{size:9},bgcolor:'rgba(0,0,0,0)'}, bargap:0.1 }, cfg);
   Plotly.purge('sc3');
   Plotly.newPlot('sc3', [
     { x, y:d.ma50_dev, name:'MA50 Dev%', type:'scatter', mode:'lines', line:{color:'#fb7185',width:1.5}, fill:'tozeroy', fillcolor:'rgba(251,113,133,0.06)', hovertemplate:'%{x}<br>%{y:.2f}%<extra></extra>' },
@@ -925,7 +934,7 @@ function renderStockCharts(payload) {
   ], { ...subLayout(), height:120, xaxis:xax, yaxis:yax, showlegend:true, legend:{orientation:'h',y:1.15,font:{size:9},bgcolor:'rgba(0,0,0,0)'} }, cfg);
 
   // ── 🔗 5개 분할 차트 전용 실시간 마우스 가이드 & 호버 연동 스크립트 ──
-  const chartIds = ['sc0', 'sc1', 'sc2', 'sc3', 'sc4'];
+  const chartIds = ['sc0', 'sc1', 'sc2', 'sc5', 'sc3', 'sc4'];
   chartIds.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
