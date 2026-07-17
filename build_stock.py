@@ -254,8 +254,56 @@ def fetch_fundamentals(ticker: str) -> dict:
 # ─────────────────────────────────────────────
 # 4. 배치 다운로드 + 지표 계산 + JSON 저장
 # ─────────────────────────────────────────────
+RETRY_ATTEMPTS = 3   # 개별 재시도 최대 횟수
+RETRY_BACKOFF = 5    # 초 단위, attempt 배수로 증가
+
 manifest = []
-failed = []
+failed_details = {}  # {ticker: reason} — 어떤 이유로 실패했는지 추적
+
+def process_ticker(ticker: str, ohlcv: pd.DataFrame, name: str, sector: str) -> dict:
+    """단일 티커의 OHLCV로 지표 계산 + JSON 저장. 실패 시 예외를 그대로 던짐(호출부에서 사유 기록)."""
+    ohlcv = ohlcv.dropna(subset=['Close'])
+    if len(ohlcv) < 60:
+        raise ValueError(f'insufficient_history ({len(ohlcv)}행 < 60일)')
+
+    data = calc_indicators(ohlcv, spy_close)
+
+    last_close = ohlcv['Close'].iloc[-1]
+    prev_close = ohlcv['Close'].iloc[-2] if len(ohlcv) >= 2 else last_close
+    ret_1d = round((float(last_close) / float(prev_close) - 1) * 100, 2)
+
+    week_ago = ohlcv['Close'].iloc[-6] if len(ohlcv) >= 6 else ohlcv['Close'].iloc[0]
+    ret_1w = round((float(last_close) / float(week_ago) - 1) * 100, 2)
+
+    fundamentals = fetch_fundamentals(ticker)
+    industry = fundamentals.pop('industry')
+    time.sleep(0.1)
+
+    payload = {
+        'ticker': ticker,
+        'name': name,
+        'sector': sector,
+        'industry': industry,
+        'ret_1d': ret_1d,
+        'ret_1w': ret_1w,
+        'last_close': round(float(last_close), 2),
+        'fundamentals': fundamentals,
+        'data': data,
+    }
+
+    out_path = os.path.join(OUT_DIR, f'{ticker}.json')
+    with open(out_path, 'w', encoding='utf-8') as f:
+        json.dump(payload, f, ensure_ascii=False)
+
+    return {
+        'ticker': ticker,
+        'name': name,
+        'sector': sector,
+        'ret_1d': ret_1d,
+        'ret_1w': ret_1w,
+        'last_close': round(float(last_close), 2),
+    }
+
 total_batches = math.ceil(len(tickers) / BATCH_SIZE)
 
 for batch_idx in range(total_batches):
@@ -271,7 +319,8 @@ for batch_idx in range(total_batches):
             time.sleep(5)
     else:
         print(f"  배치 {batch_idx+1} 실패, 스킵")
-        failed.extend(batch)
+        for t in batch:
+            failed_details[t] = 'batch_download_failed (3회 재시도 후에도 배치 전체 다운로드 실패)'
         continue
 
     single = (len(batch) == 1)
@@ -286,55 +335,61 @@ for batch_idx in range(total_batches):
                 ohlcv = raw[['Open', 'High', 'Low', 'Close', 'Volume']].copy()
             else:
                 ohlcv = raw.xs(ticker, axis=1, level=1)[['Open', 'High', 'Low', 'Close', 'Volume']].copy()
-            ohlcv = ohlcv.dropna(subset=['Close'])
-            if len(ohlcv) < 60:
-                continue
-
-            data = calc_indicators(ohlcv, spy_close)
-
-            last_close = ohlcv['Close'].iloc[-1]
-            prev_close = ohlcv['Close'].iloc[-2] if len(ohlcv) >= 2 else last_close
-            ret_1d = round((float(last_close) / float(prev_close) - 1) * 100, 2)
-
-            week_ago = ohlcv['Close'].iloc[-6] if len(ohlcv) >= 6 else ohlcv['Close'].iloc[0]
-            ret_1w = round((float(last_close) / float(week_ago) - 1) * 100, 2)
-
-            fundamentals = fetch_fundamentals(ticker)
-            industry = fundamentals.pop('industry')
-            time.sleep(0.1)
-
-            payload = {
-                'ticker': ticker,
-                'name': name,
-                'sector': sector,
-                'industry': industry,
-                'ret_1d': ret_1d,
-                'ret_1w': ret_1w,
-                'last_close': round(float(last_close), 2),
-                'fundamentals': fundamentals,
-                'data': data,
-            }
-
-            out_path = os.path.join(OUT_DIR, f'{ticker}.json')
-            with open(out_path, 'w', encoding='utf-8') as f:
-                json.dump(payload, f, ensure_ascii=False)
-
-            manifest.append({
-                'ticker': ticker,
-                'name': name,
-                'sector': sector,
-                'ret_1d': ret_1d,
-                'ret_1w': ret_1w,
-                'last_close': round(float(last_close), 2),
-            })
+            entry = process_ticker(ticker, ohlcv, name, sector)
+            manifest.append(entry)
             print(f"  ✓ {ticker}", end='\r')
 
+        except KeyError:
+            reason = 'no_data_in_batch (배치 응답에 해당 티커 없음 — 상장폐지/티커 변경 가능성)'
+            print(f"\n  ✗ {ticker}: {reason}")
+            failed_details[ticker] = reason
         except Exception as e:
-            print(f"\n  ✗ {ticker}: {e}")
-            failed.append(ticker)
+            reason = f'{type(e).__name__}: {e}'
+            print(f"\n  ✗ {ticker}: {reason}")
+            failed_details[ticker] = reason
 
 # ─────────────────────────────────────────────
-# 5. manifest.json 저장
+# 4b. 실패 티커 재시도 (개별 다운로드, 백오프 적용)
+# ─────────────────────────────────────────────
+if failed_details:
+    print(f"\n\n──── 재시도 단계: {len(failed_details)}개 티커 개별 재다운로드 ────")
+    still_failed = {}
+
+    for ticker in list(failed_details.keys()):
+        row = df_loop[df_loop['Ticker'] == ticker].iloc[0]
+        name = str(row.get('Name', ticker))
+        sector = str(row.get('Sector', ''))
+        reason = failed_details[ticker]
+        recovered = False
+
+        for attempt in range(1, RETRY_ATTEMPTS + 1):
+            try:
+                raw1 = yf.download(ticker, start=from_date, end=to_date, progress=False, auto_adjust=True)
+                if raw1 is None or raw1.empty:
+                    reason = 'empty_response (상장폐지/티커 변경 또는 야후파이낸스 미제공 가능성 — 재시도 무의미)'
+                    break  # 빈 응답은 재시도해도 소용없으므로 즉시 중단
+                ohlcv = raw1[['Open', 'High', 'Low', 'Close', 'Volume']].copy()
+                entry = process_ticker(ticker, ohlcv, name, sector)
+                manifest.append(entry)
+                print(f"  ✓ (재시도 {attempt}회차 성공) {ticker}")
+                recovered = True
+                break
+            except ValueError as e:
+                reason = str(e)  # 데이터 부족(insufficient_history) — 재시도해도 소용없음
+                break
+            except Exception as e:
+                reason = f'{type(e).__name__}: {e}'
+                print(f"  … {ticker} 재시도 {attempt}/{RETRY_ATTEMPTS} 실패: {reason}")
+                if attempt < RETRY_ATTEMPTS:
+                    time.sleep(RETRY_BACKOFF * attempt)
+
+        if not recovered:
+            still_failed[ticker] = reason
+
+    failed_details = still_failed
+
+# ─────────────────────────────────────────────
+# 5. manifest.json + 실패 진단 로그 저장
 # ─────────────────────────────────────────────
 manifest_path = os.path.join(OUT_DIR, 'manifest.json')
 with open(manifest_path, 'w', encoding='utf-8') as f:
@@ -344,4 +399,17 @@ with open(manifest_path, 'w', encoding='utf-8') as f:
         'stocks': manifest,
     }, f, ensure_ascii=False)
 
-print(f"\n\n✓ 완료: {len(manifest)}개 저장, {len(failed)}개 실패")
+failed_path = os.path.join(OUT_DIR, 'failed_tickers.json')
+with open(failed_path, 'w', encoding='utf-8') as f:
+    json.dump({
+        'generated': datetime.datetime.now().strftime('%Y-%m-%d %H:%M'),
+        'count': len(failed_details),
+        'failures': failed_details,  # {ticker: reason}
+    }, f, ensure_ascii=False, indent=2)
+
+print(f"\n\n✓ 완료: {len(manifest)}개 저장, {len(failed_details)}개 최종 실패")
+if failed_details:
+    print(f"  실패 상세: {failed_path}")
+    for t, r in failed_details.items():
+        print(f"    - {t}: {r}")
+
