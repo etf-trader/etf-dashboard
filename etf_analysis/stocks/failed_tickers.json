@@ -1,0 +1,8 @@
+{
+  "generated": "2026-07-17 21:59",
+  "count": 2,
+  "failures": {
+    "HONA": "KeyError: ['Close']",
+    "FDXF": "KeyError: ['Close']"
+  }
+}
