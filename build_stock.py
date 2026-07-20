@@ -44,58 +44,144 @@ from_date = datetime.datetime.today() - datetime.timedelta(days=DAYS_BEFORE)
 to_date = datetime.datetime.today()
 
 # ─────────────────────────────────────────────
-# 1. SPY holdings → df_loop
+# 1. IWV holdings → df_loop
 # ─────────────────────────────────────────────
-print("SPY holdings 다운로드 중...")
-
-rows = []
-import io
 import ssl
-import requests
-
 ssl._create_default_https_context = ssl._create_unverified_context
 
-while True:
+import io
+import time
+import requests
+import pandas as pd
+from datetime import datetime, timedelta
+
+print("IWV holdings 다운로드 중...")
+
+# Known ticker exceptions where the iShares raw ticker (no separator)
+# differs from the yfinance-compatible ticker (uses a hyphen).
+# Most "CLASS A/B" names (GOOGL, FOXA, NWSA, LBTYA, UAA, RUSHA...) already
+# trade under their literal ticker on yfinance — do NOT blanket-convert.
+TICKER_OVERRIDES = {
+    'BRKB': 'BRK-B',
+    'BFB': 'BF-B',
+    'BFA': 'BF-A',
+    'GEFB': 'GEF-B',
+    'HEIA': 'HEI-A',
+    'LENB': 'LEN-B',
+    'STZB': 'STZ-B',
+}
+
+
+def _try_fetch_iwv_csv(date_str: str) -> bytes | None:
+    """Attempt to download the IWV holdings CSV for a given YYYYMMDD date."""
+    url = (
+        'https://www.blackrock.com/varnish-api/blk-one01-product-data/'
+        'product-data/api/v1/get-fund-document'
+        '?appType=PRODUCT_PAGE&appSubType=ISHARES&targetSite=us-ishares'
+        '&locale=en_US&portfolioId=239714&userType=individual'
+        f'&asOfDate={date_str}&component=holdings'
+    )
     try:
-        url = (
-            'https://www.ssga.com/us/en/intermediary/library-content/products/'
-            'fund-data/etfs/us/holdings-daily-us-en-spy.xlsx'
-        )
         r = requests.get(url, headers={'User-Agent': 'Mozilla/5.0'}, timeout=30)
-        if r.status_code != 200:
-            raise Exception(f"HTTP {r.status_code}")
-        holdings = pd.read_excel(io.BytesIO(r.content), skiprows=4, engine='openpyxl')
-        break
+        if r.status_code == 200 and len(r.content) > 500:
+            return r.content
     except Exception as e:
-        print(f"  holdings 연결 오류: {e}. 5초 후 재시도...")
-        time.sleep(5)
+        print(f"  {date_str}: 연결 오류 ({e})")
+    return None
 
-if 'Local Currency' in holdings.columns:
-    holdings = holdings[holdings['Local Currency'] == 'USD']
-if 'SEDOL' in holdings.columns:
-    holdings = holdings[holdings['SEDOL'] != '-']
 
-ticker_col = next((c for c in holdings.columns if 'ticker' in str(c).lower() or 'symbol' in str(c).lower()), None)
-name_col = next((c for c in holdings.columns if 'name' in str(c).lower()), None)
-sector_col = next((c for c in holdings.columns if 'sector' in str(c).lower()), None)
+def _parse_iwv_csv(raw_bytes: bytes) -> pd.DataFrame:
+    """
+    Locate the real header row (starts with 'Ticker,Name,Sector')
+    instead of hardcoding a skiprows count, since the metadata block
+    length can shift.
+    """
+    text = raw_bytes.decode('utf-8', errors='replace')
+    lines = text.splitlines()
 
-use_cols = [col for col in [ticker_col, name_col, sector_col] if col is not None]
-holdings = holdings[use_cols].dropna(subset=[ticker_col])
-holdings.columns = ['Ticker', 'Name', 'Sector'][:len(use_cols)]
-if 'Sector' not in holdings.columns:
-    holdings['Sector'] = ''
+    header_idx = next(
+        (i for i, line in enumerate(lines) if line.startswith('Ticker,Name,Sector')),
+        None
+    )
+    if header_idx is None:
+        raise ValueError("헤더 행을 찾을 수 없습니다 (파일 포맷이 변경되었을 수 있음)")
 
-holdings['Ticker'] = (
-    holdings['Ticker']
-    .astype(str).str.strip()
-    .str.replace('.', '-', regex=False)
-    .replace({'BRK-B': 'BRK-B', 'BF-B': 'BF-B'})
-)
-holdings = holdings[holdings['Ticker'] != '']
+    csv_body = "\n".join(lines[header_idx:])
+    df = pd.read_csv(io.StringIO(csv_body))
 
-df_loop = holdings[['Ticker', 'Name', 'Sector']].copy().reset_index(drop=True)
-tickers = df_loop['Ticker'].tolist()
-print(f"  총 {len(tickers)}개 종목 로드")
+    # Confirm the as-of date embedded in the file matches what we requested,
+    # to catch cases where BlackRock silently serves a stale/previous file.
+    as_of_line = next((l for l in lines[:header_idx] if 'Fund Holdings as of' in l), None)
+
+    return df, as_of_line
+
+
+def get_iwv_holdings(as_of_date: datetime = None, max_lookback_days: int = 10):
+    """
+    Downloads IWV holdings, walking backward through business days
+    (skipping weekends) if today's file isn't published yet.
+    """
+    if as_of_date is None:
+        as_of_date = datetime.today()
+
+    current_date = as_of_date
+
+    for attempt in range(max_lookback_days):
+        while current_date.weekday() >= 5:  # 5=Sat, 6=Sun
+            current_date -= timedelta(days=1)
+
+        date_str = current_date.strftime('%Y%m%d')
+        raw_bytes = _try_fetch_iwv_csv(date_str)
+
+        if raw_bytes is not None:
+            try:
+                df, as_of_line = _parse_iwv_csv(raw_bytes)
+                print(f"  성공: {date_str} 기준 요청 → 파일 내 실제 기준일: {as_of_line}")
+                return df, date_str
+            except Exception as e:
+                print(f"  {date_str}: 파싱 오류 ({e}), 이전 영업일로 재시도...")
+        else:
+            print(f"  {date_str}: 데이터 없음, 이전 영업일로 재시도...")
+
+        current_date -= timedelta(days=1)
+        time.sleep(1)
+
+    raise Exception(f"{max_lookback_days}일 내 유효한 holdings 데이터를 찾지 못했습니다.")
+
+
+def clean_iwv_holdings(raw_df: pd.DataFrame, us_only: bool = True) -> pd.DataFrame:
+    """
+    Filters to real equity holdings and normalizes tickers for yfinance.
+    us_only=True keeps only US-listed rows (matches SPY loop's scope);
+    set False to keep ADRs/foreign listings too (won't all resolve on yfinance).
+    """
+    df = raw_df.copy()
+
+    # Drop non-equity rows (Futures, Cash, Money Market, disclaimer footer, etc.)
+    df = df[df['Asset Class'] == 'Equity']
+    df = df[df['Ticker'].astype(str) != '-']
+    df = df.dropna(subset=['Ticker'])
+
+    if us_only:
+        df = df[df['Location'] == 'United States']
+
+    df['Ticker'] = df['Ticker'].astype(str).str.strip()
+    df['Ticker'] = df['Ticker'].replace(TICKER_OVERRIDES)
+
+    df_loop = df[['Ticker', 'Name', 'Sector']].copy().reset_index(drop=True)
+    df_loop = df_loop.drop_duplicates(subset='Ticker').reset_index(drop=True)
+
+    return df_loop
+
+
+# ── Run ──
+if __name__ == '__main__':
+    raw_df, used_date = get_iwv_holdings(datetime.today())
+    df_loop = clean_iwv_holdings(raw_df, us_only=True)
+    tickers = df_loop['Ticker'].tolist()
+    print(f"  총 {len(tickers)}개 종목 로드 (기준일 요청: {used_date})")
+
+    df_loop.to_csv('etf_analysis/iwv_holdings.csv', index=False)
 
 # ─────────────────────────────────────────────
 # 2. SPY(Index) 다운로드
