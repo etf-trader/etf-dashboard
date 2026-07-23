@@ -37,14 +37,14 @@ CVY,Invesco Zacks Multi-Asset Income ETF,Equities,Equities,Invesco Investment Ma
 DFNL,Davis Select Financial ETF,Financials,Financials,Davis ETFs,BTS,455205440.0
 DPYA.L,iShares Developed Markets Property Yield UCITS ETF USD (Acc),Real Estate,REITs,BlackRock Asset Management,LSE,
 DTEC,ALPS Disruptive Technologies ETF,Information Technology,Technology,ALPS ETF Trust,PCX,69837792.0
-EATZ,AdvisorShares Restaurant ETF,Equities,Consumer Discretionary,AdvisorShares,PCX,
+EATZ,AdvisorShares Restaurant ETF,Equities,Consumer Discretionary,AdvisorShares,PCX,2177281.0
 EINC,VanEck Vectors Energy Income ETF,Energy,Energy,VanEck Asset Management,PCX,108688024.0
 EMLP,First Trust North American Energy Infrastructure Fund,Energy,Energy,First Trust Advisors,PCX,4057605120.0
 ENFR,Alerian Energy Infrastructure ETF,Energy,Energy,ALPS ETF Trust,PCX,467906656.0
 EPRU.AS,Amundi Index Solutions - Amundi Index FTSE EPRA NAREIT Global UCITS ETF DR,Real Estate,REITs,Amundi Asset Management,AMS,
 ESPO,VanEck Vectors Video Gaming and eSports ETF,Consumer Discretionary,Technology,VanEck Asset Management,NGM,238752112.0
 EVX,VanEck Vectors Environmental Services ETF,Equities,Industrials,VanEck Asset Management,PCX,101223368.0
-FDIS,Fidelity MSCI Consumer Discretionary Index ETF,Consumer Discretionary,Consumer Discretionary,Fidelity Investments,PCX,
+FDIS,Fidelity MSCI Consumer Discretionary Index ETF,Consumer Discretionary,Consumer Discretionary,Fidelity Investments,PCX,1697842816.0
 FENY,Fidelity MSCI Energy Index ETF,Energy,Energy,Fidelity Investments,PCX,1746142848.0
 FLYT,Direxion Flight to Safety Strategy ETF,Equities,Equities,Direxion Funds,PCX,13986467.0
 FMAT,Fidelity MSCI Materials Index ETF,Equities,Materials,Fidelity Investments,PCX,623540800.0
@@ -93,10 +93,10 @@ IGE,iShares North American Natural Resources ETF,Energy,Materials,BlackRock Asse
 IGF,iShares Global Infrastructure ETF,Industrials,Utilities,BlackRock Asset Management,NGM,10779330560.0
 IGM,iShares Expanded Tech Sector ETF,Information Technology,Technology,BlackRock Asset Management,PCX,10708001792.0
 IGV,iShares Expanded Tech-Software Sector ETF,Information Technology,Technology,BlackRock Asset Management,BTS,13542322176.0
-IHE,iShares U.S. Pharmaceuticals ETF,Health Care,Health Care,BlackRock Asset Management,PCX,
+IHE,iShares U.S. Pharmaceuticals ETF,Health Care,Health Care,BlackRock Asset Management,PCX,1138327168.0
 IHI,iShares U.S. Medical Devices ETF,Health Care,Health Care,BlackRock Asset Management,PCX,3023981056.0
 INDS,Pacer Benchmark Industrial Real Estate SCTR ETF,Real Estate,REITs,Pacer,PCX,114586672.0
-IUSP.SW,iShares US Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,EBS,
+IUSP.SW,iShares US Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,EBS,684602944.0
 IVOL,Quadratic Interest Rate Volatility and Inflation Hedge ETF New,Equities,Inflation-Protected Securities,Exchange Traded Concepts,PCX,275789760.0
 IVRA,Invesco Real Assets ESG ETF,Equities,Real Estate Services,Invesco Investment Management,BTS,12015832.0
 IWDP.SW,iShares Developed Markets Property Yield UCITS ETF USD (Dist),Equities,REITs,BlackRock Asset Management,EBS,
@@ -173,7 +173,7 @@ VNQ,Vanguard Real Estate Index Fund ETF Shares,Real Estate,REITs,Vanguard Asset 
 VNQI,Vanguard Global ex-U.S. Real Estate Index Fund ETF Shares,Real Estate,REITs,Vanguard Asset Management,NGM,3710765056.0
 WFH,Direxion Work From Home ETF,Information Technology,Technology,Direxion Funds,PCX,14251680.0
 WOOD,iShares Global Timber & Forestry ETF,Materials,Materials,BlackRock Asset Management,NMS,246789344.0
-WPS,iShares International Developed Property ETF,Real Estate,REITs,BlackRock Asset Management,PCX,
+WPS,iShares International Developed Property ETF,Real Estate,REITs,BlackRock Asset Management,PCX,30603788.0
 WUGI,Esoterica NextG Economy ETF,Information Technology,Technology,Esoterica Capital,BTS,36124952.0
 XAR,SPDR S&P Aerospace & Defense ETF,Industrials,Industrials,State Street Global Advisors,PCX,6468274688.0
 XBI,SPDR S&P Biotech ETF,Health Care,Health Care,State Street Global Advisors,PCX,10734887936.0
