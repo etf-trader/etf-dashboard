@@ -880,9 +880,16 @@ function renderStockCharts(payload) {
   };
   const yax = { gridcolor:'#1a1d27', showgrid:true, zeroline:false, automargin:true };
 
-  // ── 1. Price + Trader EMA(5,9,20,50,200) ──
+  // ── 1. Candlestick + Trader EMA(5,9,20,50,200) + Bollinger Band(20,2) ──
   Plotly.purge('sc0');
+  const hasBB = Array.isArray(d.bb_upper) && Array.isArray(d.bb_mid) && Array.isArray(d.bb_lower);
+
+  // 캔들스틱을 trace 0으로 배치 → 차트 간 호버 동기화 시 크로스헤어가 실제 가격(캔들)을 추적
   const priceTraces = [
+    { x, open:d.open, high:d.high, low:d.low, close:d.close, name:'Price', type:'candlestick',
+      increasing:{ line:{color:'#00c48c'}, fillcolor:'#00c48c' },
+      decreasing:{ line:{color:'#ff4d6d'}, fillcolor:'#ff4d6d' },
+      hovertemplate:'%{x}<br>O:%{open:.2f} H:%{high:.2f} L:%{low:.2f} C:%{close:.2f}<extra>Price</extra>' },
     { x, y:d.ma5,   name:'EMA5',   type:'scatter', mode:'lines', line:{width:1.2, color:'#f0c040'} },
   ];
   if (Array.isArray(d.ma9)) {
@@ -892,9 +899,21 @@ function renderStockCharts(payload) {
     { x, y:d.ma20,  name:'EMA20',  type:'scatter', mode:'lines', line:{width:1.5, color:'#f08040'} },
     { x, y:d.ma50,  name:'EMA50',  type:'scatter', mode:'lines', line:{width:1.5, color:'#40a0f0'} },
     { x, y:d.ma200, name:'EMA200', type:'scatter', mode:'lines', line:{width:2.0, color:'#ff4d6d'} },
-    { x, y:d.close, name:'Close', type:'scatter', mode:'lines', line:{color:'#ffffff',width:2}, hovertemplate:'%{x}<br>$%{y:.2f}<extra>Price</extra>' }
   );
-  Plotly.newPlot('sc0', priceTraces, { ...subLayout(), height:300, xaxis:xax, yaxis:{...yax, tickprefix:'$'}, showlegend:true, legend:{orientation:'h',y:1.08,font:{size:9},bgcolor:'rgba(0,0,0,0)'} }, cfg);
+
+  // Bollinger Band 상/하단 밴드 (얇은 점선, 맨 뒤/맨 위 레이어로 추가)
+  if (hasBB) {
+    priceTraces.push(
+      { x, y:d.bb_upper, name:'BB Upper', type:'scatter', mode:'lines',
+        line:{width:1, color:'rgba(160,174,192,0.55)', dash:'dot'}, hoverinfo:'skip' },
+      { x, y:d.bb_lower, name:'BB Lower', type:'scatter', mode:'lines',
+        line:{width:1, color:'rgba(160,174,192,0.55)', dash:'dot'},
+        fill:'tonexty', fillcolor:'rgba(160,174,192,0.05)', hoverinfo:'skip' },
+      { x, y:d.bb_mid, name:'BB Mid(20)', type:'scatter', mode:'lines',
+        line:{width:1, color:'rgba(160,174,192,0.35)', dash:'dash'}, hoverinfo:'skip' }
+    );
+  }
+  Plotly.newPlot('sc0', priceTraces, { ...subLayout(), height:300, xaxis:{...xax, rangeslider:{visible:false}}, yaxis:{...yax, tickprefix:'$'}, showlegend:true, legend:{orientation:'h',y:1.08,font:{size:9},bgcolor:'rgba(0,0,0,0)'} }, cfg);
 
   // ── 2. Stochastic & RSI 복합 레이아웃 ──
   Plotly.purge('sc1');
