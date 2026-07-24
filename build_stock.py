@@ -8,6 +8,7 @@ SPY 구성종목 전체 다운로드 → 트레이더 지표 계산 → JSON 저
   etf_analysis/stocks/{TICKER}.json  ← 종목별 OHLCV + 필수 지표 데이터
 """
 
+import ssl; ssl._create_default_https_context = ssl._create_unverified_context
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -37,6 +38,8 @@ MACD2_SLOW = 20
 MACD2_SIGNAL = 9
 MA_WINDOWS = [5, 9, 20, 50, 200]  # EMA 5/9/20/50/200 (SMA -> EMA 전환, 9일선 추가)
 OBV_EMA_COM = 20
+BB_PERIOD = 20     # Bollinger Band: SMA 기준 기간
+BB_STD = 2         # Bollinger Band: 표준편차 배수
 
 os.makedirs(OUT_DIR, exist_ok=True)
 
@@ -51,10 +54,7 @@ print("SPY holdings 다운로드 중...")
 
 rows = []
 import io
-import ssl
 import requests
-
-ssl._create_default_https_context = ssl._create_unverified_context
 
 while True:
     try:
@@ -173,6 +173,12 @@ def calc_indicators(ohlcv: pd.DataFrame, spy: pd.Series) -> dict:
     # ── MA50 Deviation (EMA50 기준) ──
     ma50_dev = (close - mas[50]) / mas[50] * 100
 
+    # ── Bollinger Bands (SMA 20 + 2 std, 상단 차트 캔들 오버레이용) ──
+    bb_mid = close.rolling(BB_PERIOD).mean()
+    bb_std = close.rolling(BB_PERIOD).std()
+    bb_upper = bb_mid + BB_STD * bb_std
+    bb_lower = bb_mid - BB_STD * bb_std
+
     # ── OBV ──
     direction = change.apply(lambda x: 1 if x > 0 else (-1 if x < 0 else 0))
     obv = (volume * direction).cumsum()
@@ -204,6 +210,9 @@ def calc_indicators(ohlcv: pd.DataFrame, spy: pd.Series) -> dict:
         'ma20': series_to_list(mas[20]),
         'ma50': series_to_list(mas[50]),
         'ma200': series_to_list(mas[200]),
+        'bb_upper': series_to_list(bb_upper),  # 신규: Bollinger 상단
+        'bb_mid': series_to_list(bb_mid),      # 신규: Bollinger 중심선 (SMA20)
+        'bb_lower': series_to_list(bb_lower),  # 신규: Bollinger 하단
         'obv': series_to_list(obv),
         'obv_ema': series_to_list(obv_ema),
     }
@@ -415,4 +424,3 @@ if failed_details:
     print(f"  실패 상세: {failed_path}")
     for t, r in failed_details.items():
         print(f"    - {t}: {r}")
-
