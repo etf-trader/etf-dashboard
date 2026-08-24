@@ -33,9 +33,6 @@ STOCH_N = 5
 MACD_FAST = 12
 MACD_SLOW = 26
 MACD_SIGNAL = 9
-MACD2_FAST = 9    # 9-20 EMA MACD (구 Donchian 자리 대체)
-MACD2_SLOW = 20
-MACD2_SIGNAL = 9
 MA_WINDOWS = [5, 9, 20, 50, 200]  # EMA 5/9/20/50/200 (SMA -> EMA 전환, 9일선 추가)
 OBV_EMA_COM = 20
 BB_PERIOD = 20     # Bollinger Band: SMA 기준 기간
@@ -132,13 +129,6 @@ def calc_indicators(ohlcv: pd.DataFrame, spy: pd.Series) -> dict:
     volume = ohlcv['Volume'].squeeze()
     dates = close.index.strftime('%Y-%m-%d').tolist()
 
-    # ── 9-20 EMA MACD (구 Donchian 채널 대체) ──
-    ema9_fast = close.ewm(span=MACD2_FAST, adjust=False).mean()
-    ema20_slow = close.ewm(span=MACD2_SLOW, adjust=False).mean()
-    macd2_spread = ema9_fast - ema20_slow
-    macd2_signal = macd2_spread.ewm(span=MACD2_SIGNAL, adjust=False).mean()
-    macd2_oscill = macd2_spread - macd2_signal
-
     # ── Stochastic ──
     low_min = low.rolling(STOCH_N).min()
     high_max = high.rolling(STOCH_N).max()
@@ -184,6 +174,17 @@ def calc_indicators(ohlcv: pd.DataFrame, spy: pd.Series) -> dict:
     obv = (volume * direction).cumsum()
     obv_ema = obv.ewm(com=OBV_EMA_COM).mean()
 
+    # ── 20D Trailing Realized Volatility (annualized, close-to-close) ──
+    log_ret = np.log(close / close.shift(1))
+    vol20 = log_ret.rolling(20).std() * np.sqrt(252) * 100
+    vol20_ma = vol20.rolling(20).mean()
+
+    # ── Parkinson 20D Volatility (annualized, uses High/Low range) ──
+    park_factor = 1.0 / (4.0 * np.log(2))
+    log_hl2 = (np.log(high / low)) ** 2
+    park_var = log_hl2.rolling(20).mean() * park_factor
+    park_vol20 = np.sqrt(park_var) * np.sqrt(252) * 100
+
     # [Williams %R 및 UDVR 삭제로 연산 및 리턴 경량화]
 
     return {
@@ -193,9 +194,9 @@ def calc_indicators(ohlcv: pd.DataFrame, spy: pd.Series) -> dict:
         'high': series_to_list(high),
         'low': series_to_list(low),
         'volume': [int(v) if not math.isnan(float(v)) else 0 for v in volume.tolist()],
-        'macd2_spread': series_to_list(macd2_spread),  # 9-20 EMA MACD (구 upper_don/lower_don/mid_don 대체)
-        'macd2_signal': series_to_list(macd2_signal),
-        'macd2_oscill': series_to_list(macd2_oscill),
+        'vol20': series_to_list(vol20),
+        'vol20_ma': series_to_list(vol20_ma),
+        'park_vol20': series_to_list(park_vol20),
         'slow_k': series_to_list(slow_k),
         'slow_d': series_to_list(slow_d),
         'rsi': series_to_list(rsi),
