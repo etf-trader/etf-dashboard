@@ -257,6 +257,8 @@
       <span style="color:#3a6fff">■ Improving</span> &nbsp;
       <span style="color:#f5a623">■ Weakening</span> &nbsp;
       <span style="color:#ff4d6d">■ Lagging</span>
+      <span id="rrgClearBtn" onclick="clearRRGHighlight()"
+            style="display:none;cursor:pointer;color:#3a6fff;margin-left:12px;">✕ Clear highlight</span>
     </p>
     <div id="chartRRG"></div>
   </div>
@@ -385,11 +387,6 @@
     </div>
 
     <div class="subplot-row">
-      <div class="subplot-label">9-20 EMA MACD</div>
-      <div id="sc5" style="height:135px"></div>
-    </div>
-
-    <div class="subplot-row">
       <div class="subplot-label">MA50 Deviation (%)</div>
       <div id="sc3" style="height:110px"></div>
     </div>
@@ -397,6 +394,11 @@
     <div class="subplot-row">
       <div class="subplot-label">OBV · OBV EMA</div>
       <div id="sc4" style="height:120px"></div>
+    </div>
+
+    <div class="subplot-row">
+      <div class="subplot-label">20D Realized Volatility (Annualized %)</div>
+      <div id="sc6" style="height:120px"></div>
     </div><!-- /stock-chart-area -->
 
     <!-- 재무제표 영역 (연간, 최근 4개년) -->
@@ -469,6 +471,8 @@ function switchPage(name) {
 let currentEtfSym  = null;
 let currentEtfMode = 'daily';
 let currentPeriod  = '1D';
+let selectedRRGTicker = null;
+let rrgTraceInfo = [];
 
 document.getElementById('dateRange').textContent = ETF_DATA.date_1d;
 
@@ -603,19 +607,32 @@ function renderRRG() {
   const traces = ETF_DATA.rrg;
   if (!traces||!traces.length) return;
   const plotTraces = [];
+  rrgTraceInfo = [];
+
   traces.forEach(t => {
     plotTraces.push({ type:'scatter', mode:'lines', x:t.x, y:t.y,
-      line:{color:t.color,width:1.5}, showlegend:false, hoverinfo:'skip' });
-    if (t.x.length>2) plotTraces.push({ type:'scatter', mode:'markers',
-      x:t.x.slice(1,-1), y:t.y.slice(1,-1),
-      marker:{color:t.color,size:5,symbol:'circle'}, showlegend:false, hoverinfo:'skip' });
+      line:{color:t.color,width:1.5}, showlegend:false, hoverinfo:'none',
+      customdata: t.x.map(()=>t.ticker) });
+    rrgTraceInfo.push({ ticker:t.ticker, type:'line' });
+
+    if (t.x.length>2) {
+      plotTraces.push({ type:'scatter', mode:'markers',
+        x:t.x.slice(1,-1), y:t.y.slice(1,-1),
+        marker:{color:t.color,size:5,symbol:'circle'}, showlegend:false, hoverinfo:'none',
+        customdata: t.x.slice(1,-1).map(()=>t.ticker) });
+      rrgTraceInfo.push({ ticker:t.ticker, type:'mid' });
+    }
+
     plotTraces.push({ type:'scatter', mode:'markers+text',
       x:[t.x[t.x.length-1]], y:[t.y[t.y.length-1]],
       marker:{color:t.color,size:12,symbol:'square'},
       text:[t.name+' ('+t.ticker+')'], textposition:'top center',
       textfont:{color:'#ffffff',size:10}, name:t.name, showlegend:false,
+      customdata:[t.ticker],
       hovertemplate:'<b>'+t.name+' ('+t.ticker+')</b><br>RSR:%{x:.2f}<br>RSM:%{y:.2f}<extra></extra>' });
+    rrgTraceInfo.push({ ticker:t.ticker, type:'end' });
   });
+
   const allX=traces.flatMap(t=>t.x), allY=traces.flatMap(t=>t.y);
   const xPad=(Math.max(...allX)-Math.min(...allX))*0.1||2;
   const yPad=(Math.max(...allY)-Math.min(...allY))*0.1||2;
@@ -643,6 +660,53 @@ function renderRRG() {
     yaxis:{title:'Relative Strength Momentum',gridcolor:'#1e2030',zeroline:false,range:[yMin,yMax]},
     shapes, annotations, dragmode:false,
   }, cfg);
+
+  const rrgDiv = document.getElementById('chartRRG');
+  rrgDiv.on('plotly_click', function(ev) {
+    if (!ev.points || !ev.points.length) return;
+    const ticker = ev.points[0].customdata;
+    if (!ticker) return;
+    selectedRRGTicker = (selectedRRGTicker === ticker) ? null : ticker;
+    applyRRGHighlight();
+    const clearBtn = document.getElementById('rrgClearBtn');
+    if (clearBtn) clearBtn.style.display = selectedRRGTicker ? 'inline' : 'none';
+  });
+
+  applyRRGHighlight();
+}
+
+function applyRRGHighlight() {
+  const chart = document.getElementById('chartRRG');
+  if (!chart || !chart.data || !chart.data.length) return;
+  const allIdx = rrgTraceInfo.map((_, i) => i);
+
+  const opacities = allIdx.map(i => {
+    const info = rrgTraceInfo[i];
+    const isSel = !selectedRRGTicker || info.ticker === selectedRRGTicker;
+    return (selectedRRGTicker && !isSel) ? 0.1 : 1;
+  });
+  Plotly.restyle(chart, { opacity: opacities }, allIdx);
+
+  const lineIdx = allIdx.filter(i => rrgTraceInfo[i].type === 'line');
+  if (lineIdx.length) {
+    const widths = lineIdx.map(i =>
+      (selectedRRGTicker && rrgTraceInfo[i].ticker === selectedRRGTicker) ? 3 : 1.5);
+    Plotly.restyle(chart, { 'line.width': widths }, lineIdx);
+  }
+
+  const endIdx = allIdx.filter(i => rrgTraceInfo[i].type === 'end');
+  if (endIdx.length) {
+    const sizes = endIdx.map(i =>
+      (selectedRRGTicker && rrgTraceInfo[i].ticker === selectedRRGTicker) ? 16 : 12);
+    Plotly.restyle(chart, { 'marker.size': sizes }, endIdx);
+  }
+}
+
+function clearRRGHighlight() {
+  selectedRRGTicker = null;
+  applyRRGHighlight();
+  const clearBtn = document.getElementById('rrgClearBtn');
+  if (clearBtn) clearBtn.style.display = 'none';
 }
 renderRRG();
 
@@ -937,21 +1001,6 @@ function renderStockCharts(payload) {
     { x, y:d.macd_signal, name:'Signal', type:'scatter', mode:'lines', line:{color:'#a855f7',width:1.5} },
   ], { ...subLayout(), height:135, xaxis:xax, yaxis:yax, showlegend:true, legend:{orientation:'h',y:1.15,font:{size:9},bgcolor:'rgba(0,0,0,0)'}, bargap:0.1 }, cfg);
 
-  // ── 3b. 9-20 EMA MACD (구 Donchian 대체) ──
-  // 방어 코드: 리빌드가 누락된 구버전 티커 JSON(macd2_* 필드 없음)이어도 전체 렌더링이 죽지 않도록 처리
-  const hasMacd2 = Array.isArray(d.macd2_oscill) && Array.isArray(d.macd2_spread) && Array.isArray(d.macd2_signal);
-  const osc2Colors = hasMacd2 ? d.macd2_oscill.map(v => v >= 0 ? '#00c48c' : '#ff4d6d') : [];
-  Plotly.purge('sc5');
-  if (hasMacd2) {
-    Plotly.newPlot('sc5', [
-      { x, y:d.macd2_oscill, name:'Osc', type:'bar', marker:{color:osc2Colors}, opacity:0.35, hovertemplate:'Osc: %{y:.4f}<extra></extra>' },
-      { x, y:d.macd2_spread, name:'MACD(9,20)', type:'scatter', mode:'lines', line:{color:'#22d3ee',width:1.5} },
-      { x, y:d.macd2_signal, name:'Signal(9)', type:'scatter', mode:'lines', line:{color:'#a855f7',width:1.5} },
-    ], { ...subLayout(), height:135, xaxis:xax, yaxis:yax, showlegend:true, legend:{orientation:'h',y:1.15,font:{size:9},bgcolor:'rgba(0,0,0,0)'}, bargap:0.1 }, cfg);
-  } else {
-    document.getElementById('sc5').innerHTML =
-      '<div style="color:#666;font-size:0.8rem;padding:12px;text-align:center">데이터 갱신 필요 (구버전 스키마) — build_stock.py 재실행 필요</div>';
-  }
   Plotly.purge('sc3');
   Plotly.newPlot('sc3', [
     { x, y:d.ma50_dev, name:'MA50 Dev%', type:'scatter', mode:'lines', line:{color:'#fb7185',width:1.5}, fill:'tozeroy', fillcolor:'rgba(251,113,133,0.06)', hovertemplate:'%{x}<br>%{y:.2f}%<extra></extra>' },
@@ -964,8 +1013,16 @@ function renderStockCharts(payload) {
     { x, y:d.obv_ema, name:'OBV EMA', type:'scatter', mode:'lines', line:{color:'#f5a623',width:1.5} },
   ], { ...subLayout(), height:120, xaxis:xax, yaxis:yax, showlegend:true, legend:{orientation:'h',y:1.15,font:{size:9},bgcolor:'rgba(0,0,0,0)'} }, cfg);
 
-  // ── 🔗 5개 분할 차트 전용 실시간 마우스 가이드 & 호버 연동 스크립트 ──
-  const chartIds = ['sc0', 'sc1', 'sc2', 'sc5', 'sc3', 'sc4'];
+  // ── 6. 20D Realized Volatility (Close-to-Close & Parkinson) ──
+  Plotly.purge('sc6');
+  Plotly.newPlot('sc6', [
+    { x, y:d.vol20,      name:'Vol20 (C-C)',      type:'scatter', mode:'lines', line:{color:'#fb923c',width:1.5} },
+    { x, y:d.vol20_ma,   name:'Vol20 MA20',       type:'scatter', mode:'lines', line:{color:'#38bdf8',width:1.5, dash:'dot'} },
+    { x, y:d.park_vol20, name:'Vol20 (Parkinson)', type:'scatter', mode:'lines', line:{color:'#a78bfa',width:1.5} },
+  ], { ...subLayout(), height:120, xaxis:xax, yaxis:{...yax, ticksuffix:'%'}, showlegend:true, legend:{orientation:'h',y:1.15,font:{size:9},bgcolor:'rgba(0,0,0,0)'} }, cfg);
+
+  // ── 🔗 분할 차트 전용 실시간 마우스 가이드 & 호버 연동 스크립트 ──
+  const chartIds = ['sc0', 'sc1', 'sc2', 'sc3', 'sc4', 'sc6'];
   chartIds.forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
