@@ -201,6 +201,32 @@
   }
   .stock-section-label:first-of-type { margin-top: 0; }
 
+  /* Stock 밸류에이션 섹션 */
+  .valuation-summary {
+    display: flex; gap: 14px; flex-wrap: wrap; align-items: center;
+    padding: 4px 4px 16px;
+  }
+  .valuation-summary .vs-range { font-size: 1rem; font-weight: 700; color: #fff; }
+  .valuation-summary .vs-mid   { font-size: 0.8rem; color: #888; }
+  .verdict-badge {
+    padding: 3px 12px; border-radius: 6px; font-size: 0.78rem; font-weight: 700;
+  }
+  .verdict-badge.undervalued { background: rgba(0,196,140,0.15); color: #00c48c; }
+  .verdict-badge.overvalued  { background: rgba(255,77,109,0.15); color: #ff4d6d; }
+  .verdict-badge.fair        { background: rgba(245,166,35,0.15); color: #f5a623; }
+  .valuation-upside { font-size: 0.85rem; font-weight: 600; }
+  .valuation-upside.pos { color: #00c48c; }
+  .valuation-upside.neg { color: #ff4d6d; }
+  .valuation-rsi-note { font-size: 0.78rem; color: #888; }
+
+  .valuation-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  .valuation-table th {
+    text-align: left; color: #555; font-weight: 500;
+    padding: 5px 10px; border-bottom: 1px solid #2a2d3a;
+  }
+  .valuation-table td { padding: 7px 10px; border-bottom: 1px solid #1e2030; color: #ccc; }
+  .valuation-table tr:last-child td { border-bottom: none; }
+
   /* Stock 차트 영역 (실전 트레이더용 5단 레이아웃) */
   .stock-chart-area {
     background: #16181f; border-radius: 10px; padding: 16px;
@@ -399,7 +425,8 @@
     <div class="subplot-row">
       <div class="subplot-label">20D Realized Volatility (Annualized %)</div>
       <div id="sc6" style="height:120px"></div>
-    </div><!-- /stock-chart-area -->
+    </div>
+  </div><!-- /stock-chart-area -->
 
     <!-- 재무제표 영역 (연간, 최근 4개년) -->
   <div class="stock-section-label">💰 Financials (Annual · Last 4 Years)</div>
@@ -424,8 +451,27 @@
     </div>
 
   </div><!-- /stock-financials-area -->
-  </div>
-</div></div><script>
+
+  <!-- 밸류에이션 영역 -->
+  <div class="stock-section-label">💰 Valuation (Fair Value)</div>
+  <div class="stock-chart-area" id="stockValuationArea">
+
+    <div class="valuation-summary" id="valuationSummary"></div>
+
+    <div class="subplot-row">
+      <div class="subplot-label">Fair Value Range vs Current Price</div>
+      <div id="vc0" style="height:110px"></div>
+    </div>
+
+    <div class="subplot-row">
+      <div class="subplot-label">Method Breakdown</div>
+      <div id="valuationMethodsTable"></div>
+    </div>
+
+  </div><!-- /stock-valuation-area -->
+
+</div><!-- /stock-page -->
+</div><!-- /page-stock --><script>
 // ══════════════════════════════════════════════════════
 //  ETF 데이터 (Python이 embed)
 // ══════════════════════════════════════════════════════
@@ -872,6 +918,7 @@ async function selectStock(idx) {
     updateFundamentals(payload);
     renderStockCharts(payload);
     loadFinancials(s.ticker);
+    loadValuation(s.ticker);
   } catch(e) {
     document.getElementById('stockInfoBar').innerHTML =
       `<span style="color:#ff4d6d">⚠ ${s.ticker} 데이터를 불러올 수 없습니다</span>`;
@@ -1144,6 +1191,72 @@ function renderFinancialsCharts(payload) {
   } else {
     document.getElementById('fc2').innerHTML = '<p class="no-data">데이터 없음</p>';
   }
+}
+
+// ── Valuation (Fair Value) 로드 + 렌더 ──────────
+async function loadValuation(ticker) {
+  document.getElementById('valuationSummary').innerHTML = '';
+  document.getElementById('valuationMethodsTable').innerHTML = '';
+  Plotly.purge('vc0');
+  try {
+    const res = await fetch(`fair_value/${ticker}.json`);
+    if (!res.ok) throw new Error(`fair_value/${ticker}.json 없음`);
+    const payload = await res.json();
+    renderValuation(payload);
+  } catch (e) {
+    document.getElementById('valuationSummary').innerHTML =
+      '<p class="no-data">Valuation 데이터가 없습니다 (fair_value.py 실행 필요).</p>';
+  }
+}
+
+function renderValuation(payload) {
+  const range = payload.fair_value_range;
+  const verdictLabel = { undervalued: 'Undervalued', overvalued: 'Overvalued', fair: 'Fair Value' }[payload.verdict] || payload.verdict;
+  const upside = payload.upside_to_midpoint_pct;
+
+  document.getElementById('valuationSummary').innerHTML = `
+    <span class="vs-range">$${range.low.toFixed(2)} – $${range.high.toFixed(2)}</span>
+    <span class="vs-mid">mid $${payload.midpoint.toFixed(2)}</span>
+    <span class="verdict-badge ${payload.verdict}">${verdictLabel}</span>
+    <span class="valuation-upside ${upside >= 0 ? 'pos' : 'neg'}">${upside >= 0 ? '+' : ''}${upside}% to mid</span>
+    ${payload.rsi_note ? `<span class="valuation-rsi-note">${payload.rsi_note}</span>` : ''}
+  `;
+
+  const lo = Math.min(range.low, payload.last_close) * 0.95;
+  const hi = Math.max(range.high, payload.last_close) * 1.05;
+
+  Plotly.purge('vc0');
+  Plotly.newPlot('vc0', [
+    { type: 'bar', orientation: 'h', x: [range.high - range.low], base: [range.low], y: ['Fair Value'],
+      marker: { color: 'rgba(58,111,255,0.25)' }, hoverinfo: 'skip', width: 0.5 },
+  ], {
+    ...subLayout(), height: 110,
+    xaxis: { ...subLayout().xaxis, tickprefix: '$', range: [lo, hi] },
+    yaxis: { ...subLayout().yaxis, showticklabels: false },
+    shapes: [
+      { type: 'line', x0: payload.last_close, x1: payload.last_close, y0: -0.5, y1: 0.5,
+        line: { color: '#fff', width: 2 } },
+      { type: 'line', x0: payload.midpoint, x1: payload.midpoint, y0: -0.5, y1: 0.5,
+        line: { color: '#f5a623', width: 1, dash: 'dot' } },
+    ],
+    annotations: [
+      { x: payload.last_close, y: 0.7, text: `Current $${payload.last_close.toFixed(2)}`,
+        showarrow: false, font: { color: '#fff', size: 10 } },
+    ],
+  }, cfg);
+
+  const methods = payload.methods || {};
+  const rows = Object.entries(methods).map(([name, band]) => `
+    <tr>
+      <td style="color:#7eb3ff;font-weight:600">${name}</td>
+      <td style="text-align:right">$${band.low.toFixed(2)}</td>
+      <td style="text-align:right">$${band.high.toFixed(2)}</td>
+    </tr>`).join('');
+  document.getElementById('valuationMethodsTable').innerHTML = rows ? `
+    <table class="valuation-table">
+      <thead><tr><th>Method</th><th style="text-align:right">Low</th><th style="text-align:right">High</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>` : '<p class="no-data">방법론 데이터 없음</p>';
 }
 
 // 외부 클릭 피드백
