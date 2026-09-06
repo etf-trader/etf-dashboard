@@ -18,7 +18,6 @@ fair_value.py
   python fair_value.py --all           # manifest.json 전체 종목
 """
 
-import ssl; ssl._create_default_https_context = ssl._create_unverified_context
 import yfinance as yf
 import numpy as np
 import json
