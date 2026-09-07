@@ -12,12 +12,14 @@ fair_value.py
 출력:
   etf_analysis/fair_value/{TICKER}.json   ← 종목별 방법론별 추정치 + 종합 레인지
   etf_analysis/fair_value/summary.json    ← 전체 종목 요약 (현재가 대비 괴리율 포함)
+  etf_analysis/fair_value/run_errors.log  ← --all 실행 중 발생한 오류 기록 (터미널 스크롤 없이 확인 가능)
 
 사용법:
   python fair_value.py AAPL            # 단일 종목
   python fair_value.py --all           # manifest.json 전체 종목
 """
 
+import ssl; ssl._create_default_https_context = ssl._create_unverified_context
 import yfinance as yf
 import numpy as np
 import json
@@ -26,12 +28,14 @@ import os
 import sys
 import time
 import datetime
+import traceback
 import warnings
 
 warnings.filterwarnings('ignore')
 
 STOCKS_DIR = 'etf_analysis/stocks'
 OUT_DIR = 'etf_analysis/fair_value'
+ERROR_LOG_PATH = os.path.join(OUT_DIR, 'run_errors.log')
 os.makedirs(OUT_DIR, exist_ok=True)
 
 # ─────────────────────────────────────────────
@@ -53,6 +57,14 @@ def safe_float(x):
         return f
     except Exception:
         return None
+
+
+def log_error(context: str, exc: Exception):
+    """오류를 run_errors.log에 타임스탬프와 함께 기록 (터미널 스크롤 없이 원인 확인용)."""
+    with open(ERROR_LOG_PATH, 'a', encoding='utf-8') as f:
+        f.write(f"\n[{datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] {context}\n")
+        f.write(traceback.format_exc())
+        f.write('\n' + '-' * 60 + '\n')
 
 
 # ─────────────────────────────────────────────
@@ -337,9 +349,27 @@ def build_fair_value(ticker: str) -> dict:
 # ─────────────────────────────────────────────
 def run_all():
     manifest_path = os.path.join(STOCKS_DIR, 'manifest.json')
-    with open(manifest_path, 'r', encoding='utf-8') as f:
-        manifest = json.load(f)
+
+    if not os.path.exists(manifest_path):
+        msg = (
+            f"✗ {manifest_path} 없음.\n"
+            f"  → build_stock.py가 먼저 성공적으로 실행되어야 합니다.\n"
+            f"  → build_all.py로 실행 중이었다면, 이전 단계(build_stock.py)의 로그를 확인하세요."
+        )
+        print(msg)
+        log_error('run_all: manifest.json 없음', FileNotFoundError(manifest_path))
+        sys.exit(1)
+
+    try:
+        with open(manifest_path, 'r', encoding='utf-8') as f:
+            manifest = json.load(f)
+    except Exception as e:
+        print(f"✗ {manifest_path} 읽기 실패 (손상되었거나 형식이 잘못됨): {e}")
+        log_error('run_all: manifest.json 파싱 실패', e)
+        sys.exit(1)
+
     summary = []
+    error_count = 0
     for row in manifest.get('stocks', []):
         ticker = row['ticker']
         try:
@@ -352,7 +382,9 @@ def run_all():
             })
             print(f"  ✓ {ticker}: {r['verdict']} (range {r['fair_value_range']['low']}–{r['fair_value_range']['high']}, close {r['last_close']})")
         except Exception as e:
-            print(f"  ✗ {ticker}: {e}")
+            error_count += 1
+            print(f"  ✗ {ticker}: {e}  (상세 내용은 {ERROR_LOG_PATH} 참고)")
+            log_error(f'{ticker} 처리 실패', e)
         time.sleep(0.1)
 
     with open(os.path.join(OUT_DIR, 'summary.json'), 'w', encoding='utf-8') as f:
@@ -361,7 +393,9 @@ def run_all():
             'count': len(summary),
             'stocks': summary,
         }, f, ensure_ascii=False, indent=2)
-    print(f"\n✓ 완료: {len(summary)}개 종목 fair value 계산")
+    print(f"\n✓ 완료: {len(summary)}개 종목 fair value 계산, {error_count}개 실패")
+    if error_count:
+        print(f"  실패 상세: {ERROR_LOG_PATH}")
 
 
 if __name__ == '__main__':
@@ -373,5 +407,10 @@ if __name__ == '__main__':
         run_all()
     else:
         ticker = sys.argv[1].upper()
-        r = build_fair_value(ticker)
-        print(json.dumps(r, ensure_ascii=False, indent=2))
+        try:
+            r = build_fair_value(ticker)
+            print(json.dumps(r, ensure_ascii=False, indent=2))
+        except Exception as e:
+            print(f"✗ {ticker} 처리 실패: {e}")
+            log_error(f'{ticker} 단일 실행 실패', e)
+            sys.exit(1)
