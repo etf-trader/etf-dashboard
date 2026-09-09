@@ -1,7 +1,5 @@
 {
-  "generated": "2026-09-07 04:10",
-  "count": 1,
-  "failures": {
-    "HONA": "KeyError: ['Close']"
-  }
+  "generated": "2026-09-09 22:59",
+  "count": 0,
+  "failures": {}
 }

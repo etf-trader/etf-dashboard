@@ -1,12 +1,12 @@
 ﻿symbol,name,theme,category,family,exchange,aum
-VNQ,Vanguard Real Estate Index Fund ETF Shares,Real Estate,REITs,Vanguard Asset Management,PCX,71970390016.0
+VNQ,Vanguard Real Estate Index Fund ETF Shares,Real Estate,REITs,Vanguard Asset Management,PCX,70822862848.0
 SMH,VanEck Vectors Semiconductor ETF,Information Technology,Technology,VanEck Asset Management,NMS,67787030528.0
 SOXX,iShares PHLX Semiconductor ETF,Information Technology,Technology,BlackRock Asset Management,NGM,41810907136.0
 GDX,VanEck Vectors Gold Miners ETF,Materials,Materials,VanEck Asset Management,PCX,30543091712.0
 FTEC,Fidelity MSCI Information Technology Index ETF,Information Technology,Technology,Fidelity Investments,PCX,21250689024.0
 CIBR,First Trust NASDAQ Cybersecurity ETF,Information Technology,Technology,First Trust Advisors,NMS,16119134208.0
 IGV,iShares Expanded Tech-Software Sector ETF,Information Technology,Technology,BlackRock Asset Management,BTS,15741521920.0
-VFH,Vanguard Financials Index Fund ETF Shares,Financials,Financials,Vanguard Asset Management,PCX,14766520320.0
+VFH,Vanguard Financials Index Fund ETF Shares,Financials,Financials,Vanguard Asset Management,PCX,14771595264.0
 AMLP,Alerian MLP ETF,Equities,Energy,ALPS ETF Trust,PCX,13442306048.0
 XBI,SPDR S&P Biotech ETF,Health Care,Health Care,State Street Global Advisors,PCX,11404576768.0
 SCHH,Schwab U.S. REIT ETF,Real Estate,REITs,Schwab ETFs,PCX,11197114368.0
@@ -28,7 +28,7 @@ IXJ,iShares Global Healthcare ETF,Health Care,Health Care,BlackRock Asset Manage
 EMLP,First Trust North American Energy Infrastructure Fund,Energy,Energy,First Trust Advisors,PCX,4159257856.0
 SILJ,ETFMG Prime Junior Silver Miners ETF,Materials,Materials,ETF Management,PCX,4132843264.0
 XOP,SPDR S&P Oil & Gas Exploration & Production ETF,Energy,Energy,State Street Global Advisors,PCX,3986409216.0
-VNQI,Vanguard Global ex-U.S. Real Estate Index Fund ETF Shares,Real Estate,REITs,Vanguard Asset Management,NGM,3770853376.0
+VNQI,Vanguard Global ex-U.S. Real Estate Index Fund ETF Shares,Real Estate,REITs,Vanguard Asset Management,NGM,3759717376.0
 MLPX,Global X MLP & Energy Infrastructure ETF,Energy,Energy,Global X Funds,PCX,3679037952.0
 IHI,iShares U.S. Medical Devices ETF,Health Care,Health Care,BlackRock Asset Management,PCX,3473586688.0
 SKYY,First Trust Cloud Computing ETF,Information Technology,Technology,First Trust Advisors,NGM,3388826880.0
