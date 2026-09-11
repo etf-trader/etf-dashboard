@@ -1,5 +1,7 @@
 {
-  "generated": "2026-09-10 23:04",
-  "count": 0,
-  "failures": {}
+  "generated": "2026-09-11 23:08",
+  "count": 1,
+  "failures": {
+    "2682320D": "empty_response (상장폐지/티커 변경 또는 야후파이낸스 미제공 가능성 — 재시도 무의미)"
+  }
 }
