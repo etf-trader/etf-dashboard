@@ -1,184 +1,187 @@
 ﻿symbol,name,theme,category,family,exchange,aum
-ACES,ALPS Clean Energy ETF,Energy,Energy,ALPS ETF Trust,PCX,109155312.0
-AIQ,Global X Artificial Intelligence & Technology ETF,Information Technology,Technology,Global X Funds,NMS,10174134272.0
-AIRR,First Trust RBA American Industrial RenaissanceTM ETF,Industrials,Industrials,First Trust Advisors,NGM,9450259456.0
-AMLP,Alerian MLP ETF,Equities,Energy,ALPS ETF Trust,PCX,13442306048.0
-AMUB,UBS ETRACS Alerian MLP Index ETN Series B,Equities,Energy,UBS Asset Management,PCX,40259740.0
-AMZA,InfraCap MLP ETF,Equities,Energy,Virtus,PCX,492007264.0
-AQWA,Global X Clean Water ETF,Utilities,Materials,Global X Funds,NMS,21416816.0
-ARKF,ARK Fintech Innovation ETF,Financials,Technology,ARK ETF Trust,PCX,818739968.0
-ARKG,ARK Genomic Revolution ETF,Health Care,Health Care,ARK ETF Trust,BTS,2020345088.0
-ARKQ,ARK Autonomous Technology & Robotics ETF,Industrials,Technology,ARK ETF Trust,BTS,1923636480.0
-ARKW,ARK Next Generation Internet ETF,Information Technology,Technology,ARK ETF Trust,PCX,1840587648.0
-AWAY,ETFMG Travel Tech ETF,Equities,Consumer Discretionary,ETF Management,PCX,37551560.0
-BBC,Virtus LifeSci Biotech Clinical Trials ETF,Health Care,Health Care,Virtus,PCX,50319076.0
-BBH,VanEck Vectors Biotech ETF,Health Care,Health Care,VanEck Asset Management,NMS,469367584.0
-BBP,Virtus LifeSci Biotech Products ETF,Health Care,Health Care,Virtus,PCX,116767432.0
-BBRE,JPMorgan BetaBuilders MSCI U.S. REIT ETF,Real Estate,REITs,JPMorgan Asset Management,BTS,1260180608.0
-BEDZ,AdvisorShares Hotel ETF,Consumer Discretionary,Consumer Discretionary,AdvisorShares,PCX,2993534.0
-BETZ,Roundhill Sports Betting & iGaming ETF,Consumer Discretionary,Consumer Discretionary,Roundhill Investments,PCX,50436696.0
-BIZD,VanEck Vectors BDC Income ETF,Financials,Financials,VanEck Asset Management,PCX,1724331136.0
-BLCN,Siren Nasdaq NexGen Economy ETF,Information Technology,Technology,SRN Advisors,NMS,
-BLDG,Cambria Global Real Estate ETF,Real Estate,REITs,Cambria ETF Trust,BTS,54847492.0
-BLOK,Amplify Transformational Data Sharing ETF,Information Technology,Technology,Amplify ETFs,PCX,1103953664.0
-BMED,BlackRock Future Health ETF,Health Care,Health Care,BlackRock Asset Management,PCX,13520012.0
-BTEK,BlackRock Future Tech ETF,Information Technology,Technology,BlackRock Asset Management,PCX,13414171.0
-CARZ,First Trust NASDAQ Global Auto Index Fund,Consumer Discretionary,Consumer Discretionary,First Trust Advisors,NGM,47710108.0
-CGW,Invesco S&P Global Water Index ETF,Utilities,Materials,Invesco Investment Management,PCX,1055542336.0
-CIBR,First Trust NASDAQ Cybersecurity ETF,Information Technology,Technology,First Trust Advisors,NMS,16119134208.0
-CLIX,ProShares Long Online/Short Stores ETF,Consumer Discretionary,Equities,ProShares,PCX,6235476.0
-CLOU,Global X Cloud Computing ETF Global X Cloud Computing ETF,Information Technology,Technology,Global X Funds,NGM,382466336.0
-CNCR,Loncar Cancer Immunotherapy ETF,Health Care,Health Care,Loncar Investments,NGM,6946185.0
-CNRG,SPDR Kensho Clean Power ETF,Energy,Energy,State Street Global Advisors,PCX,187221344.0
-COPX,Global X Copper Miners ETF,Materials,Materials,Global X Funds,PCX,8443984896.0
-CRAK,VanEck Vectors Oil Refiners ETF,Energy,Energy,VanEck Asset Management,PCX,452384160.0
-CUT,Invesco MSCI Global Timber ETF,Materials,Materials,Invesco Investment Management,PCX,31547066.0
-CVY,Invesco Zacks Multi-Asset Income ETF,Equities,Equities,Invesco Investment Management,PCX,125470160.0
-DFNL,Davis Select Financial ETF,Financials,Financials,Davis ETFs,BTS,483099040.0
+AAAA,Amplius Aggressive Asset Allocation ETF,Equities,Allocation,Amplius,BTS,282336032.0
+ALLW,State Street Bridgewater All Weather ETF,Equities,Allocation,State Street Global Advisors,NGM,1793045760.0
+AMAX,Adaptive Hedged Multi-Asset Income ETF,Equities,Allocation,,PCX,73875448.0
+AOA,iShares Core Aggressive Allocation ETF,Equities,Allocation,BlackRock Asset Management,PCX,3291845376.0
+AOK,iShares Core Conservative Allocation ETF,Equities,Allocation,BlackRock Asset Management,PCX,818570112.0
+AOM,iShares Core Moderate Allocation ETF,Equities,Allocation,BlackRock Asset Management,PCX,1890612352.0
+AOR,iShares Core Growth Allocation ETF,Equities,Allocation,BlackRock Asset Management,PCX,3870305024.0
+AVMA,Avantis Moderate Allocation ETF,Equities,Allocation,Avantis Investors,PCX,91037736.0
+AVRE,Avantis Real Estate ETF,Real Estate,REITs,Avantis Investors,PCX,845148928.0
+BBB,CYBER HORNET S&P 500 and Bitcoin 75/25 Strategy ETF,Equities,Allocation,Cyber Hornet ETFs,NGM,8021453.0
+BBRE,JPMorgan BetaBuilders MSCI U.S. REIT ETF,Real Estate,REITs,JPMorgan Asset Management,BTS,1197897344.0
+BFAP,FT Vest Bitcoin Strategy Floor15 ETF April,Equities,Allocation,First Trust Advisors,PCX,810677.0
+BFJA,FT Vest Bitcoin Strategy Floor15 ETF - January,Equities,Allocation,First Trust Advisors,PCX,957227.0
+BFJL,FT Vest Bitcoin Strategy Floor15 ETF July,Equities,Allocation,First Trust Advisors,PCX,3825912.0
+BFOC,FT Vest Bitcoin Strategy Floor15 ETF - October,Equities,Allocation,First Trust Advisors,PCX,2552866.0
+BFXU,FT Vest Laddered U.S. Equity Uncapped Accelerator ETF,Equities,Allocation,First Trust Advisors,BTS,2362734.0
+BIZD,VanEck Vectors BDC Income ETF,Equities,Allocation,VanEck Asset Management,PCX,1540028416.0
+BLDG,Cambria Global Real Estate ETF,Real Estate,REITs,Cambria ETF Trust,BTS,51295264.0
+BLOX,Nicholas Crypto Income ETF,Equities,Allocation,Nicholas Wealth,PCX,299405760.0
+BLUI,Bluemonte Diversified Income ETF,Equities,Allocation,Bluemonte,PCX,114037136.0
+BNAV,Amplify Fairlead Tactical Bitcoin ETF,Equities,Allocation,Amplify ETFs,BTS,3216448.0
+BYRE,Principal Real Estate Active Opportunities ETF,Real Estate,REITs,Principal Funds,PCX,25620104.0
+CANQ,Calamos Nasdaq Equity & Income ETF,Equities,Allocation,Calamos Investments,NGM,20696592.0
+CAOS,Alpha Architect Tail Risk ETF,Equities,Allocation,Alpha Architect,BTS,686100288.0
+CEFS,Saba Closed-End Funds ETF,Equities,Allocation,SABA ETF,BTS,429561088.0
+CGBL,Capital Group Core Balanced ETF,Equities,Allocation,Capital Group,PCX,7654107136.0
+CLOB,VanEck AA-BB CLO ETF,Equities,Allocation,VanEck Asset Management,PCX,196668912.0
+CLOI,VanEck CLO ETF,Equities,Allocation,VanEck Asset Management,PCX,1636731136.0
+CLSM,ETC Cabana Target Leading Sector Moderate ETF,Equities,Allocation,Cabana,NGM,97874712.0
+DDX,Defined Duration 10 ETF,Equities,Allocation,,BTS,
+DESK,VanEck Office and Commercial REIT ETF,Real Estate,REITs,VanEck Asset Management,PCX,5622581.0
+DFAR,DFA Real Estate Securities Portfolio ETF Class Shares,Real Estate,REITs,Dimensional Fund Advisors,PCX,8066067968.0
+DFGR,Dimensional Global Real Estate ETF,Real Estate,REITs,Dimensional Fund Advisors,PCX,3668213760.0
+DPRE,Virtus Duff & Phelps Real Estate Income ETF,Real Estate,REITs,Virtus,PCX,3689793.0
 DPYA.L,iShares Developed Markets Property Yield UCITS ETF USD (Acc),Real Estate,REITs,BlackRock Asset Management,LSE,
-DTEC,ALPS Disruptive Technologies ETF,Information Technology,Technology,ALPS ETF Trust,PCX,77546808.0
-EATZ,AdvisorShares Restaurant ETF,Equities,Consumer Discretionary,AdvisorShares,PCX,2177281.0
-EINC,VanEck Vectors Energy Income ETF,Energy,Energy,VanEck Asset Management,PCX,81258616.0
-EMLP,First Trust North American Energy Infrastructure Fund,Energy,Energy,First Trust Advisors,PCX,4159257856.0
-ENFR,Alerian Energy Infrastructure ETF,Energy,Energy,ALPS ETF Trust,PCX,548447744.0
+DRAI,Draco Evolution AI ETF,Equities,Allocation,,PCX,20587522.0
+DTRE,First Trust Alerian Disruptive Technology Real Estate ETF,Real Estate,REITs,First Trust Advisors,PCX,13588908.0
+DURA,VanEck Vectors Morningstar Durable Dividend ETF,Equities,Allocation,VanEck Asset Management,BTS,37161464.0
+DVDN,Kingsbarn Dividend Opportunity ETF,Real Estate,REITs,Kingsbarn,PCX,2765016.0
+EINC,VanEck Vectors Energy Income ETF,Equities,Allocation,VanEck Asset Management,PCX,77313904.0
+ELM,Elm Market Navigator ETF,Equities,Allocation,,PCX,590943168.0
 EPRU.AS,Amundi Index Solutions - Amundi Index FTSE EPRA NAREIT Global UCITS ETF DR,Real Estate,REITs,Amundi Asset Management,AMS,
-ESPO,VanEck Vectors Video Gaming and eSports ETF,Consumer Discretionary,Technology,VanEck Asset Management,NGM,254046640.0
-EVX,VanEck Vectors Environmental Services ETF,Equities,Industrials,VanEck Asset Management,PCX,99529968.0
-FDIS,Fidelity MSCI Consumer Discretionary Index ETF,Consumer Discretionary,Consumer Discretionary,Fidelity Investments,PCX,1692495104.0
-FENY,Fidelity MSCI Energy Index ETF,Energy,Energy,Fidelity Investments,PCX,2140013952.0
-FLYT,Direxion Flight to Safety Strategy ETF,Equities,Equities,Direxion Funds,PCX,7093801.0
-FMAT,Fidelity MSCI Materials Index ETF,Equities,Materials,Fidelity Investments,PCX,619519040.0
-FMF,First Trust Managed Futures Strategy Fund,Equities,Derivatives,First Trust Advisors,PCX,272439552.0
-FPRO,Fidelity Real Estate Investment ETF,Real Estate,REITs,Fidelity Investments,BTS,16162056.0
-FREL,Fidelity MSCI Real Estate Index ETF,Real Estate,REITs,Fidelity Investments,PCX,1476172288.0
-FRI,First Trust S&P REIT Index Fund,Real Estate,REITs,First Trust Advisors,PCX,196046992.0
-FTEC,Fidelity MSCI Information Technology Index ETF,Information Technology,Technology,Fidelity Investments,PCX,21250689024.0
-FTXG,First Trust Nasdaq Food & Beverage ETF,Consumer Staples,Consumer Staples,First Trust Advisors,NGM,18484714.0
-FTXH,First Trust Nasdaq Pharmaceuticals ETF,Health Care,Health Care,First Trust Advisors,NGM,1054381312.0
-FUTY,Fidelity MSCI Utilities Index ETF,Utilities,Utilities,Fidelity Investments,PCX,2250777856.0
-FXD,First Trust Consumer Discretionary AlphaDEX Fund,Consumer Discretionary,Consumer Discretionary,First Trust Advisors,PCX,263533520.0
-FXG,First Trust Consumer Staples AlphaDEX Fund,Consumer Staples,Consumer Staples,First Trust Advisors,PCX,230743056.0
-FXH,First Trust Health Care AlphaDEX Fund,Health Care,Health Care,First Trust Advisors,PCX,1149107712.0
-FXL,First Trust Technology AlphaDEX Fund,Information Technology,Technology,First Trust Advisors,PCX,2774372096.0
-FXN,First Trust Energy AlphaDEX Fund,Energy,Energy,First Trust Advisors,PCX,401326400.0
-FXO,First Trust Financials AlphaDEX Fund,Financials,Financials,First Trust Advisors,PCX,1122567040.0
-FXR,First Trust Industrials/Producer Durables AlphaDEX Fund,Industrials,Industrials,First Trust Advisors,PCX,727687104.0
-GAMR,Wedbush ETFMG Video Game Tech ETF,Information Technology,Technology,ETF Management,PCX,39973528.0
-GDX,VanEck Vectors Gold Miners ETF,Materials,Materials,VanEck Asset Management,PCX,30543091712.0
-GDXJ,VanEck Vectors Junior Gold Miners ETF,Materials,Materials,VanEck Asset Management,PCX,9630824448.0
-GII,SPDR S&P Global Infrastructure ETF,Utilities,Utilities,State Street Global Advisors,PCX,941213120.0
-GLIF,AGFiQ Global Infrastructure ETF,Industrials,Utilities,AGF Investments,PCX,3757175.0
-GLRA.L,SPDR Dow Jones Global Real Estate UCITS ETF USD Cap,Real Estate,REITs,State Street Global Advisors,LSE,432697152.0
-GLRE.L,SPDR Dow Jones Global Real Estate UCITS ETF,Real Estate,REITs,State Street Global Advisors,LSE,432697152.0
-GNR,SPDR S&P Global Natural Resources ETF,Materials,Materials,State Street Global Advisors,PCX,5137096192.0
-GOEX,Global X Gold Explorers ETF,Materials,Materials,Global X Funds,PCX,138560848.0
-GQRE,FlexShares Global Quality Real Estate Index Fund,Real Estate,REITs,Flexshares Trust,PCX,412596576.0
-HACK,ETFMG Prime Cyber Security ETF,Information Technology,Technology,ETF Management,PCX,3038403840.0
-HAP,VanEck Vectors Natural Resources ETF,Materials,Materials,VanEck Asset Management,PCX,322047776.0
-HART,IQ Healthy Hearts ETF,Health Care,Health Care,IndexIQ,PCX,8669279.0
-HIPS,GraniteShares HIPS US High Income ETF,Financials,Equities,Graniteshares,PCX,122802512.0
-HNDL,Strategy Shares Nasdaq 7 Handl Index ETF,Equities,Equities,Strategy Shares,NGM,632917824.0
-HOMZ,The Hoya Capital Housing ETF,Real Estate,Residential Real Estate,Hoya Capital Real Estate,PCX,34763724.0
+ERET,iShares Environmentally Aware Real Estate ETF,Real Estate,REITs,BlackRock Asset Management,NGM,12941131.0
+ESBG,"First Trust Enhanced Stocks, Bonds & Gold ETF",Equities,Allocation,First Trust Advisors,PCX,2047035.0
+EZMO,AlphaDroid Broad Markets Momentum ETF,Equities,Allocation,AlphaDroid,NGM,8829976.0
+EZRO,AlphaDroid Defensive Sector Rotation ETF,Equities,Allocation,AlphaDroid,NGM,26023430.0
+FAB,First Trust Multi Cap Value AlphaDEX Fund,Equities,Allocation,First Trust Advisors,NGM,152821904.0
+FAD,First Trust Multi Cap Growth AlphaDEX Fund,Equities,Allocation,First Trust Advisors,NMS,597460416.0
+FCEF,First Trust CEF Income Opportunity ETF,Equities,Allocation,First Trust Advisors,NMS,80894680.0
+FDAT,Tactical Advantage ETF,Equities,Allocation,,PCX,36100896.0
+FORH,ETF Opportunities Trust - Formidable ETF,Equities,Allocation,,BTS,18355020.0
+FPRO,Fidelity Real Estate Investment ETF,Real Estate,REITs,Fidelity Investments,BTS,15032876.0
+FREL,Fidelity MSCI Real Estate Index ETF,Real Estate,REITs,Fidelity Investments,PCX,1349016832.0
+FRI,First Trust S&P REIT Index Fund,Real Estate,REITs,First Trust Advisors,PCX,183217408.0
+FTBI,First Trust Balanced Income ETF,Equities,Allocation,First Trust Advisors,PCX,24184868.0
+GAL,SPDR SSgA Global Allocation ETF,Equities,Allocation,State Street Global Advisors,PCX,315366368.0
+GDMA,Alpha Architect Gdsdn Dynmc Mlt-Asst ETF,Equities,Allocation,Alpha Architect,BTS,193600784.0
+GHTA,Goose Hollow Tactical Allocation ETF,Equities,Allocation,,BTS,37140568.0
+GLRA.L,SPDR Dow Jones Global Real Estate UCITS ETF USD Cap,Real Estate,REITs,State Street Global Advisors,LSE,408469664.0
+GLRE.L,State Street SPDR Dow Jones Global Real Estate UCITS ETF,Real Estate,REITs,State Street Global Advisors,LSE,408469664.0
+GMMA,GammaRoad Market Navigation ETF,Equities,Allocation,,PCX,6551560.0
+GMOD,GMO Dynamic Allocation ETF,Equities,Allocation,GMO,PCX,47618032.0
+GOLY,Strategy Shares Gold Enhanced Yield ETF,Equities,Allocation,Strategy Shares,BTS,
+GQRE,FlexShares Global Quality Real Estate Index Fund,Real Estate,REITs,Flexshares Trust,PCX,446499456.0
+GYLD,Arrow Dow Jones Global Yield ETF,Equities,Allocation,ArrowShares,NYQ,37089552.0
+HAUS,Residential REIT ETF,Real Estate,REITs,,BTS,7266856.0
+HAUZ,Xtrackers International Real Estate ETF,Real Estate,REITs,Xtrackers,PCX,1017257088.0
+HECA,Hedgeye Capital Allocation ETF,Equities,Allocation,Hedgeye,PCX,271581408.0
+HIDE,Alpha Architect High Inflation and Deflation ETF,Real Estate,REITs,Alpha Architect,NGM,136398224.0
+HISF,First Trust High Income Strategic Focus ETF,Equities,Allocation,First Trust Advisors,NGM,97360376.0
+HNDL,Strategy Shares Nasdaq 7 Handl Index ETF,Equities,Allocation,Strategy Shares,NGM,619961408.0
 HPRD.L,HSBC FTSE EPRA NAREIT Developed UCITS ETF,Real Estate,REITs,HSBC Investment Funds,LSE,
-HTEC,Robo Global Healthcare Technology and Innovation ETF,Health Care,Health Care,Robo Global,PCX,76471336.0
-HYIN,WisdomTree Alternative Income Fund,Real Estate,REITs,WisdomTree Asset Management,BTS,51984104.0
-IBUY,Amplify Online Retail ETF,Consumer Discretionary,Consumer Discretionary,Amplify ETFs,PCX,126863536.0
-ICF,iShares Cohen & Steers REIT ETF,Real Estate,REITs,BlackRock Asset Management,BTS,2046449024.0
-IDAR.L,iShares Asia Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,LSE,220629136.0
-IDUP.L,iShares US Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,LSE,674074688.0
+IALT,iShares Systematic Alternatives Active ETF,Equities,Allocation,BlackRock Asset Management,NGM,6963149312.0
+ICF,iShares Cohen & Steers REIT ETF,Real Estate,REITs,BlackRock Asset Management,BTS,2034074880.0
+IDAR.L,iShares Asia Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,LSE,211462000.0
+IDUP.L,iShares US Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,LSE,605136128.0
 IDWP.L,iShares Developed Markets Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,LSE,
-IEO,iShares U.S. Oil & Gas Exploration & Production ETF,Energy,Energy,BlackRock Asset Management,BTS,622159808.0
-IFGL,iShares International Developed Real Estate ETF,Real Estate,REITs,BlackRock Asset Management,NGM,80284336.0
-IGE,iShares North American Natural Resources ETF,Energy,Materials,BlackRock Asset Management,BTS,763613376.0
-IGF,iShares Global Infrastructure ETF,Industrials,Utilities,BlackRock Asset Management,NGM,10484185088.0
-IGM,iShares Expanded Tech Sector ETF,Information Technology,Technology,BlackRock Asset Management,PCX,10659639296.0
-IGV,iShares Expanded Tech-Software Sector ETF,Information Technology,Technology,BlackRock Asset Management,BTS,15741521920.0
-IHE,iShares U.S. Pharmaceuticals ETF,Health Care,Health Care,BlackRock Asset Management,PCX,1662381952.0
-IHI,iShares U.S. Medical Devices ETF,Health Care,Health Care,BlackRock Asset Management,PCX,3473586688.0
-INDS,Pacer Benchmark Industrial Real Estate SCTR ETF,Real Estate,REITs,Pacer,PCX,113289448.0
-IUSP.SW,iShares US Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,EBS,674074688.0
-IVOL,Quadratic Interest Rate Volatility and Inflation Hedge ETF New,Equities,Inflation-Protected Securities,Exchange Traded Concepts,PCX,275499872.0
-IVRA,Invesco Real Assets ESG ETF,Equities,Real Estate Services,Invesco Investment Management,BTS,12015832.0
-IWDP.SW,iShares Developed Markets Property Yield UCITS ETF USD (Dist),Equities,REITs,BlackRock Asset Management,EBS,
-IXC,iShares Global Energy ETF,Energy,Energy,BlackRock Asset Management,PCX,2844199680.0
-IXG,iShares Global Financials ETF,Financials,Financials,BlackRock Asset Management,PCX,697207616.0
-IXJ,iShares Global Healthcare ETF,Health Care,Health Care,BlackRock Asset Management,PCX,4282349568.0
-IXN,iShares Global Tech ETF,Information Technology,Technology,BlackRock Asset Management,PCX,9665907712.0
-IXP,iShares Global Comm Services ETF,Communication Services,Communications,BlackRock Asset Management,PCX,466986912.0
-IYG,iShares U.S. Financial Services ETF,Financials,Financials,BlackRock Asset Management,PCX,2218036992.0
-IYLD,iShares Morningstar Multi-Asset Income ETF,Equities,Equities,BlackRock Asset Management,BTS,126772800.0
-JXI,iShares Global Utilities ETF,Utilities,Utilities,BlackRock Asset Management,PCX,299284832.0
-KBWY,Invesco KBW Premium Yield Equity REIT ETF,Real Estate,REITs,Invesco Investment Management,NGM,315177632.0
-KOIN,Capital Link NextGen Protocol ETF,Information Technology,Technology,Innovation Shares,PCX,12765320.0
-LIT,Global X Lithium & Battery Tech ETF,Materials,Materials,Global X Funds,PCX,1643735296.0
-LRNZ,"TrueShares Technology, AI and Deep Learning ETF",Information Technology,Technology,TrueShares,PCX,40329876.0
-LYMUA.SW,Lyxor Index Fund - Lyxor FTSE EPRA/NAREIT United States UCITS ETF - Dist-USD,Real Estate,REITs,Lyxor International Asset Management,EBS,
-LYMWO.SW,Lyxor Index Fund - Lyxor FTSE EPRA/NAREIT Global Developed UCITS ETF Dist,Real Estate,REITs,Lyxor International Asset Management,EBS,64810356.0
-MLPX,Global X MLP & Energy Infrastructure ETF,Energy,Energy,Global X Funds,PCX,3679037952.0
-MORT,VanEck Vectors Mortgage REIT Income ETF,Real Estate,REITs,VanEck Asset Management,PCX,362236160.0
-NANR,SPDR S&P North American Natural Resources ETF,Equities,Materials,State Street Global Advisors,PCX,847078464.0
-NERD,Roundhill BITKRAFT Esports & Digital Entertainment ETF,Information Technology,Consumer Discretionary,Roundhill Investments,PCX,15287605.0
-NETL,Fundamental Income Net Lease Real Estate ETF,Real Estate,REITs,Exchange Traded Concepts,PCX,54868824.0
-NFRA,FlexShares STOXX Global Broad Infrastructure Index Fund,Industrials,Utilities,Flexshares Trust,PCX,3077518336.0
-NURE,Nuveen Short-Term REIT ETF,Real Estate,REITs,Nuveen,BTS,34432120.0
-NXTG,First Trust IndXX NextG ETF,Information Technology,Technology,First Trust Advisors,NGM,566284416.0
-ONLN,ProShares Online Retail ETF,Consumer Discretionary,Consumer Discretionary,ProShares,PCX,60932456.0
-PBE,Invesco Dynamic Biotechnology & Genome ETF,Health Care,Health Care,Invesco Investment Management,PCX,470568832.0
-PCEF,Invesco CEF Income Composite ETF,Financials,Equities,Invesco Investment Management,PCX,812331904.0
-PFFR,InfraCap REIT Preferred ETF,Financials,REITs,Virtus,PCX,120699272.0
-PHO,Invesco Water Resources ETF,Utilities,Materials,Invesco Investment Management,NGM,2025786624.0
-PIO,Invesco Global Water ETF,Utilities,Materials,Invesco Investment Management,NMS,272474048.0
-PPTY,PPTY – U.S. Diversified Real Estate ETF,Real Estate,REITs,PPTY,PCX,24962496.0
-PRNT,The 3D Printing ETF,Information Technology,Technology,ARK ETF Trust,BTS,62953960.0
-PSI,Invesco Dynamic Semiconductors ETF,Information Technology,Technology,Invesco Investment Management,PCX,2381718272.0
-PSR,Invesco Active U.S. Real Estate Fund,Real Estate,REITs,Invesco Investment Management,PCX,58542864.0
-PXE,Invesco Dynamic Energy Exploration & Production ETF,Energy,Energy,Invesco Investment Management,PCX,98724568.0
-PXI,Invesco DWA Energy Momentum ETF,Energy,Energy,Invesco Investment Management,NMS,55367444.0
-PXJ,Invesco Dynamic Oil & Gas Services ETF,Energy,Energy,Invesco Investment Management,PCX,73322448.0
-PYZ,Invesco DWA Basic Materials Momentum ETF,Materials,Materials,Invesco Investment Management,NMS,74272560.0
-QTUM,Defiance Quantum ETF,Information Technology,Technology,Defiance ETFs,PCX,5561583104.0
-RDOG,ALPS REIT Dividend Dogs ETF,Real Estate,REITs,ALPS ETF Trust,PCX,11148699.0
-REET,iShares Global REIT ETF,Real Estate,REITs,BlackRock Asset Management,PCX,4936422912.0
-REIT,ALPS Active REIT ETF,Real Estate,REITs,ALPS ETF Trust,NMS,56419776.0
-REK,ProShares Short Real Estate,Real Estate,REITs,ProShares,PCX,12037870.0
-REM,iShares Mortgage Real Estate Capped ETF,Real Estate,REITs,BlackRock Asset Management,BTS,540219264.0
-REMX,VanEck Vectors Rare Earth/Strategic Metals ETF,Materials,Materials,VanEck Asset Management,PCX,2290166272.0
-REZ,iShares Residential and Multisector Real Estate ETF,Real Estate,Residential Real Estate,BlackRock Asset Management,PCX,848989760.0
-RING,iShares MSCI Global Gold Miners ETF,Materials,Materials,BlackRock Asset Management,NMS,2516190720.0
-ROBT,First Trust Nasdaq Artificial Intelligence and Robotics ETF,Information Technology,Technology,First Trust Advisors,NGM,789512512.0
-ROKT,SPDR Kensho Final Frontiers ETF,Industrials,Industrials,State Street Global Advisors,PCX,193732992.0
-ROOF,IQ U.S. Real Estate Small Cap ETF,Real Estate,REITs,IndexIQ,PCX,37322840.0
-RWO,SPDR Dow Jones Global Real Estate ETF,Equities,REITs,State Street Global Advisors,PCX,1254796288.0
-RWR,SPDR Dow Jones REIT ETF,Equities,REITs,State Street Global Advisors,PCX,1848601856.0
-RWX,SPDR Dow Jones International Real Estate ETF,Equities,REITs,State Street Global Advisors,PCX,262674944.0
-SCHH,Schwab U.S. REIT ETF,Real Estate,REITs,Schwab ETFs,PCX,11197114368.0
-SIL,Global X Silver Miners ETF,Materials,Materials,Global X Funds,PCX,5261147648.0
-SILJ,ETFMG Prime Junior Silver Miners ETF,Materials,Materials,ETF Management,PCX,4132843264.0
-SIMS,SPDR S&P Kensho Intelligent Structures ETF,Industrials,Utilities,State Street Global Advisors,PCX,8208943.0
-SKYY,First Trust Cloud Computing ETF,Information Technology,Technology,First Trust Advisors,NGM,3388826880.0
-SMH,VanEck Vectors Semiconductor ETF,Information Technology,Technology,VanEck Asset Management,NMS,67787030528.0
-SOXQ,Invesco PHLX Semiconductor ETF,Information Technology,Technology,Invesco Investment Management,NGM,2961325568.0
-SOXX,iShares PHLX Semiconductor ETF,Information Technology,Technology,BlackRock Asset Management,NGM,41810907136.0
-SPRE,SP Funds S&P Global REIT Sharia ETF,Real Estate,REITs,SP Funds,PCX,212041888.0
-SRET,Global X SuperDividend REIT ETF,Real Estate,REITs,Global X Funds,NGM,229155808.0
-SRVR,Pacer Benchmark Data & Infrastructure Real Estate SCTR ETF,Real Estate,REITs,Pacer,PCX,350922464.0
-THNQ,Robo Global Artificial Intelligence ETF,Information Technology,Technology,Robo Global,PCX,447954656.0
-TPYP,Tortoise North American Pipeline Fund,Energy,Energy,Tortoise Capital Advisors,PCX,894481472.0
-TRET.L,VanEck Vectors Global Real Estate UCITS ETF,Real Estate,REITs,VanEck Asset Management,LSE,442178848.0
-URE,ProShares Ultra Real Estate,Real Estate,REITs,ProShares,PCX,55133088.0
-USRT,iShares Core U.S. REIT ETF,Real Estate,REITs,BlackRock Asset Management,PCX,4570247168.0
-VEGI,iShares MSCI Global Agriculture Producers ETF,Materials,Materials,BlackRock Asset Management,PCX,155867520.0
-VFH,Vanguard Financials Index Fund ETF Shares,Financials,Financials,Vanguard Asset Management,PCX,14771595264.0
-VNQ,Vanguard Real Estate Index Fund ETF Shares,Real Estate,REITs,Vanguard Asset Management,PCX,70822862848.0
-VNQI,Vanguard Global ex-U.S. Real Estate Index Fund ETF Shares,Real Estate,REITs,Vanguard Asset Management,NGM,3759717376.0
-WFH,Direxion Work From Home ETF,Information Technology,Technology,Direxion Funds,PCX,14251680.0
-WOOD,iShares Global Timber & Forestry ETF,Materials,Materials,BlackRock Asset Management,NMS,270820800.0
-WPS,iShares International Developed Property ETF,Real Estate,REITs,BlackRock Asset Management,PCX,
-WUGI,Esoterica NextG Economy ETF,Information Technology,Technology,Esoterica Capital,BTS,31182564.0
-XAR,SPDR S&P Aerospace & Defense ETF,Industrials,Industrials,State Street Global Advisors,PCX,5850784768.0
-XBI,SPDR S&P Biotech ETF,Health Care,Health Care,State Street Global Advisors,PCX,11404576768.0
-XES,SPDR S&P Oil & Gas Equipment & Services ETF,Energy,Energy,State Street Global Advisors,PCX,398253952.0
-XME,SPDR S&P Metals and Mining ETF,Materials,Materials,State Street Global Advisors,PCX,4885382656.0
-XOP,SPDR S&P Oil & Gas Exploration & Production ETF,Energy,Energy,State Street Global Advisors,PCX,3986409216.0
-XRT,SPDR S&P Retail ETF,Consumer Discretionary,Consumer Discretionary,State Street Global Advisors,PCX,362040704.0
-XSD,SPDR S&P Semiconductor ETF,Information Technology,Technology,State Street Global Advisors,PCX,2594918656.0
+IFGL,iShares International Developed Real Estate ETF,Real Estate,REITs,BlackRock Asset Management,NGM,76696176.0
+INCM,Franklin Income Focus ETF,Equities,Allocation,Franklin Templeton Investments,PCX,1872005504.0
+INDS,Pacer Benchmark Industrial Real Estate SCTR ETF,Real Estate,REITs,Pacer,PCX,101200096.0
+INKM,SPDR SSgA Income Allocation ETF,Equities,Allocation,State Street Global Advisors,PCX,73568904.0
+IRTR,iShares LifePath Retirement ETF,Equities,Allocation,BlackRock Asset Management,PCX,60063316.0
+ISMF,iShares Managed Futures Active ETF,Equities,Allocation,BlackRock Asset Management,BTS,59076536.0
+ITDB,iShares LifePath Target Date 2030 ETF,Equities,Allocation,BlackRock Asset Management,PCX,80979368.0
+ITDC,iShares LifePath Target Date 2035 ETF,Equities,Allocation,BlackRock Asset Management,PCX,119208320.0
+ITDD,iShares LifePath Target Date 2040 ETF,Equities,Allocation,BlackRock Asset Management,PCX,120914232.0
+ITDE,iShares LifePath Target Date 2045 ETF,Equities,Allocation,BlackRock Asset Management,PCX,105435192.0
+ITDF,iShares LifePath Target Date 2050 ETF,Equities,Allocation,BlackRock Asset Management,PCX,95527584.0
+ITDG,iShares LifePath Target Date 2055 ETF,Equities,Allocation,BlackRock Asset Management,PCX,66102332.0
+ITDH,iShares LifePath Target Date 2060 ETF,Equities,Allocation,BlackRock Asset Management,PCX,46671272.0
+ITDI,iShares LifePath Target Date 2065 ETF,Equities,Allocation,BlackRock Asset Management,PCX,29680802.0
+ITDJ,iShares LifePath Target Date 2070 ETF,Equities,Allocation,BlackRock Asset Management,PCX,15825096.0
+IUSP.SW,iShares US Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,EBS,605136128.0
+IUSPF,iShares S&P/TSX Capped REIT Index ETF,Real Estate,REITs,BlackRock Asset Management,PNK,
+IWDP.SW,iShares Developed Markets Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,EBS,
+IYLD,iShares Morningstar Multi-Asset Income ETF,Equities,Allocation,BlackRock Asset Management,BTS,124840864.0
+IYR.SN,iShares U.S. Real Estate ETF,Real Estate,REITs,BlackRock Asset Management,SGO,
+IYRI,NEOS Real Estate High Income ETF,Real Estate,REITs,NEOS Investments,BTS,298204800.0
+JELH,Janus Henderson Equity Linked High Income ETF,Equities,Allocation,Janus Henderson,BTS,21056248.0
+JELM,Janus Henderson Equity Linked Moderate Income ETF,Equities,Allocation,Janus Henderson,BTS,59566080.0
+JFLI,JPMorgan Flexible Income ETF,Equities,Allocation,JPMorgan Asset Management,PCX,47469356.0
+JPRE,JPMorgan Realty Income ETF,Real Estate,REITs,JPMorgan Asset Management,PCX,451669440.0
+KNOW,Fundamentals First ETF,Equities,Allocation,,BTS,8495324.0
+LCR,Leuthold Core ETF,Equities,Allocation,Leuthold,PCX,65059116.0
+LEXI,Alexis Practical Tactical ETF,Equities,Allocation,Alexis,NGM,194625536.0
+LOTI,Liberty One Tactical Income ETF,Equities,Allocation,Liberty One,NGM,46571628.0
+LPRE,Long Pond Real Estate Select ETF,Real Estate,REITs,,PCX,167386368.0
+MACU.AS,iShares Conservative Portfolio UCITS ETF,Equities,Allocation,BlackRock Asset Management,AMS,
+MAGU.AS,iShares Growth Portfolio UCITS ETF,Equities,Allocation,BlackRock Asset Management,AMS,
+MDIV,First Trust Multi-Asset Diversified Income Index Fund,Equities,Allocation,First Trust Advisors,NMS,407127360.0
+MFUL,Mindful Conservative ETF,Equities,Allocation,,BTS,7160920.0
+MKAM,MKAM ETF,Equities,Allocation,,NGM,13513478.0
+MODU.AS,iShares Moderate Portfolio UCITS ETF,Equities,Allocation,BlackRock Asset Management,AMS,
+MOOD,Relative Sentiment Tactical Allocation ETF,Equities,Allocation,,NGM,152294720.0
+MORT,VanEck Vectors Mortgage REIT Income ETF,Real Estate,REITs,VanEck Asset Management,PCX,325370656.0
+MPRO,Monarch ProCap ETF,Equities,Allocation,Monarch Funds,BTS,243566976.0
+MRSK,Toews Agility Shares Managed Risk ETF,Equities,Allocation,Toews Corporation,PCX,322145312.0
+MSMR,McElhenny Sheffield Managed Risk ETF,Equities,Allocation,McElhenny Sheffield Capital Management,BTS,180001568.0
+NDAA,Ned Davis Research 360 Dynamic Allocation ETF,Equities,Allocation,Ned Davis Research,NGM,190484608.0
+NDOW,Anydrus Advantage ETF,Equities,Allocation,,BTS,67880056.0
+NETL,Fundamental Income Net Lease Real Estate ETF,Real Estate,REITs,Exchange Traded Concepts,PCX,47797152.0
+NMBL,NovaTide Flexible Allocation ETF,Equities,Allocation,,PCX,24245148.0
+NURE,Nuveen Short-Term REIT ETF,Real Estate,REITs,Nuveen,BTS,32415252.0
+PCEF,Invesco CEF Income Composite ETF,Equities,Allocation,Invesco Investment Management,PCX,771772160.0
+PEY,Invesco High Yield Equity Dividend Achievers ETF,Equities,Allocation,Invesco Investment Management,NMS,1071155584.0
+PFFR,InfraCap REIT Preferred ETF,Real Estate,REITs,Virtus,PCX,116324192.0
+PFXF,VanEck Vectors Preferred Securities ex Financials ETF,Equities,Allocation,VanEck Asset Management,PCX,2366331136.0
+PPI,Astoria Real Assets ETF,Equities,Allocation,Astoria,NGM,155459712.0
+PPTY,PPTY – U.S. Diversified Real Estate ETF,Real Estate,REITs,PPTY,PCX,23612112.0
+PSR,Invesco Active U.S. Real Estate Fund,Real Estate,REITs,Invesco Investment Management,PCX,54918888.0
+QVOY,Q3 Active Rotation ETF,Equities,Allocation,Q3,BTS,57450848.0
+R8TA.DE,abrdn Future Real Estate UCITS ETF Acc USD,Real Estate,REITs,,GER,65423848.0
+RAA,SMI 3Fourteen REAL Asset Allocation ETF,Equities,Allocation,SMI Advisory Services,NGM,626124864.0
+RDOG,ALPS REIT Dividend Dogs ETF,Real Estate,REITs,ALPS ETF Trust,PCX,10383889.0
+REAI,Intelligent Real Estate ETF,Real Estate,REITs,,NGM,990412.0
+REET,iShares Global REIT ETF,Real Estate,REITs,BlackRock Asset Management,PCX,4640786432.0
+REIT,ALPS Active REIT ETF,Real Estate,REITs,ALPS ETF Trust,NMS,53418592.0
+REM,iShares Mortgage Real Estate Capped ETF,Real Estate,REITs,BlackRock Asset Management,BTS,457763104.0
+REZ,iShares Residential and Multisector Real Estate ETF,Real Estate,REITs,BlackRock Asset Management,PCX,790767616.0
+RHTX,RH Tactical Outlook ETF,Equities,Allocation,,PCX,7761225.0
+RIET,Hoya Capital High Dividend Yield ETF,Real Estate,REITs,Hoya Capital Real Estate,PCX,101615368.0
+RITA,ETFB Green SRI REITs ETF,Real Estate,REITs,,PCX,6491938.0
+RLY,SPDR SSgA Multi-Asset Real Return ETF,Equities,Allocation,State Street Global Advisors,PCX,1381780736.0
+ROMO,Strategy Shares Newfound/ReSolve Robust Momentum ETF,Equities,Allocation,Strategy Shares,BTS,26267474.0
+RSPR,Invesco S&P 500 Equal Weight Real Estate ETF,Real Estate,REITs,Invesco Investment Management,PCX,82732176.0
+RSSB,Return Stacked Global Stocks & Bonds ETF,Equities,Allocation,Return Stacked ETFs,BTS,489444960.0
+RULE,Adaptive Core ETF,Equities,Allocation,,BTS,17562416.0
+RWO,SPDR Dow Jones Global Real Estate ETF,Real Estate,REITs,State Street Global Advisors,PCX,1172150272.0
+RWR,SPDR Dow Jones REIT ETF,Real Estate,REITs,State Street Global Advisors,PCX,1767657344.0
+RWX,SPDR Dow Jones International Real Estate ETF,Real Estate,REITs,State Street Global Advisors,PCX,245538240.0
+SCHH,Schwab U.S. REIT ETF,Real Estate,REITs,Schwab ETFs,PCX,10558759936.0
+SLVY,Russell 2000 Low Volatility ETF,Equities,Allocation,First Trust Advisors,BTS,1022888.0
+SPLS,PIMCO US Stocks PLUS Active Bond Exchange-Traded Fund,Equities,Allocation,PIMCO Global Advisors,BTS,80308184.0
+SPRE,SP Funds S&P Global REIT Sharia ETF,Real Estate,REITs,SP Funds,PCX,198592112.0
+SRET,Global X SuperDividend REIT ETF,Real Estate,REITs,Global X Funds,NGM,210644464.0
+SRVR,Pacer Benchmark Data & Infrastructure Real Estate SCTR ETF,Real Estate,REITs,Pacer,PCX,319818112.0
+TACK,Fairlead Tactical Sector ETF,Equities,Allocation,,PCX,287097568.0
+TBFC,The Brinsmere Fund Conservative ETF,Equities,Allocation,,PCX,355693952.0
+TBFG,The Brinsmere Fund Growth ETF,Equities,Allocation,,PCX,382410176.0
+TDSB,Cabana Target Drawdown 7 ETF,Equities,Allocation,Cabana,NGM,47598060.0
+TDSC,Cabana Target Drawdown 10 ETF,Equities,Allocation,Cabana,NGM,102196824.0
+TFPN,Blueprint Chesapeake Multi-Asset Trend ETF,Equities,Allocation,,PCX,159019440.0
+THRV,Prospera Income ETF,Equities,Allocation,Prospera,NGM,8721854.0
+THY,Toews Agility Shares Dynamic Tactical Income ETF,Equities,Allocation,Toews Corporation,PCX,87598280.0
+TPUT,T. Rowe Price Capital Appreciation Market Opportunities ETF,Equities,Allocation,T. Rowe Price,PCX,31378908.0
+TRE.L,First Trust Alerian Disruptive Technology Real Estate UCITS ETF A USD Acc,Real Estate,REITs,First Trust Advisors,LSE,1005087.0
+TRET.L,VanEck Vectors Global Real Estate UCITS ETF,Real Estate,REITs,VanEck Asset Management,LSE,433278176.0
+TSRS,Truth Social American Red State REITs ETF,Real Estate,REITs,Truth Social Funds,PCX,2471864.0
+TUG,STF Tactical Growth ETF,Equities,Allocation,STF,NGM,34726352.0
+UCBG,State Street SPDR UC Investments 90/10 Endowment Strategy Index ETF,Equities,Allocation,State Street Global Advisors,PCX,2497236480.0
+USAF,Atlas America Fund,Real Estate,REITs,,NGM,16346621.0
+USRT,iShares Core U.S. REIT ETF,Real Estate,REITs,BlackRock Asset Management,PCX,4314472960.0
+UXAP,FT Vest U.S. Equity Uncapped Accelerator ETF - April,Equities,Allocation,First Trust Advisors,BTS,13111386.0
+UXJA,FT Vest U.S. Equity Uncapped Accelerator ETF - January,Equities,Allocation,First Trust Advisors,BTS,11602938.0
+UXJL,FT Vest U.S. Equity Uncapped Accelerator ETF - July,Equities,Allocation,First Trust Advisors,BTS,5553853.0
+UXOC,FT Vest U.S. Equity Uncapped Accelerator ETF - October,Equities,Allocation,First Trust Advisors,BTS,19964650.0
+VNQ,Vanguard Real Estate Index Fund ETF Shares,Real Estate,REITs,Vanguard Asset Management,PCX,66417905664.0
+VNQI,Vanguard Global ex-U.S. Real Estate Index Fund ETF Shares,Real Estate,REITs,Vanguard Asset Management,NGM,3551832576.0
+VPC,Virtus Private Credit ETF,Equities,Allocation,Virtus,PCX,28188772.0
+VPN.L,Global X - Data Center REITs & Digital Infrastructure UCITS ETF,Real Estate,REITs,Global X Funds,LSE,400748288.0
+WLTG,WealthTrust DBS Long Term Growth ETF,Equities,Allocation,WealthTrust,NYQ,76257488.0
+WNER.L,WisdomTree New Economy Real Estate UCITS ETF - USD,Real Estate,REITs,WisdomTree Asset Management,LSE,23654724.0
+WTRE.L,WisdomTree New Economy Real Estate UCITS ETF - USD Acc,Real Estate,REITs,WisdomTree Asset Management,LSE,23654724.0
+XAGG,Eaton Vance Income Opportunities ETF,Equities,Allocation,Eaton Vance,PCX,1816545920.0
+XRES.L,Invesco Real Estate S&P US Select Sector UCITS ETF,Real Estate,REITs,Invesco Investment Management,LSE,133830880.0
+XRLX,FundX Conservative ETF,Equities,Allocation,FundX Investment Group,PCX,47108388.0
