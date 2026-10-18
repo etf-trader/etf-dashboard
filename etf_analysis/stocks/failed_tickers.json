@@ -1,5 +1,5 @@
 {
-  "generated": "2026-10-17 22:59",
+  "generated": "2026-10-18 22:52",
   "count": 1,
   "failures": {
     "VYLR": "KeyError: ['Close']"
