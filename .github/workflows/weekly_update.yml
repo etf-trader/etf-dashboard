@@ -2,9 +2,16 @@ name: Daily Dashboard Update
 
 on:
   schedule:
-    - cron: '0 21 * * *'      # 5PM EDT (summer)
-    - cron: '0 22 * * *'      # 5PM EST (winter)
+    - cron: '17 21 * * *'   # 5:17PM EDT (summer)
+    - cron: '17 22 * * *'   # 5:17PM EST (winter)
   workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dashboard-update
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -14,31 +21,27 @@ jobs:
       - name: Determine NY time context
         id: nytime
         run: |
-          NY_HOUR=$(TZ="America/New_York" date +%H)
+          # -0400 = EDT (summer), -0500 = EST (winter)
+          NY_OFFSET=$(TZ="America/New_York" date +%z)
           NY_DOW=$(TZ="America/New_York" date +%u)   # 1=Mon ... 6=Sat, 7=Sun
+          NY_HOUR=$(TZ="America/New_York" date +%H)
           SCHEDULE="${{ github.event.schedule }}"
 
-          # Only let each cron line proceed if NY hour is in a tolerant window
-          # around its intended target, so GitHub Actions delays don't cause skips.
+          # Decide by DST offset, not by hour, so GitHub Actions delays
+          # (which can be several hours) never cause a skipped run.
+          # Exactly one of the two cron lines matches on any given day.
           SHOULD_RUN=false
 
-          if [ "$SCHEDULE" == "0 21 * * *" ]; then
-            # Intended for 5PM EDT; accept 17-18 to absorb delay/DST drift
-            if [ "$NY_HOUR" -ge 17 ] && [ "$NY_HOUR" -le 18 ]; then
-              SHOULD_RUN=true
-            fi
-          elif [ "$SCHEDULE" == "0 22 * * *" ]; then
-            # Intended for 5PM EST; accept 17-18 as well
-            if [ "$NY_HOUR" -ge 17 ] && [ "$NY_HOUR" -le 18 ]; then
-              SHOULD_RUN=true
-            fi
-          else
-            # workflow_dispatch or manual run: always allow
-            SHOULD_RUN=true
+          if [ "$SCHEDULE" == "17 21 * * *" ] && [ "$NY_OFFSET" == "-0400" ]; then
+            SHOULD_RUN=true   # summer: 21:17 UTC = 5:17PM EDT
+          elif [ "$SCHEDULE" == "17 22 * * *" ] && [ "$NY_OFFSET" == "-0500" ]; then
+            SHOULD_RUN=true   # winter: 22:17 UTC = 5:17PM EST
+          elif [ -z "$SCHEDULE" ]; then
+            SHOULD_RUN=true   # workflow_dispatch / manual run: always allow
           fi
 
           if [ "$SHOULD_RUN" != "true" ]; then
-            echo "NY hour is $NY_HOUR, schedule '$SCHEDULE' not in target window. Skipping."
+            echo "Schedule '$SCHEDULE' does not match NY offset $NY_OFFSET (NY hour: $NY_HOUR). Skipping."
             echo "should_run=false" >> "$GITHUB_OUTPUT"
             echo "run_financials=false" >> "$GITHUB_OUTPUT"
             exit 0
@@ -46,6 +49,7 @@ jobs:
 
           echo "should_run=true" >> "$GITHUB_OUTPUT"
 
+          # Saturday (NY time): also run financials
           if [ "$NY_DOW" == "6" ]; then
             echo "run_financials=true" >> "$GITHUB_OUTPUT"
           else
@@ -77,9 +81,9 @@ jobs:
       - name: Commit & Push
         if: steps.nytime.outputs.should_run == 'true'
         run: |
-          git config user.name  "github-actions[bot]"
+          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add etf_analysis/
-          git diff --cached --quiet || git commit -m "auto: update dashboard $(date '+%Y-%m-%d %H:%M KST')"
+          git diff --cached --quiet || git commit -m "auto: update dashboard $(TZ='Asia/Seoul' date '+%Y-%m-%d %H:%M KST')"
           git pull --rebase --autostash origin main
           git push
