@@ -57,8 +57,8 @@ FTBI,First Trust Balanced Income ETF,Equities,Allocation,First Trust Advisors,PC
 GAL,SPDR SSgA Global Allocation ETF,Equities,Allocation,State Street Global Advisors,PCX,327962784.0
 GDMA,Alpha Architect Gdsdn Dynmc Mlt-Asst ETF,Equities,Allocation,Alpha Architect,BTS,193232032.0
 GHTA,Goose Hollow Tactical Allocation ETF,Equities,Allocation,,BTS,29783244.0
-GLRA.L,SPDR Dow Jones Global Real Estate UCITS ETF USD Cap,Real Estate,REITs,State Street Global Advisors,LSE,408469664.0
-GLRE.L,State Street SPDR Dow Jones Global Real Estate UCITS ETF,Real Estate,REITs,State Street Global Advisors,LSE,408469664.0
+GLRA.L,SPDR Dow Jones Global Real Estate UCITS ETF USD Cap,Real Estate,REITs,State Street Global Advisors,LSE,407241312.0
+GLRE.L,State Street SPDR Dow Jones Global Real Estate UCITS ETF,Real Estate,REITs,State Street Global Advisors,LSE,407241312.0
 GMMA,GammaRoad Market Navigation ETF,Equities,Allocation,,PCX,6516507.0
 GMOD,GMO Dynamic Allocation ETF,Equities,Allocation,GMO,PCX,48874284.0
 GOLY,Strategy Shares Gold Enhanced Yield ETF,Equities,Allocation,Strategy Shares,BTS,
@@ -73,8 +73,8 @@ HNDL,Strategy Shares Nasdaq 7 Handl Index ETF,Equities,Allocation,Strategy Share
 HPRD.L,HSBC FTSE EPRA NAREIT Developed UCITS ETF,Real Estate,REITs,HSBC Investment Funds,LSE,
 IALT,iShares Systematic Alternatives Active ETF,Equities,Allocation,BlackRock Asset Management,NGM,7866002432.0
 ICF,iShares Cohen & Steers REIT ETF,Real Estate,REITs,BlackRock Asset Management,BTS,1977598336.0
-IDAR.L,iShares Asia Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,LSE,211462000.0
-IDUP.L,iShares US Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,LSE,605136128.0
+IDAR.L,iShares Asia Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,LSE,211355904.0
+IDUP.L,iShares US Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,LSE,613149248.0
 IDWP.L,iShares Developed Markets Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,LSE,
 IFGL,iShares International Developed Real Estate ETF,Real Estate,REITs,BlackRock Asset Management,NGM,79590840.0
 INCM,Franklin Income Focus ETF,Equities,Allocation,Franklin Templeton Investments,PCX,2028382720.0
@@ -91,7 +91,7 @@ ITDG,iShares LifePath Target Date 2055 ETF,Equities,Allocation,BlackRock Asset M
 ITDH,iShares LifePath Target Date 2060 ETF,Equities,Allocation,BlackRock Asset Management,PCX,47674776.0
 ITDI,iShares LifePath Target Date 2065 ETF,Equities,Allocation,BlackRock Asset Management,PCX,30091268.0
 ITDJ,iShares LifePath Target Date 2070 ETF,Equities,Allocation,BlackRock Asset Management,PCX,16898028.0
-IUSP.SW,iShares US Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,EBS,605136128.0
+IUSP.SW,iShares US Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,EBS,613149248.0
 IUSPF,iShares S&P/TSX Capped REIT Index ETF,Real Estate,REITs,BlackRock Asset Management,PNK,
 IWDP.SW,iShares Developed Markets Property Yield UCITS ETF USD (Dist),Real Estate,REITs,BlackRock Asset Management,EBS,
 IYLD,iShares Morningstar Multi-Asset Income ETF,Equities,Allocation,BlackRock Asset Management,BTS,128779384.0
@@ -130,7 +130,7 @@ PPI,Astoria Real Assets ETF,Equities,Allocation,Astoria,NGM,154218368.0
 PPTY,PPTY – U.S. Diversified Real Estate ETF,Real Estate,REITs,PPTY,PCX,22510732.0
 PSR,Invesco Active U.S. Real Estate Fund,Real Estate,REITs,Invesco Investment Management,PCX,57483804.0
 QVOY,Q3 Active Rotation ETF,Equities,Allocation,Q3,BTS,56173568.0
-R8TA.DE,abrdn Future Real Estate UCITS ETF Acc USD,Real Estate,REITs,,GER,65423848.0
+R8TA.DE,abrdn Future Real Estate UCITS ETF Acc USD,Real Estate,REITs,,GER,66870224.0
 RAA,SMI 3Fourteen REAL Asset Allocation ETF,Equities,Allocation,SMI Advisory Services,NGM,637094208.0
 RDOG,ALPS REIT Dividend Dogs ETF,Real Estate,REITs,ALPS ETF Trust,PCX,10553337.0
 REAI,Intelligent Real Estate ETF,Real Estate,REITs,,NGM,1011727.0
@@ -164,8 +164,8 @@ TFPN,Blueprint Chesapeake Multi-Asset Trend ETF,Equities,Allocation,,PCX,1583946
 THRV,Prospera Income ETF,Equities,Allocation,Prospera,NGM,8065898.0
 THY,Toews Agility Shares Dynamic Tactical Income ETF,Equities,Allocation,Toews Corporation,PCX,89653696.0
 TPUT,T. Rowe Price Capital Appreciation Market Opportunities ETF,Equities,Allocation,T. Rowe Price,PCX,101497472.0
-TRE.L,First Trust Alerian Disruptive Technology Real Estate UCITS ETF A USD Acc,Real Estate,REITs,First Trust Advisors,LSE,1005087.0
-TRET.L,VanEck Vectors Global Real Estate UCITS ETF,Real Estate,REITs,VanEck Asset Management,LSE,433278176.0
+TRE.L,First Trust Alerian Disruptive Technology Real Estate UCITS ETF A USD Acc,Real Estate,REITs,First Trust Advisors,LSE,1050506.0
+TRET.L,VanEck Vectors Global Real Estate UCITS ETF,Real Estate,REITs,VanEck Asset Management,LSE,458749312.0
 TSRS,Truth Social American Red State REITs ETF,Real Estate,REITs,Truth Social Funds,PCX,2505078.0
 TUG,STF Tactical Growth ETF,Equities,Allocation,STF,NGM,32819248.0
 UCBG,State Street SPDR UC Investments 90/10 Endowment Strategy Index ETF,Equities,Allocation,State Street Global Advisors,PCX,2482235648.0
@@ -178,10 +178,10 @@ UXOC,FT Vest U.S. Equity Uncapped Accelerator ETF - October,Equities,Allocation,
 VNQ,Vanguard Real Estate Index Fund ETF Shares,Real Estate,REITs,Vanguard Asset Management,PCX,69458698240.0
 VNQI,Vanguard Global ex-U.S. Real Estate Index Fund ETF Shares,Real Estate,REITs,Vanguard Asset Management,NGM,3525859840.0
 VPC,Virtus Private Credit ETF,Equities,Allocation,Virtus,PCX,27319462.0
-VPN.L,Global X - Data Center REITs & Digital Infrastructure UCITS ETF,Real Estate,REITs,Global X Funds,LSE,400748288.0
+VPN.L,Global X - Data Center REITs & Digital Infrastructure UCITS ETF,Real Estate,REITs,Global X Funds,LSE,378166240.0
 WLTG,WealthTrust DBS Long Term Growth ETF,Equities,Allocation,WealthTrust,NYQ,75985584.0
-WNER.L,WisdomTree New Economy Real Estate UCITS ETF - USD,Real Estate,REITs,WisdomTree Asset Management,LSE,23654724.0
-WTRE.L,WisdomTree New Economy Real Estate UCITS ETF - USD Acc,Real Estate,REITs,WisdomTree Asset Management,LSE,23654724.0
+WNER.L,WisdomTree New Economy Real Estate UCITS ETF - USD,Real Estate,REITs,WisdomTree Asset Management,LSE,22961008.0
+WTRE.L,WisdomTree New Economy Real Estate UCITS ETF - USD Acc,Real Estate,REITs,WisdomTree Asset Management,LSE,22961008.0
 XAGG,Eaton Vance Income Opportunities ETF,Equities,Allocation,Eaton Vance,PCX,2211515904.0
-XRES.L,Invesco Real Estate S&P US Select Sector UCITS ETF,Real Estate,REITs,Invesco Investment Management,LSE,133830880.0
+XRES.L,Invesco Real Estate S&P US Select Sector UCITS ETF,Real Estate,REITs,Invesco Investment Management,LSE,135441264.0
 XRLX,FundX Conservative ETF,Equities,Allocation,FundX Investment Group,PCX,45068344.0

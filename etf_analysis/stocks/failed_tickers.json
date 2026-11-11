@@ -1,7 +1,8 @@
 {
-  "generated": "2026-11-10 04:12",
-  "count": 1,
+  "generated": "2026-11-11 02:03",
+  "count": 2,
   "failures": {
+    "IDXX": "KeyError: ['Close']",
     "VYLR": "KeyError: ['Close']"
   }
 }
