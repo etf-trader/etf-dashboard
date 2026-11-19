@@ -1,7 +1,8 @@
 {
-  "generated": "2026-11-18 03:50",
-  "count": 1,
+  "generated": "2026-11-19 03:32",
+  "count": 2,
   "failures": {
+    "SNDK": "KeyError: ['Close']",
     "VYLR": "KeyError: ['Close']"
   }
 }
